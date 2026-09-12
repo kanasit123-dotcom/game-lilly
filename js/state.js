@@ -1,12 +1,13 @@
 import { LEVELS } from './levels.js';
 
 const KEY = 'lilly-world-v1';
+const MAX_PLAYS = 400;
 
-let data = { stars: {} };
+let data = { stars: {}, plays: [] };
 
 try {
   const raw = localStorage.getItem(KEY);
-  if (raw) data = { stars: {}, ...JSON.parse(raw) };
+  if (raw) data = { stars: {}, plays: [], ...JSON.parse(raw) };
 } catch {
   /* โหมดส่วนตัวหรือปิด storage อยู่ — เล่นได้แต่ไม่บันทึก */
 }
@@ -17,11 +18,20 @@ function save() {
 
 export const getStars = (levelId) => data.stars[levelId] || 0;
 
-export function awardStars(levelId, stars) {
-  if (stars > getStars(levelId)) {
-    data.stars[levelId] = stars;
-    save();
-  }
+/* บันทึกทุกครั้งที่เล่นจบ เก็บดาวที่ดีที่สุดไว้โชว์บนแผนที่
+   และเก็บประวัติแยกไว้ให้หน้าผู้ปกครองดูว่าเล่นกี่ครั้ง ถูกกี่ข้อ */
+export function recordPlay(levelId, stars, firstTry, total) {
+  if (stars > getStars(levelId)) data.stars[levelId] = stars;
+  data.plays.push({ id: levelId, s: stars, f: firstTry, t: total, at: Date.now() });
+  if (data.plays.length > MAX_PLAYS) data.plays = data.plays.slice(-MAX_PLAYS);
+  save();
+}
+
+export const getPlays = () => data.plays;
+
+export function resetAll() {
+  data = { stars: {}, plays: [] };
+  save();
 }
 
 export const totalStars = () => LEVELS.reduce((sum, l) => sum + getStars(l.id), 0);
@@ -37,7 +47,7 @@ export function nextLevelId(levelId) {
   return i >= 0 && i < LEVELS.length - 1 ? LEVELS[i + 1].id : null;
 }
 
-/** ให้ดาวแบบใจดี: เล่นจบก็ได้อย่างน้อย 1 ดาวเสมอ */
+/* ให้ดาวแบบใจดี: เล่นจบก็ได้อย่างน้อย 1 ดาวเสมอ */
 export function starsFor(firstTry, total) {
   if (firstTry >= total - 1) return 3;
   if (firstTry >= Math.ceil(total / 2)) return 2;

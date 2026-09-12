@@ -3,6 +3,7 @@ import { showHome } from './screens/home.js';
 import { showMap } from './screens/map.js';
 import { showGame } from './screens/game.js';
 import { showResult } from './screens/result.js';
+import { showSummary } from './screens/summary.js';
 import { unlockAudio } from './audio.js';
 
 setRoot(document.getElementById('app'));
@@ -11,6 +12,7 @@ register('home', showHome);
 register('map', showMap);
 register('game', showGame);
 register('result', showResult);
+register('summary', showSummary);
 
 go('home');
 

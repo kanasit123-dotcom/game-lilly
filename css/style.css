@@ -198,6 +198,107 @@ body {
   padding: 8px 22px;
 }
 
+.parent-link {
+  margin-top: 26px;
+  background: none;
+  border: none;
+  font-family: var(--font-th);
+  font-size: 1rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+.parent-link:active { background: rgba(255, 255, 255, .5); }
+
+/* ===== หน้าสรุปสำหรับผู้ปกครอง ===== */
+.summary-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 4px 30px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.stat {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: 0 4px 0 var(--card-edge);
+}
+.stat b { display: block; font-family: var(--font-num); font-size: 2rem; color: var(--purple-dark); line-height: 1.1; }
+.stat b small { font-size: 1rem; color: var(--ink-soft); }
+.stat span { font-size: .9rem; color: var(--ink-soft); }
+
+.summary .card {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  box-shadow: 0 4px 0 var(--card-edge);
+}
+.summary .card h3 { margin: 0 0 10px; font-size: 1.2rem; font-weight: 400; }
+.summary .card.empty { text-align: center; color: var(--ink-soft); font-size: 1.1rem; padding: 26px; }
+.summary .hint { margin: -4px 0 10px; font-size: .92rem; color: var(--ink-soft); }
+.summary .foot { text-align: center; color: var(--ink-soft); font-size: .88rem; }
+
+.subj-row { display: grid; grid-template-columns: 110px 1fr auto; align-items: center; gap: 12px; padding: 6px 0; }
+.subj-name { font-size: 1.05rem; }
+.subj-meta { font-size: .9rem; color: var(--ink-soft); white-space: nowrap; }
+.bar { height: 14px; border-radius: 999px; background: #f0e9f4; overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--green), var(--blue)); transition: width .4s; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.lv-chip {
+  font-family: var(--font-th);
+  font-size: .98rem;
+  color: var(--ink);
+  background: #f7f1fb;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--card-edge);
+}
+.lv-chip b { font-family: var(--font-num); color: var(--purple-dark); margin-left: 4px; }
+.lv-chip:active { transform: translateY(2px); box-shadow: none; }
+
+.table-wrap { overflow-x: auto; }
+.lv-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.lv-table th { text-align: left; color: var(--ink-soft); font-weight: 400; padding: 6px 8px; border-bottom: 2px solid var(--card-edge); white-space: nowrap; }
+.lv-table td { padding: 7px 8px; border-bottom: 1px solid #f3edf6; white-space: nowrap; }
+.lv-table td.lv { white-space: normal; min-width: 150px; }
+.lv-table td.stars { font-size: .85rem; letter-spacing: -2px; }
+.lv-table .dim { opacity: .2; filter: grayscale(1); }
+.lv-table tr.untried td { color: var(--ink-soft); }
+
+.summary .card.danger { border: 2px dashed #f4c7c7; }
+.hold-btn {
+  position: relative;
+  overflow: hidden;
+  background: #f7f1fb;
+  color: var(--ink);
+  box-shadow: 0 5px 0 var(--card-edge);
+  font-size: 1.05rem;
+  padding: 14px 28px;
+  touch-action: none;
+  user-select: none;
+}
+.hold-btn .fill {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  background: #ff6b6b;
+  transition: width 0s;
+}
+.hold-btn.holding .fill { width: 100%; transition: width 2s linear; }
+.hold-btn .label { position: relative; }
+.hold-btn.holding .label { color: #fff; }
+
 /* ===== แผนที่ด่าน ===== */
 .map-head {
   display: flex;

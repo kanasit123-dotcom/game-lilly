@@ -1,6 +1,6 @@
 import { go } from '../router.js';
 import { getLevel } from '../levels.js';
-import { awardStars, starsFor } from '../state.js';
+import { recordPlay, starsFor } from '../state.js';
 import { sfx } from '../audio.js';
 import { play as playWordmatch } from '../games/wordmatch.js';
 import { play as playColumn } from '../games/column.js';
@@ -54,7 +54,7 @@ export function showGame(root, { levelId }) {
   GAMES[level.type]($stage, level.config, { onProgress: renderDots }).then((res) => {
     if (left) return;
     const stars = starsFor(res.firstTry, res.total);
-    awardStars(levelId, stars);
+    recordPlay(levelId, stars, res.firstTry, res.total);
     go('result', { levelId, stars, ...res });
   });
 }

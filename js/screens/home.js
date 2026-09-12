@@ -10,12 +10,18 @@ export function showHome(root) {
     <h1 class="outlined">โลกของลิลลี่</h1>
     <p class="tagline">เกมคณิตศาสตร์ และ ภาษาอังกฤษ</p>
     <button class="btn big green" id="play">เล่นเลย! ▶</button>
-    <div class="home-stars">⭐ ดาวสะสม ${totalStars()} ดวง</div>`;
+    <div class="home-stars">⭐ ดาวสะสม ${totalStars()} ดวง</div>
+    <button class="parent-link" id="parents">👨‍👩‍👧 สำหรับผู้ปกครอง</button>`;
   root.appendChild(el);
 
   el.querySelector('#play').onclick = () => {
     unlockAudio();
     sfx.tap();
     go('map');
+  };
+  el.querySelector('#parents').onclick = () => {
+    unlockAudio();
+    sfx.tap();
+    go('summary');
   };
 }
