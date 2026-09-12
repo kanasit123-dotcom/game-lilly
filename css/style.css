@@ -1,0 +1,916 @@
+/* ===== โลกของลิลลี่ — ธีมหลัก ===== */
+
+:root {
+  --pink: #ff8fc0;
+  --pink-dark: #d9598f;
+  --yellow: #ffc94d;
+  --yellow-dark: #d99d1c;
+  --blue: #6ec6ff;
+  --blue-dark: #2f96de;
+  --green: #7ed957;
+  --green-dark: #4da62c;
+  --purple: #b08cff;
+  --purple-dark: #7e57e0;
+  --orange: #ffa45c;
+  --orange-dark: #dd7726;
+
+  --ink: #4a3b52;
+  --ink-soft: #8b7a94;
+  --card: #fffdfa;
+  --card-edge: #f0e2ec;
+
+  --r-lg: 32px;
+  --r-md: 22px;
+  --r-sm: 14px;
+
+  --font-th: 'Itim', 'Noto Sans Thai', system-ui, sans-serif;
+  --font-num: 'Fredoka', 'Itim', system-ui, sans-serif;
+}
+
+/* ตัวอักษรขอบหนาแบบเกมเด็ก อ่านง่ายบนพื้นหลังสีอ่อน */
+.outlined {
+  color: #fff;
+  text-shadow:
+    -2px -2px 0 var(--pink-dark), 2px -2px 0 var(--pink-dark),
+    -2px 2px 0 var(--pink-dark), 2px 2px 0 var(--pink-dark),
+    0 6px 0 var(--pink-dark), 0 10px 14px rgba(0, 0, 0, .22);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-th);
+  color: var(--ink);
+  background: linear-gradient(180deg, #bfe9ff 0%, #ffe4f1 55%, #fff4dd 100%);
+  background-attachment: fixed;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  font-size: 18px;
+}
+
+/* ===== ท้องฟ้า + เมฆลอย ===== */
+.sky { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 999px;
+  filter: blur(0.5px);
+  animation: drift linear infinite;
+}
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 999px;
+}
+.cloud::before { width: 55%; height: 150%; left: 12%; top: -60%; }
+.cloud::after  { width: 42%; height: 130%; right: 10%; top: -40%; }
+
+.c1 { width: 160px; height: 52px; top: 8%;  animation-duration: 68s; }
+.c2 { width: 110px; height: 38px; top: 24%; animation-duration: 92s; animation-delay: -30s; }
+.c3 { width: 200px; height: 62px; top: 46%; animation-duration: 110s; animation-delay: -60s; opacity: .6; }
+.c4 { width: 130px; height: 44px; top: 66%; animation-duration: 80s; animation-delay: -15s; opacity: .5; }
+
+@keyframes drift {
+  from { transform: translateX(-260px); }
+  to   { transform: translateX(calc(100vw + 260px)); }
+}
+
+/* ===== โครงหน้าจอ ===== */
+#app {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+           max(10px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  overflow: hidden;
+}
+
+.screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: screen-in .35s cubic-bezier(.2, .9, .3, 1.2);
+}
+
+@keyframes screen-in {
+  from { opacity: 0; transform: scale(.96) translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ===== ปุ่มแบบของเล่น ===== */
+.btn {
+  font-family: var(--font-th);
+  font-size: 1.35rem;
+  color: #fff;
+  background: var(--pink);
+  border: none;
+  border-radius: var(--r-md);
+  padding: 16px 34px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 var(--pink-dark), 0 10px 18px rgba(0, 0, 0, .12);
+  transition: transform .08s, box-shadow .08s, filter .15s;
+  line-height: 1.2;
+}
+.btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 var(--pink-dark), 0 4px 10px rgba(0, 0, 0, .12);
+}
+.btn.big { font-size: 1.9rem; padding: 20px 56px; border-radius: var(--r-lg); }
+.btn.blue   { background: var(--blue);   box-shadow: 0 6px 0 var(--blue-dark),   0 10px 18px rgba(0,0,0,.12); }
+.btn.blue:active   { box-shadow: 0 1px 0 var(--blue-dark),   0 4px 10px rgba(0,0,0,.12); }
+.btn.green  { background: var(--green);  box-shadow: 0 6px 0 var(--green-dark),  0 10px 18px rgba(0,0,0,.12); }
+.btn.green:active  { box-shadow: 0 1px 0 var(--green-dark),  0 4px 10px rgba(0,0,0,.12); }
+.btn.yellow { background: var(--yellow); box-shadow: 0 6px 0 var(--yellow-dark), 0 10px 18px rgba(0,0,0,.12); }
+.btn.yellow:active { box-shadow: 0 1px 0 var(--yellow-dark), 0 4px 10px rgba(0,0,0,.12); }
+.btn.purple { background: var(--purple); box-shadow: 0 6px 0 var(--purple-dark), 0 10px 18px rgba(0,0,0,.12); }
+.btn.purple:active { box-shadow: 0 1px 0 var(--purple-dark), 0 4px 10px rgba(0,0,0,.12); }
+
+.icon-btn {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 1.7rem;
+  font-family: var(--font-th);
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--card-edge), 0 6px 14px rgba(0, 0, 0, .1);
+  display: grid;
+  place-items: center;
+  transition: transform .08s, box-shadow .08s;
+}
+.icon-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--card-edge); }
+
+/* ===== หน้าแรก ===== */
+.home {
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+.home h1 {
+  font-size: clamp(2.6rem, 8vw, 4.6rem);
+  margin: 0;
+  letter-spacing: 1px;
+  animation: title-bob 3s ease-in-out infinite;
+}
+@keyframes title-bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-10px) rotate(1deg); }
+}
+.home .tagline { color: var(--ink-soft); font-size: 1.2rem; margin: 4px 0 18px; }
+
+.home-buddies { display: flex; gap: 18px; margin: 4px 0 22px; }
+.home-buddies span {
+  font-size: clamp(3rem, 10vw, 4.6rem);
+  animation: hop 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, .15));
+}
+.home-buddies span:nth-child(2) { animation-delay: .2s; }
+.home-buddies span:nth-child(3) { animation-delay: .4s; }
+@keyframes hop {
+  0%, 100% { transform: translateY(0); }
+  40%      { transform: translateY(-18px) scale(1.05); }
+}
+
+.home-stars {
+  margin-top: 20px;
+  font-size: 1.25rem;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, .7);
+  border-radius: 999px;
+  padding: 8px 22px;
+}
+
+/* ===== แผนที่ด่าน ===== */
+.map-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 6px 10px;
+  flex: 0 0 auto;
+}
+.map-head h2 { margin: 0; font-size: 1.7rem; }
+.spacer { flex: 1; }
+
+.star-counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, .85);
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-size: 1.4rem;
+  font-family: var(--font-num);
+  font-weight: 600;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .06);
+}
+
+.map-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: safe center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.map-wrap::-webkit-scrollbar { display: none; }
+
+.map-stage {
+  position: relative;
+  flex: 0 0 auto;
+  height: 100%;
+  max-height: 100%;
+}
+.map-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 17;
+  stroke-linecap: round;
+  stroke-dasharray: 1 36;
+  filter: drop-shadow(0 3px 2px rgba(120, 90, 130, .35));
+}
+
+.node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: clamp(84px, 12vw, 128px);
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 30%;
+  background: var(--card);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  padding: 0;
+  font-family: var(--font-th);
+  box-shadow: 0 7px 0 var(--card-edge), 0 12px 22px rgba(0, 0, 0, .16);
+  transition: transform .12s, box-shadow .12s;
+}
+.node:active { transform: translate(-50%, -50%) translateY(4px); box-shadow: 0 3px 0 var(--card-edge); }
+.node .node-icon { font-size: clamp(2.2rem, 5vw, 3.2rem); line-height: 1; }
+.node .node-num {
+  position: absolute;
+  top: -10px; left: -10px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--purple);
+  color: #fff;
+  font-family: var(--font-num);
+  font-size: 1.1rem;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 3px 0 var(--purple-dark);
+}
+.node .node-stars {
+  position: absolute;
+  bottom: -14px;
+  display: flex;
+  gap: 2px;
+  font-size: 1.15rem;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .18));
+}
+.node .node-stars .off { opacity: .25; filter: grayscale(1); }
+.node .node-label {
+  position: absolute;
+  top: calc(100% + 26px);
+  white-space: nowrap;
+  font-size: clamp(.8rem, 1.6vw, 1.05rem);
+  color: var(--ink);
+  background: rgba(255, 255, 255, .85);
+  padding: 2px 12px;
+  border-radius: 999px;
+}
+.node.unlocked { animation: node-pulse 2.4s ease-in-out infinite; }
+@keyframes node-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.055); }
+}
+.node.locked {
+  background: #e7e0ea;
+  box-shadow: 0 7px 0 #cfc4d4;
+  cursor: default;
+}
+.node.locked .node-icon { filter: grayscale(1); opacity: .45; }
+.node.locked .node-num { background: #b9aec0; box-shadow: 0 3px 0 #9d91a5; }
+
+/* ===== หน้าจอเกม ===== */
+.game-screen { gap: 8px; }
+
+.game-bar { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
+
+.dots { display: flex; gap: 8px; }
+.dots i {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .75);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, .08);
+  transition: background .3s, transform .3s;
+}
+.dots i.done { background: var(--green); transform: scale(1.15); }
+.dots i.now  { background: var(--yellow); transform: scale(1.3); }
+
+.game-stage {
+  flex: 1;
+  min-height: 0;
+  background: rgba(255, 255, 255, .55);
+  border-radius: var(--r-lg);
+  padding: clamp(10px, 2vh, 22px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vh, 20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.prompt {
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  color: var(--ink);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 26px;
+  box-shadow: 0 4px 0 var(--card-edge);
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+/* ===== เกมบวกเลข: บล็อกฐานสิบ ===== */
+.equation {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 18px);
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 7vw, 4rem);
+  color: var(--ink);
+  flex: 0 0 auto;
+}
+.equation .num { color: var(--purple-dark); }
+.equation .op { color: var(--ink-soft); }
+.equation .qmark {
+  color: var(--pink-dark);
+  animation: hop 1.4s ease-in-out infinite;
+  display: inline-block;
+}
+
+.workspace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 3vw, 34px);
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+.workspace .plus {
+  font-family: var(--font-num);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--ink-soft);
+}
+
+.group {
+  background: rgba(255, 255, 255, .8);
+  border-radius: var(--r-md);
+  padding: clamp(8px, 1.6vh, 16px) clamp(10px, 2vw, 20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .05);
+  transition: transform .4s cubic-bezier(.4, 0, .2, 1), opacity .4s;
+}
+.group.merge-left  { transform: translateX(30%) scale(.9); opacity: 0; }
+.group.merge-right { transform: translateX(-30%) scale(.9); opacity: 0; }
+.group.pop-in { animation: pop-in .45s cubic-bezier(.2, .9, .3, 1.5); }
+@keyframes pop-in {
+  from { transform: scale(.7); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.rods { display: flex; gap: 6px; min-height: 10px; align-items: flex-end; }
+
+.rod {
+  width: clamp(14px, 2.2vw, 22px);
+  height: clamp(70px, 13vh, 110px);
+  border-radius: 7px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--blue) 0, var(--blue) calc(10% - 1.5px),
+    rgba(255, 255, 255, .75) calc(10% - 1.5px), rgba(255, 255, 255, .75) 10%
+  );
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .12), 0 3px 0 var(--blue-dark);
+}
+.rod.new-rod { animation: rod-drop .55s cubic-bezier(.2, .9, .3, 1.6); }
+@keyframes rod-drop {
+  0%   { transform: translateY(60px) scale(.4) rotate(-20deg); opacity: 0; }
+  60%  { transform: translateY(-8px) scale(1.12); opacity: 1; }
+  100% { transform: none; }
+}
+
+.units {
+  display: grid;
+  grid-template-columns: repeat(10, auto);
+  justify-content: center;
+  gap: clamp(3px, .7vw, 7px);
+  padding: 6px;
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, .04);
+  min-height: 10px;
+}
+.units.empty { display: none; }
+
+.unit {
+  width: clamp(16px, 2.6vw, 26px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #ffd89a, var(--orange));
+  box-shadow: 0 2px 0 var(--orange-dark);
+}
+.units.bundle-ready {
+  cursor: pointer;
+  padding: 12px;
+  background: rgba(255, 201, 77, .25);
+  box-shadow: 0 0 0 4px rgba(255, 201, 77, .65);
+}
+
+.unit.ready {
+  background: radial-gradient(circle at 32% 30%, #fff3b0, var(--yellow));
+  box-shadow: 0 0 0 3px rgba(255, 201, 77, .55), 0 2px 0 var(--yellow-dark);
+  animation: ready-pulse .9s ease-in-out infinite;
+}
+@keyframes ready-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.18); }
+}
+.unit.bundling { animation: bundle-away .45s ease-in forwards; }
+@keyframes bundle-away {
+  to { transform: scale(.2) translateY(-40px); opacity: 0; }
+}
+
+.carry-badge {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--yellow);
+  color: #fff;
+  font-size: clamp(1.2rem, 3.4vw, 2rem);
+  padding: 10px 28px;
+  border-radius: 999px;
+  box-shadow: 0 5px 0 var(--yellow-dark);
+  animation: badge-in 1.6s ease-out forwards;
+  pointer-events: none;
+  z-index: 5;
+}
+@keyframes badge-in {
+  0%   { transform: translateX(-50%) scale(.3); opacity: 0; }
+  20%  { transform: translateX(-50%) scale(1.15); opacity: 1; }
+  35%  { transform: translateX(-50%) scale(1); }
+  80%  { opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-30px) scale(.9); opacity: 0; }
+}
+
+/* ตัวเลือกคำตอบ */
+.choices { display: flex; gap: clamp(10px, 3vw, 28px); flex-wrap: wrap; justify-content: center; flex: 0 0 auto; }
+
+.choice {
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  color: #fff;
+  background: var(--purple);
+  border: none;
+  border-radius: var(--r-md);
+  min-width: clamp(100px, 18vw, 160px);
+  padding: clamp(10px, 2vh, 20px) 10px;
+  cursor: pointer;
+  box-shadow: 0 7px 0 var(--purple-dark), 0 10px 18px rgba(0, 0, 0, .14);
+  transition: transform .08s, box-shadow .08s;
+}
+.choice:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--purple-dark); }
+.choice.correct {
+  background: var(--green);
+  box-shadow: 0 7px 0 var(--green-dark);
+  animation: cheer .55s cubic-bezier(.2, .9, .3, 1.6);
+}
+@keyframes cheer {
+  0% { transform: scale(1); } 45% { transform: scale(1.2) rotate(3deg); } 100% { transform: scale(1.08); }
+}
+.choice.nope { animation: wiggle .45s; }
+@keyframes wiggle {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-12px) rotate(-4deg); }
+  40% { transform: translateX(12px) rotate(4deg); }
+  60% { transform: translateX(-8px) rotate(-2deg); }
+  80% { transform: translateX(8px) rotate(2deg); }
+}
+
+/* ===== เกมจับคู่คำศัพท์ ===== */
+.match-area {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(30px, 6vh, 56px);
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.pic-row, .word-row {
+  display: flex;
+  gap: clamp(10px, 3vw, 30px);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.pic-card {
+  width: clamp(96px, 17vw, 160px);
+  aspect-ratio: 1;
+  border-radius: var(--r-md);
+  background: var(--card);
+  display: grid;
+  place-items: center;
+  font-size: clamp(3rem, 8vw, 5rem);
+  box-shadow: 0 6px 0 var(--card-edge), 0 10px 18px rgba(0, 0, 0, .1);
+  position: relative;
+  transition: transform .15s, box-shadow .15s;
+}
+.pic-card.hover-target {
+  transform: scale(1.08);
+  box-shadow: 0 6px 0 var(--green-dark), 0 0 0 5px var(--green);
+}
+.pic-card.solved {
+  background: #eaffe2;
+  box-shadow: 0 6px 0 var(--green-dark);
+}
+.pic-card .answer-tag {
+  position: absolute;
+  bottom: -16px;
+  background: var(--green);
+  color: #fff;
+  font-family: var(--font-num);
+  font-weight: 600;
+  font-size: clamp(.9rem, 2vw, 1.2rem);
+  letter-spacing: 1px;
+  padding: 4px 16px;
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--green-dark);
+  animation: pop-in .4s cubic-bezier(.2, .9, .3, 1.5);
+}
+.letter-mode .pic-card {
+  font-family: var(--font-num);
+  font-weight: 700;
+  color: var(--purple-dark);
+}
+/* ตัวอักษรเดียวทำให้การ์ดหดเล็กจนนิ้วเด็กแตะยาก */
+.letter-mode .word-card {
+  min-width: clamp(74px, 13vw, 112px);
+  font-size: clamp(1.7rem, 4.5vw, 2.6rem);
+}
+
+.pic-card.solved::after {
+  content: '✅';
+  position: absolute;
+  top: -10px; right: -10px;
+  font-size: 1.6rem;
+  animation: pop-in .4s cubic-bezier(.2, .9, .3, 1.5);
+}
+
+.word-card {
+  font-family: var(--font-num);
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-size: clamp(1.3rem, 3.6vw, 2.1rem);
+  color: #fff;
+  background: var(--pink);
+  border: none;
+  border-radius: var(--r-md);
+  padding: clamp(10px, 2vh, 18px) clamp(18px, 3vw, 34px);
+  cursor: grab;
+  box-shadow: 0 6px 0 var(--pink-dark), 0 8px 16px rgba(0, 0, 0, .12);
+  touch-action: none;
+  transition: transform .12s, box-shadow .12s, opacity .2s;
+}
+.word-card:nth-child(2) { background: var(--blue);   box-shadow: 0 6px 0 var(--blue-dark),   0 8px 16px rgba(0,0,0,.12); }
+.word-card:nth-child(3) { background: var(--purple); box-shadow: 0 6px 0 var(--purple-dark), 0 8px 16px rgba(0,0,0,.12); }
+.word-card:nth-child(4) { background: var(--orange); box-shadow: 0 6px 0 var(--orange-dark), 0 8px 16px rgba(0,0,0,.12); }
+
+.word-card.selected { transform: translateY(-8px) scale(1.08); animation: ready-pulse 1s ease-in-out infinite; }
+.word-card.dragging {
+  z-index: 100;
+  position: relative;
+  pointer-events: none;
+  transition: none;
+  cursor: grabbing;
+}
+.word-card.used { opacity: 0; pointer-events: none; transform: scale(.5); }
+.word-card.nope { animation: wiggle .45s; }
+
+/* ===== ตั้งบวก/ตั้งลบแนวตั้ง ===== */
+.col-sum {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: clamp(4px, 1vh, 10px) clamp(6px, 1.4vw, 14px);
+  align-items: center;
+  justify-items: center;
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: clamp(12px, 2.5vh, 26px) clamp(18px, 4vw, 38px);
+  box-shadow: 0 6px 0 var(--card-edge), 0 10px 20px rgba(0, 0, 0, .1);
+  font-family: var(--font-num);
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.col-sum .cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(44px, 9vw, 76px);
+  height: clamp(48px, 9.5vh, 82px);
+  font-size: clamp(1.9rem, 5.5vw, 3.4rem);
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  transition: background .2s, color .2s;
+}
+.col-sum .cell.spacer { width: clamp(30px, 5vw, 48px); }
+.col-sum .cell.op { color: var(--ink-soft); }
+
+.col-sum .cell.carry {
+  height: clamp(28px, 4.5vh, 42px);
+  font-size: clamp(1.1rem, 2.8vw, 1.7rem);
+  color: var(--pink-dark);
+}
+.col-sum .cell.carry.pulse,
+.col-sum .cell.slot.pulse,
+.col-sum .cell.digit.pulse {
+  cursor: pointer;
+  background: rgba(255, 201, 77, .35);
+  box-shadow: 0 0 0 4px var(--yellow);
+  animation: ready-pulse 1s ease-in-out infinite;
+}
+
+.col-sum .cell.digit.active { background: rgba(110, 198, 255, .22); }
+/* ขีดฆ่าแบบเอียงเหมือนเวลาเด็กขีดในสมุด — ใช้ pseudo-element เพราะ
+   Chrome ไม่วาด text-decoration ให้ข้อความในกล่อง grid */
+.col-sum .cell.digit.struck { color: var(--ink-soft); }
+.col-sum .cell.digit.struck::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 50%;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--pink-dark);
+  transform: rotate(-12deg);
+}
+
+.col-sum .cell.slot {
+  border: 4px dashed var(--card-edge);
+  color: var(--purple-dark);
+}
+.col-sum .cell.slot.filled { border-style: solid; border-color: var(--green); background: #f0ffe8; }
+.col-sum .cell.slot.active { border-color: var(--blue); }
+
+.col-sum .cell.pop { animation: pop-in .45s cubic-bezier(.2, .9, .3, 1.6); }
+.col-sum .cell.nope { animation: wiggle .45s; }
+
+.col-rule {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ink);
+  margin: 4px 0;
+}
+
+/* ===== ชุดคำถามแบบเลือกตอบ ===== */
+.quiz-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vh, 18px);
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.count-tray {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: clamp(4px, 1.2vw, 12px);
+  max-width: min(100%, 620px);
+  background: rgba(255, 255, 255, .8);
+  border-radius: var(--r-md);
+  padding: clamp(10px, 2vh, 20px);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .05);
+}
+.count-tray span { font-size: clamp(1.9rem, 5.5vw, 3.2rem); line-height: 1; }
+
+.seq-row { display: flex; gap: clamp(6px, 1.6vw, 16px); flex-wrap: wrap; justify-content: center; }
+
+.seq-box {
+  display: grid;
+  place-items: center;
+  min-width: clamp(50px, 10vw, 88px);
+  height: clamp(56px, 11vh, 96px);
+  padding: 0 8px;
+  border-radius: var(--r-sm);
+  background: #fff;
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 5vw, 3rem);
+  color: var(--ink);
+  box-shadow: 0 5px 0 var(--card-edge);
+}
+.seq-box.blank {
+  color: var(--pink-dark);
+  background: #fff6fb;
+  box-shadow: 0 5px 0 var(--pink-dark);
+  animation: ready-pulse 1.3s ease-in-out infinite;
+}
+
+.letter-hint { font-size: clamp(2.6rem, 8vw, 4.6rem); line-height: 1; }
+.croc { font-size: clamp(3rem, 9vw, 5rem); animation: hop 2s ease-in-out infinite; }
+.croc-hint { color: var(--ink-soft); font-size: clamp(.95rem, 2.2vw, 1.2rem); text-align: center; }
+
+/* ===== เกมความจำ ===== */
+.mem-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(8px, 2vw, 18px);
+  flex: 0 0 auto;
+  max-width: min(100%, 620px);
+}
+
+.mem-card {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  perspective: 700px;
+  aspect-ratio: 1;
+  width: clamp(64px, 14vw, 130px);
+}
+.mem-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform .45s cubic-bezier(.3, .8, .4, 1.3);
+  transform-style: preserve-3d;
+}
+.mem-card.open .mem-inner, .mem-card.done .mem-inner { transform: rotateY(180deg); }
+
+.mem-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+.mem-front {
+  background: linear-gradient(150deg, var(--purple), var(--pink));
+  color: #fff;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  box-shadow: 0 5px 0 var(--purple-dark);
+}
+.mem-back {
+  transform: rotateY(180deg);
+  background: var(--card);
+  box-shadow: 0 5px 0 var(--card-edge);
+  font-size: clamp(1.8rem, 5vw, 3.4rem);
+}
+.mem-back.word {
+  font-family: var(--font-num);
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: clamp(.85rem, 2.4vw, 1.5rem);
+  color: var(--purple-dark);
+}
+.mem-card.done { cursor: default; }
+.mem-card.done .mem-back { background: #eaffe2; box-shadow: 0 5px 0 var(--green-dark); }
+
+/* ===== เพื่อนซี้ ===== */
+.buddy {
+  position: absolute;
+  right: clamp(6px, 2vw, 22px);
+  bottom: clamp(6px, 2vh, 18px);
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  animation: hop 2.2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 4;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, .18));
+}
+.buddy.happy { animation: cheer .5s ease-in-out 2; }
+
+.bubble {
+  position: absolute;
+  right: clamp(6px, 2vw, 22px);
+  bottom: clamp(72px, 12vh, 120px);
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 10px 20px;
+  font-size: clamp(.95rem, 2vw, 1.25rem);
+  box-shadow: 0 4px 0 var(--card-edge), 0 8px 16px rgba(0, 0, 0, .12);
+  z-index: 4;
+  pointer-events: none;
+  animation: pop-in .3s cubic-bezier(.2, .9, .3, 1.5);
+  max-width: 44vw;
+  text-align: center;
+}
+
+/* ===== หน้าสรุปผล ===== */
+.result {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+.result h2 {
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  margin: 0;
+}
+.result .buddy-big { font-size: clamp(4rem, 14vw, 8rem); animation: hop 1.4s ease-in-out infinite; }
+
+.result-stars { display: flex; gap: 14px; margin: 6px 0 4px; }
+.result-stars span {
+  font-size: clamp(3rem, 10vw, 5rem);
+  opacity: .2;
+  filter: grayscale(1);
+  transform: scale(.6);
+  transition: none;
+}
+.result-stars span.on {
+  opacity: 1;
+  filter: none;
+  animation: star-pop .6s cubic-bezier(.2, .9, .3, 1.7) forwards;
+}
+@keyframes star-pop {
+  0%   { transform: scale(.2) rotate(-90deg); opacity: 0; }
+  60%  { transform: scale(1.35) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.result .score { font-size: 1.3rem; color: var(--ink-soft); }
+.result-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+
+/* ===== คอนเฟตตี ===== */
+.confetti {
+  position: absolute;
+  width: 12px;
+  height: 16px;
+  border-radius: 3px;
+  z-index: 50;
+  pointer-events: none;
+  animation: confetti-fall linear forwards;
+}
+@keyframes confetti-fall {
+  from { transform: translateY(0) rotate(0deg); opacity: 1; }
+  to   { transform: translateY(105vh) rotate(760deg); opacity: 0; }
+}
+
+/* ===== จอเล็ก / แนวตั้ง ===== */
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .node .node-label { display: none; }
+  .workspace { flex-wrap: wrap; }
+
+  /* แถบบนแคบ ต้องย่อทุกอย่างไม่ให้จุดบอกความคืบหน้าถูกเบียดหาย */
+  .icon-btn { width: 46px; height: 46px; font-size: 1.4rem; }
+  .dots { gap: 5px; }
+  .dots i { width: 10px; height: 10px; }
+  .game-bar .star-counter { font-size: .95rem; padding: 6px 14px; }
+}

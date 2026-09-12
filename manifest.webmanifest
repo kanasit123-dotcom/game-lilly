@@ -1,0 +1,17 @@
+{
+  "name": "โลกของลิลลี่",
+  "short_name": "ลิลลี่",
+  "description": "เกมฝึกคณิตศาสตร์และภาษาอังกฤษสำหรับเด็กอนุบาล",
+  "lang": "th",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#ffe4f1",
+  "theme_color": "#ffd9ec",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

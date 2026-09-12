@@ -1,0 +1,8 @@
+# Windows / OneDrive
+Thumbs.db
+desktop.ini
+*.tmp
+~$*
+
+# macOS (เผื่อเปิดจากเครื่องอื่น)
+.DS_Store

@@ -1,0 +1,27 @@
+import { setRoot, register, go } from './router.js';
+import { showHome } from './screens/home.js';
+import { showMap } from './screens/map.js';
+import { showGame } from './screens/game.js';
+import { showResult } from './screens/result.js';
+import { unlockAudio } from './audio.js';
+
+setRoot(document.getElementById('app'));
+
+register('home', showHome);
+register('map', showMap);
+register('game', showGame);
+register('result', showResult);
+
+go('home');
+
+// iOS ปลดล็อกเสียงได้เฉพาะตอนผู้ใช้แตะจริงเท่านั้น
+document.addEventListener('pointerdown', unlockAudio, { once: true });
+
+// กันซูมด้วยการแตะสองครั้งบน iPad
+document.addEventListener('dblclick', (e) => e.preventDefault());
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* เปิดจาก file:// ก็เล่นได้ปกติ แค่ไม่มีออฟไลน์ */ });
+  });
+}
