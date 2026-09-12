@@ -7,6 +7,7 @@ import { play as playColumn } from '../games/column.js';
 import { play as playQuiz } from '../games/quiz.js';
 import { play as playMemory } from '../games/memory.js';
 import { play as playTrace } from '../games/trace.js';
+import { play as playSpell } from '../games/spell.js';
 
 const GAMES = {
   wordmatch: playWordmatch,
@@ -14,6 +15,7 @@ const GAMES = {
   quiz: playQuiz,
   memory: playMemory,
   trace: playTrace,
+  spell: playSpell,
 };
 
 export function showGame(root, { levelId }) {

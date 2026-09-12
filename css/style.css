@@ -222,6 +222,32 @@ body {
   box-shadow: 0 3px 0 rgba(0, 0, 0, .06);
 }
 
+/* แถบกรองหมวดบนแผนที่ */
+.subject-bar {
+  display: flex;
+  gap: 8px;
+  padding: 0 6px 8px;
+  flex: 0 0 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.subject-bar::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto;
+  font-family: var(--font-th);
+  font-size: clamp(.95rem, 2.2vw, 1.15rem);
+  color: var(--ink);
+  background: rgba(255, 255, 255, .8);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 18px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--card-edge);
+  transition: transform .08s, background .15s, color .15s;
+}
+.chip.on { background: var(--purple); color: #fff; box-shadow: 0 3px 0 var(--purple-dark); }
+.chip:active { transform: translateY(2px); box-shadow: none; }
+
 .map-wrap {
   position: relative;
   flex: 1;
@@ -860,9 +886,104 @@ body {
 .letter-hint { font-size: clamp(2.6rem, 8vw, 4.6rem); line-height: 1; }
 .letter-hint.big { font-size: clamp(4rem, 14vw, 7.5rem); }
 
+/* ตัวเลือกที่เป็นรูป emoji / คำอังกฤษ / ขนาดต่างกัน */
+.choice.emoji { font-size: clamp(2.4rem, 7vw, 4rem); min-width: clamp(84px, 16vw, 140px); line-height: 1.1; }
+.choice.emoji.size-s { font-size: clamp(1.3rem, 3.5vw, 2rem); }
+.choice.emoji.size-m { font-size: clamp(2.2rem, 6vw, 3.4rem); }
+.choice.emoji.size-l { font-size: clamp(3.4rem, 10vw, 5.4rem); }
+.choice.word { font-size: clamp(1.4rem, 4vw, 2.2rem); letter-spacing: 1px; }
+
+.seq-box.emoji { font-size: clamp(1.6rem, 4.5vw, 2.8rem); }
+.shape-hint { font-size: clamp(1rem, 2.4vw, 1.3rem); color: var(--ink-soft); text-align: center; }
+
+/* จับคู่เงา: ทำ emoji ให้เป็นสีดำล้วน */
+.shadow {
+  font-size: clamp(4rem, 14vw, 7.5rem);
+  line-height: 1;
+  filter: brightness(0) opacity(.8);
+}
+
+.blocks-card {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: clamp(10px, 2vh, 20px) clamp(14px, 3vw, 28px);
+  box-shadow: 0 5px 0 var(--card-edge);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* เส้นจำนวน 0-10 กบยืนบนเลขเริ่มต้น */
+.numline { display: flex; gap: clamp(2px, .6vw, 6px); flex-wrap: wrap; justify-content: center; }
+.nl-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: clamp(30px, 6.5vw, 56px);
+  height: clamp(58px, 10vh, 84px);
+  border-radius: var(--r-sm);
+  background: #fff;
+  box-shadow: 0 4px 0 var(--card-edge);
+  font-size: clamp(1.2rem, 3.4vw, 2rem);
+  line-height: 1;
+}
+.nl-cell b { font-family: var(--font-num); font-size: clamp(.95rem, 2.4vw, 1.4rem); color: var(--ink); padding: 4px 0 6px; }
+.nl-cell.start { background: #eaffe2; box-shadow: 0 4px 0 var(--green-dark); }
+
 /* ตัวเลือกภาษาไทยใช้ฟอนต์ไทย ไม่ต้องเว้นตัวอักษรห่างแบบคำอังกฤษ */
 .choice.thai { font-family: var(--font-th); font-weight: 400; letter-spacing: 0; font-size: clamp(1.8rem, 5vw, 3rem); }
 .seq-row.thai .seq-box { font-family: var(--font-th); font-weight: 400; }
+
+/* ===== สะกดคำ / ผสมคำ ===== */
+.spell-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2.5vh, 24px);
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+.spell-slots, .spell-tiles { display: flex; gap: clamp(6px, 1.6vw, 14px); flex-wrap: wrap; justify-content: center; }
+
+.spell-slot {
+  display: grid;
+  place-items: center;
+  width: clamp(52px, 10vw, 84px);
+  height: clamp(58px, 10vh, 92px);
+  border-radius: var(--r-sm);
+  border: 4px dashed var(--card-edge);
+  background: #fff;
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 4.6vw, 2.8rem);
+  color: var(--purple-dark);
+}
+.spell-slot.now { border-color: var(--blue); animation: ready-pulse 1.2s ease-in-out infinite; }
+.spell-slot.filled { border-style: solid; border-color: var(--green); background: #f0ffe8; animation: pop-in .35s cubic-bezier(.2, .9, .3, 1.5); }
+
+.spell-tile {
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4.4vw, 2.6rem);
+  color: #fff;
+  background: var(--pink);
+  border: none;
+  border-radius: var(--r-sm);
+  width: clamp(54px, 10.5vw, 88px);
+  height: clamp(54px, 9.5vh, 84px);
+  cursor: pointer;
+  box-shadow: 0 6px 0 var(--pink-dark), 0 8px 14px rgba(0, 0, 0, .12);
+  transition: transform .08s, box-shadow .08s, opacity .25s;
+}
+.spell-tile:nth-child(2n) { background: var(--blue); box-shadow: 0 6px 0 var(--blue-dark), 0 8px 14px rgba(0,0,0,.12); }
+.spell-tile:nth-child(3n) { background: var(--purple); box-shadow: 0 6px 0 var(--purple-dark), 0 8px 14px rgba(0,0,0,.12); }
+.spell-tile:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0, 0, 0, .2); }
+.spell-tile.used { opacity: .18; pointer-events: none; transform: scale(.85); }
+.spell-tile.nope { animation: wiggle .45s; }
 
 /* ===== เขียนตัวอักษรตามรอย ===== */
 .trace-wrap {

@@ -1,4 +1,4 @@
-import { randInt, wait, confetti, sayBubble, cheerBuddy, buddyHTML, pick } from '../utils.js';
+import { randInt, wait, confetti, sayBubble, cheerBuddy, buddyHTML, pick, blocksMarkup } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 
 /* ตั้งบวก/ตั้งลบแนวตั้ง เดินทีละขั้นตามวิธีที่สอนในโรงเรียน เด็กกดแป้นตัวเลขใส่เอง
@@ -179,16 +179,6 @@ function gridHTML(p, s) {
     <span class="cell op">${p.op}</span>${bottomTens}<span class="cell digit${on('units')}">${bu}</span>
     <div class="col-rule"></div>
     <span class="cell spacer"></span>${slot('tens')}${slot('units')}`;
-}
-
-/* บล็อกฐานสิบ ใช้เป็นภาพช่วยเฉพาะตอนทด ให้เด็กเห็นว่า 10 หน่วยมัดเป็น 1 สิบได้จริง */
-function blocksMarkup(tens, units, readyCount = 0) {
-  const rods = '<div class="rod"></div>'.repeat(tens);
-  let cells = '';
-  for (let i = 0; i < units; i++) cells += `<div class="unit${i < readyCount ? ' ready' : ''}"></div>`;
-  const cols = Math.min(10, Math.max(units, 1));
-  return `<div class="rods">${rods}</div>
-          <div class="units${units ? '' : ' empty'}" style="grid-template-columns:repeat(${cols},auto)">${cells}</div>`;
 }
 
 export function play(stage, config, hooks = {}) {

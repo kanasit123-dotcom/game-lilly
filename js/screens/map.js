@@ -1,20 +1,18 @@
 import { go } from '../router.js';
-import { LEVELS } from '../levels.js';
+import { LEVELS, SUBJECTS } from '../levels.js';
 import { getStars, totalStars, nextUnplayedId } from '../state.js';
 import { sfx } from '../audio.js';
 
 const H = 620;
 const EDGE = 110;
 const GAP = 165;
-const W = EDGE * 2 + GAP * (LEVELS.length - 1);
 
-const POINTS = LEVELS.map((lv, i) => ({
-  x: EDGE + i * GAP,
-  y: 330 - Math.sin(i * 0.85) * 155,
-}));
+// จำหมวดที่เลือกไว้ตลอด session จะได้กลับมาแผนที่แล้วยังอยู่หมวดเดิม
+let activeSubject = 'all';
 
 /* เส้นทางโค้งนุ่มๆ ผ่านทุกด่าน (Catmull-Rom แปลงเป็น Bezier) */
 function smoothPath(pts) {
+  if (pts.length < 2) return '';
   let d = `M ${pts[0].x} ${pts[0].y}`;
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[i - 1] || pts[i];
@@ -28,17 +26,29 @@ function smoothPath(pts) {
   return d;
 }
 
-function nodeHTML(lv, i, currentId) {
+function nodeHTML(lv, i, pt, W, currentId) {
   const stars = getStars(lv.id);
   const dots = [0, 1, 2].map((n) => `<span class="${n < stars ? '' : 'off'}">⭐</span>`).join('');
   return `
     <button class="node${lv.id === currentId ? ' current' : ''}" data-id="${lv.id}"
-            style="left:${(POINTS[i].x / W) * 100}%; top:${(POINTS[i].y / H) * 100}%">
+            style="left:${(pt.x / W) * 100}%; top:${(pt.y / H) * 100}%">
       <span class="node-num">${i + 1}</span>
       <span class="node-icon">${lv.icon}</span>
       <span class="node-stars">${dots}</span>
       <span class="node-label">${lv.title}</span>
     </button>`;
+}
+
+function stageHTML(levels, currentId) {
+  const W = EDGE * 2 + GAP * Math.max(levels.length - 1, 0);
+  const pts = levels.map((lv, i) => ({ x: EDGE + i * GAP, y: 330 - Math.sin(i * 0.85) * 155 }));
+  return `
+    <div class="map-stage" style="aspect-ratio:${W} / ${H}">
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <path class="map-path" d="${smoothPath(pts)}"/>
+      </svg>
+      ${levels.map((lv, i) => nodeHTML(lv, i, pts[i], W, currentId)).join('')}
+    </div>`;
 }
 
 export function showMap(root) {
@@ -52,30 +62,42 @@ export function showMap(root) {
       <div class="spacer"></div>
       <div class="star-counter">⭐ ${totalStars()}</div>
     </div>
-    <div class="map-wrap">
-      <div class="map-stage" style="aspect-ratio:${W} / ${H}">
-        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-          <path class="map-path" d="${smoothPath(POINTS)}"/>
-        </svg>
-        ${LEVELS.map((lv, i) => nodeHTML(lv, i, currentId)).join('')}
-      </div>
-    </div>`;
+    <div class="subject-bar">
+      ${SUBJECTS.map((s) => `<button class="chip${s.id === activeSubject ? ' on' : ''}" data-s="${s.id}">${s.icon} ${s.label}</button>`).join('')}
+    </div>
+    <div class="map-wrap" id="wrap"></div>`;
   root.appendChild(el);
 
-  el.querySelector('#home').onclick = () => { sfx.tap(); go('home'); };
+  const wrap = el.querySelector('#wrap');
 
-  el.querySelectorAll('.node').forEach((node) => {
-    node.onclick = () => {
+  function renderStage() {
+    const levels = activeSubject === 'all' ? LEVELS : LEVELS.filter((l) => l.subject === activeSubject);
+    wrap.innerHTML = stageHTML(levels, currentId);
+
+    wrap.querySelectorAll('.node').forEach((node) => {
+      node.onclick = () => {
+        sfx.tap();
+        go('game', { levelId: node.dataset.id });
+      };
+    });
+
+    // เลื่อนไปที่ด่านที่ควรเล่นต่อ ไม่ให้เด็กต้องหาเอง
+    const current = wrap.querySelector('.node.current');
+    requestAnimationFrame(() => {
+      wrap.scrollLeft = current ? current.offsetLeft - wrap.clientWidth / 2 : 0;
+    });
+  }
+
+  el.querySelectorAll('.chip').forEach((chip) => {
+    chip.onclick = () => {
       sfx.tap();
-      go('game', { levelId: node.dataset.id });
+      activeSubject = chip.dataset.s;
+      el.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c === chip));
+      renderStage();
     };
   });
 
-  // เลื่อนไปที่ด่านที่ควรเล่นต่อ ไม่ให้เด็กต้องหาเอง
-  const current = el.querySelector('.node.current');
-  const wrap = el.querySelector('.map-wrap');
-  requestAnimationFrame(() => {
-    if (!current) return;
-    wrap.scrollLeft = current.offsetLeft - wrap.clientWidth / 2;
-  });
+  el.querySelector('#home').onclick = () => { sfx.tap(); go('home'); };
+
+  renderStage();
 }

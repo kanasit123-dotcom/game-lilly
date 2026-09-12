@@ -39,6 +39,16 @@ export function sayBubble(host, text, ms = 1600) {
   setTimeout(() => b.remove(), ms);
 }
 
+/* บล็อกฐานสิบ: แท่งสิบ + ลูกบอลหน่วยเรียงแถวละ 10 ให้เห็นว่า "ครบสิบ" ตั้งแต่ยังไม่ต้องนับ */
+export function blocksMarkup(tens, units, readyCount = 0) {
+  const rods = '<div class="rod"></div>'.repeat(tens);
+  let cells = '';
+  for (let i = 0; i < units; i++) cells += `<div class="unit${i < readyCount ? ' ready' : ''}"></div>`;
+  const cols = Math.min(10, Math.max(units, 1));
+  return `<div class="rods">${rods}</div>
+          <div class="units${units ? '' : ' empty'}" style="grid-template-columns:repeat(${cols},auto)">${cells}</div>`;
+}
+
 /* เพื่อนซี้สุ่มใหม่ทุกด่าน ลิลลี่ชอบเต่ากับแมวน้ำเป็นพิเศษเลยใส่ไว้ให้เจอบ่อย */
 const BUDDIES = ['🐢', '🦭', '🐰', '🐱', '🐻', '🐧'];
 
