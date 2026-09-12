@@ -44,6 +44,9 @@ export const LEVELS = [
   { id: 'w-memory', type: 'memory', icon: '🃏', title: 'เกมความจำ',
     config: { set: 'sea', pairs: 4, rounds: 2 } },
 
+  { id: 'c-easy', type: 'column', icon: '🐚', title: 'ตั้งบวกง่ายๆ',
+    config: { op: '+', roundTens: true, count: 5 } },
+
   { id: 'c-add1', type: 'column', icon: '📝', title: 'ตั้งบวกแนวตั้ง',
     config: { op: '+', regroup: false, count: 5 } },
 

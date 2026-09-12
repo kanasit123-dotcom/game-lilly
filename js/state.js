@@ -26,10 +26,10 @@ export function awardStars(levelId, stars) {
 
 export const totalStars = () => LEVELS.reduce((sum, l) => sum + getStars(l.id), 0);
 
-export function isUnlocked(levelId) {
-  const i = LEVELS.findIndex((l) => l.id === levelId);
-  if (i <= 0) return true;
-  return getStars(LEVELS[i - 1].id) > 0;
+/* ด่านแรกที่ยังไม่เคยได้ดาว ใช้ชี้ว่าควรเล่นอันไหนต่อ
+   (ทุกด่านเปิดให้เล่นได้หมด ไม่มีการล็อก เด็กจะได้ข้ามไปเล่นอันที่อยากเล่นได้) */
+export function nextUnplayedId() {
+  return (LEVELS.find((l) => getStars(l.id) === 0) || LEVELS[0]).id;
 }
 
 export function nextLevelId(levelId) {

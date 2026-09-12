@@ -1,8 +1,7 @@
 import { go } from '../router.js';
 import { LEVELS } from '../levels.js';
-import { getStars, isUnlocked, totalStars } from '../state.js';
+import { getStars, totalStars, nextUnplayedId } from '../state.js';
 import { sfx } from '../audio.js';
-import { sayBubble } from '../utils.js';
 
 const H = 620;
 const EDGE = 110;
@@ -29,21 +28,21 @@ function smoothPath(pts) {
   return d;
 }
 
-function nodeHTML(lv, i) {
-  const open = isUnlocked(lv.id);
+function nodeHTML(lv, i, currentId) {
   const stars = getStars(lv.id);
   const dots = [0, 1, 2].map((n) => `<span class="${n < stars ? '' : 'off'}">⭐</span>`).join('');
   return `
-    <button class="node ${open ? 'unlocked' : 'locked'}" data-id="${lv.id}" data-open="${open}"
+    <button class="node${lv.id === currentId ? ' current' : ''}" data-id="${lv.id}"
             style="left:${(POINTS[i].x / W) * 100}%; top:${(POINTS[i].y / H) * 100}%">
       <span class="node-num">${i + 1}</span>
-      <span class="node-icon">${open ? lv.icon : '🔒'}</span>
+      <span class="node-icon">${lv.icon}</span>
       <span class="node-stars">${dots}</span>
       <span class="node-label">${lv.title}</span>
     </button>`;
 }
 
 export function showMap(root) {
+  const currentId = nextUnplayedId();
   const el = document.createElement('div');
   el.className = 'screen';
   el.innerHTML = `
@@ -58,7 +57,7 @@ export function showMap(root) {
         <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
           <path class="map-path" d="${smoothPath(POINTS)}"/>
         </svg>
-        ${LEVELS.map(nodeHTML).join('')}
+        ${LEVELS.map((lv, i) => nodeHTML(lv, i, currentId)).join('')}
       </div>
     </div>`;
   root.appendChild(el);
@@ -67,18 +66,13 @@ export function showMap(root) {
 
   el.querySelectorAll('.node').forEach((node) => {
     node.onclick = () => {
-      if (node.dataset.open !== 'true') {
-        sfx.retry();
-        sayBubble(el.querySelector('.map-wrap'), 'ผ่านด่านก่อนหน้าก่อนนะ 🔒');
-        return;
-      }
       sfx.tap();
       go('game', { levelId: node.dataset.id });
     };
   });
 
-  // เลื่อนไปที่ด่านที่กำลังเล่นอยู่ ไม่ให้เด็กต้องหาเอง
-  const current = [...el.querySelectorAll('.node.unlocked')].pop();
+  // เลื่อนไปที่ด่านที่ควรเล่นต่อ ไม่ให้เด็กต้องหาเอง
+  const current = el.querySelector('.node.current');
   const wrap = el.querySelector('.map-wrap');
   requestAnimationFrame(() => {
     if (!current) return;

@@ -304,18 +304,13 @@ body {
   padding: 2px 12px;
   border-radius: 999px;
 }
-.node.unlocked { animation: node-pulse 2.4s ease-in-out infinite; }
+/* เด้งเฉพาะด่านที่ควรเล่นต่อ ด่านอื่นเปิดให้กดได้หมดแต่ไม่ต้องแย่งความสนใจ */
+.node.current { animation: node-pulse 2.4s ease-in-out infinite; }
+.node.current .node-num { background: var(--green); box-shadow: 0 3px 0 var(--green-dark); }
 @keyframes node-pulse {
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
   50%      { transform: translate(-50%, -50%) scale(1.055); }
 }
-.node.locked {
-  background: #e7e0ea;
-  box-shadow: 0 7px 0 #cfc4d4;
-  cursor: default;
-}
-.node.locked .node-icon { filter: grayscale(1); opacity: .45; }
-.node.locked .node-num { background: #b9aec0; box-shadow: 0 3px 0 #9d91a5; }
 
 /* ===== หน้าจอเกม ===== */
 .game-screen { gap: 8px; }
@@ -636,25 +631,26 @@ body {
 .col-sum {
   display: grid;
   grid-template-columns: auto auto auto;
-  gap: clamp(4px, 1vh, 10px) clamp(6px, 1.4vw, 14px);
+  gap: clamp(2px, .6vh, 8px) clamp(6px, 1.4vw, 14px);
   align-items: center;
   justify-items: center;
   background: #fff;
   border-radius: var(--r-md);
-  padding: clamp(12px, 2.5vh, 26px) clamp(18px, 4vw, 38px);
+  padding: clamp(8px, 1.6vh, 20px) clamp(16px, 3.5vw, 34px);
   box-shadow: 0 6px 0 var(--card-edge), 0 10px 20px rgba(0, 0, 0, .1);
   font-family: var(--font-num);
   font-weight: 700;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-height: 0;
 }
 
 .col-sum .cell {
   position: relative;
   display: grid;
   place-items: center;
-  width: clamp(44px, 9vw, 76px);
-  height: clamp(48px, 9.5vh, 82px);
-  font-size: clamp(1.9rem, 5.5vw, 3.4rem);
+  width: clamp(40px, 8vw, 72px);
+  height: clamp(40px, 7.5vh, 76px);
+  font-size: clamp(1.6rem, 4.6vw, 3rem);
   border-radius: var(--r-sm);
   color: var(--ink);
   transition: background .2s, color .2s;
@@ -663,8 +659,8 @@ body {
 .col-sum .cell.op { color: var(--ink-soft); }
 
 .col-sum .cell.carry {
-  height: clamp(28px, 4.5vh, 42px);
-  font-size: clamp(1.1rem, 2.8vw, 1.7rem);
+  height: clamp(22px, 3.4vh, 38px);
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
   color: var(--pink-dark);
 }
 .col-sum .cell.carry.pulse,
@@ -709,6 +705,68 @@ body {
   border-radius: 3px;
   background: var(--ink);
   margin: 4px 0;
+}
+
+/* ===== แป้นกดตัวเลข (เกมตั้งเลข) ===== */
+.pad-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.4vh, 14px);
+  flex: 0 0 auto;
+}
+
+.entry { display: flex; justify-content: center; }
+
+.entry-box {
+  display: grid;
+  place-items: center;
+  min-width: clamp(64px, 12vw, 104px);
+  height: clamp(38px, 6.2vh, 62px);
+  padding: 0 14px;
+  border-radius: var(--r-sm);
+  border: 4px dashed var(--blue);
+  background: #fff;
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 4vw, 2.3rem);
+  color: var(--purple-dark);
+}
+.entry-box.correct {
+  border-style: solid;
+  border-color: var(--green);
+  background: #f0ffe8;
+  animation: cheer .5s cubic-bezier(.2, .9, .3, 1.6);
+}
+.entry-box.nope { border-color: var(--pink-dark); animation: wiggle .45s; }
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: clamp(5px, 1.2vw, 11px);
+  justify-content: center;
+}
+
+.key {
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 3.4vw, 2rem);
+  color: #fff;
+  background: var(--purple);
+  border: none;
+  border-radius: var(--r-sm);
+  width: clamp(44px, 8vw, 70px);
+  height: clamp(38px, 6.2vh, 62px);
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--purple-dark);
+  transition: transform .07s, box-shadow .07s;
+}
+.key:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--purple-dark); }
+.key.del { background: var(--orange); box-shadow: 0 5px 0 var(--orange-dark); font-size: clamp(1.1rem, 2.6vw, 1.5rem); }
+.key.del:active { box-shadow: 0 1px 0 var(--orange-dark); }
+
+@media (max-width: 560px) {
+  .keypad { grid-template-columns: repeat(5, auto); }
 }
 
 /* ===== ชุดคำถามแบบเลือกตอบ ===== */

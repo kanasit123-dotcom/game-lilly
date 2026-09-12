@@ -1,4 +1,4 @@
-import { randInt, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML, pick } from '../utils.js';
+import { randInt, wait, confetti, sayBubble, cheerBuddy, buddyHTML, pick } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 
 /* ตั้งบวก/ตั้งลบแนวตั้ง เดินทีละขั้นตามวิธีที่สอนในโรงเรียน
@@ -7,6 +7,13 @@ import { sfx, speak } from '../audio.js';
 
 function genProblem(cfg) {
   for (;;) {
+    // แบบง่ายสุดตามใบงาน: หลักหน่วยเป็น 0 ทั้งคู่ เช่น 10 + 70
+    if (cfg.roundTens) {
+      const at = randInt(1, 8);
+      const bt = randInt(1, 9 - at);
+      return { op: '+', a: at * 10, b: bt * 10, result: (at + bt) * 10 };
+    }
+
     if (cfg.op === '+') {
       const at = randInt(1, 8);
       const au = randInt(1, 9);
@@ -56,15 +63,10 @@ function generateProblems(cfg) {
   return out;
 }
 
-function choicesFor(answer) {
-  const out = [answer];
-  for (const d of shuffle([1, -1, 2, -2, 3])) {
-    if (out.length >= 3) break;
-    const v = answer + d;
-    if (v >= 0 && v <= 18 && !out.includes(v)) out.push(v);
-  }
-  return shuffle(out);
-}
+const KEYPAD_HTML =
+  '<div class="entry" id="entry"></div><div class="keypad">' +
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n) => `<button class="key" data-k="${n}">${n}</button>`).join('') +
+  '<button class="key del" data-k="del">⌫</button></div>';
 
 function buildSteps(p) {
   const at = Math.floor(p.a / 10), au = p.a % 10;
@@ -161,11 +163,12 @@ export function play(stage, config, hooks = {}) {
     let steps = [];
     let si = 0;
     let s = null;
+    let typed = '';
 
     stage.innerHTML = `
       <div class="prompt" id="prompt"></div>
       <div class="col-sum" id="grid"></div>
-      <div class="choices" id="action"></div>
+      <div class="pad-wrap" id="action"></div>
       ${buddyHTML()}`;
 
     const $prompt = stage.querySelector('#prompt');
@@ -217,21 +220,41 @@ export function play(stage, config, hooks = {}) {
       }
     };
 
-    function onChoice(btn, st) {
-      if (Number(btn.dataset.v) !== st.answer) {
-        missedThisOne = true;
-        sfx.retry();
-        btn.classList.remove('nope');
-        void btn.offsetWidth;
-        btn.classList.add('nope');
-        sayBubble(stage, pick(['ลองอีกทีนะ', 'เกือบแล้ว!', 'ค่อยๆ นับดูสิ 💪']));
+    function renderEntry(state = '') {
+      const $entry = $action.querySelector('#entry');
+      if ($entry) $entry.innerHTML = `<span class="entry-box ${state}">${typed || '?'}</span>`;
+    }
+
+    function onKey(k, st) {
+      const max = String(st.answer).length;
+
+      if (k === 'del') {
+        typed = typed.slice(0, -1);
+        sfx.tap();
+        renderEntry();
         return;
       }
-      $action.querySelectorAll('.choice').forEach((b) => { b.onclick = null; });
-      btn.classList.add('correct');
+      if (typed.length >= max) return;
+
+      typed += k;
+      sfx.tap();
+      renderEntry();
+      if (typed.length < max) return;
+
+      if (typed !== String(st.answer)) {
+        missedThisOne = true;
+        sfx.retry();
+        renderEntry('nope');
+        sayBubble(stage, pick(['ลองอีกทีนะ', 'เกือบแล้ว!', 'ค่อยๆ นับดูสิ 💪']));
+        setTimeout(() => { typed = ''; renderEntry(); }, 700);
+        return;
+      }
+
+      $action.querySelectorAll('.key').forEach((b) => { b.onclick = null; });
+      renderEntry('correct');
       sfx.correct();
       si++;
-      setTimeout(runStep, 600);
+      setTimeout(runStep, 700);
     }
 
     function runStep() {
@@ -245,10 +268,10 @@ export function play(stage, config, hooks = {}) {
         s.activeCol = st.col;
         s.pulse = null;
         render();
-        $action.innerHTML = choicesFor(st.answer)
-          .map((v) => `<button class="choice" data-v="${v}">${v}</button>`)
-          .join('');
-        $action.querySelectorAll('.choice').forEach((b) => { b.onclick = () => onChoice(b, st); });
+        typed = '';
+        $action.innerHTML = KEYPAD_HTML;
+        renderEntry();
+        $action.querySelectorAll('.key').forEach((b) => { b.onclick = () => onKey(b.dataset.k, st); });
         speak(st.text.replace(/[?:]/g, ' '));
         return;
       }
