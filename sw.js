@@ -1,4 +1,4 @@
-const CACHE = 'lilly-world-v1';
+const CACHE = 'lilly-world-v2';
 
 const SHELL = [
   './',
@@ -56,9 +56,14 @@ self.addEventListener('fetch', (e) => {
 
   // ไฟล์เกมของเราเอง: เอาของใหม่จากเน็ตก่อน แก้เกมแล้วเห็นผลทันที
   // ถ้าไม่มีเน็ตค่อยใช้ของที่เก็บไว้ เกมจึงยังเล่นออฟไลน์ได้
+  //
+  // ต้องใส่ cache:'no-cache' ด้วย ไม่งั้น fetch จะหยิบจาก HTTP cache ของเบราว์เซอร์
+  // (GitHub Pages ส่ง max-age=600 มา) แล้วได้ไฟล์เก่าทั้งที่เซิร์ฟเวอร์มีของใหม่แล้ว
+  // แบบนี้จะยิงถามเซิร์ฟเวอร์ทุกครั้ง ได้ 304 ตัวเล็กๆ กลับมาถ้าไฟล์ไม่เปลี่ยน
   if (new URL(req.url).origin === self.location.origin) {
+    const fresh = new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' });
     e.respondWith(
-      fetch(req)
+      fetch(fresh)
         .then((res) => keep(req, res))
         .catch(() => caches.match(req).then((hit) => hit || caches.match('index.html')))
     );
