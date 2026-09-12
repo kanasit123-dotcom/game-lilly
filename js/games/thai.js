@@ -24,6 +24,22 @@ export const THAI_CONSONANTS = [
   { word: 'ห', emoji: '📦', say: 'หอ หีบ', name: 'หีบ' },
   { word: 'อ', emoji: '🛁', say: 'ออ อ่าง', name: 'อ่าง' },
   { word: 'ฮ', emoji: '🦉', say: 'ฮอ นกฮูก', name: 'นกฮูก' },
+  // ชุดที่เหลือ เว้นตัวที่ไม่มีรูปให้เด็กนึกออก (ฃ ฅ ฏ ฐ ณ พ)
+  { word: 'ฆ', emoji: '🔔', say: 'ฆอ ระฆัง', name: 'ระฆัง' },
+  { word: 'ซ', emoji: '⛓️', say: 'ซอ โซ่', name: 'โซ่' },
+  { word: 'ญ', emoji: '👧', say: 'ญอ หญิง', name: 'หญิง' },
+  { word: 'ฎ', emoji: '👑', say: 'ฎอ ชฎา', name: 'ชฎา' },
+  { word: 'ถ', emoji: '👝', say: 'ถอ ถุง', name: 'ถุง' },
+  { word: 'ท', emoji: '💂', say: 'ทอ ทหาร', name: 'ทหาร' },
+  { word: 'ธ', emoji: '🚩', say: 'ธอ ธง', name: 'ธง' },
+  { word: 'ฟ', emoji: '🦷', say: 'ฟอ ฟัน', name: 'ฟัน' },
+  { word: 'ภ', emoji: '🚢', say: 'ภอ สำเภา', name: 'สำเภา' },
+  { word: 'ศ', emoji: '🛖', say: 'ศอ ศาลา', name: 'ศาลา' },
+  { word: 'ษ', emoji: '🧙', say: 'ษอ ฤๅษี', name: 'ฤๅษี' },
+  { word: 'ฌ', emoji: '🌳', say: 'ฌอ เฌอ', name: 'เฌอ' },
+  { word: 'ฑ', emoji: '👸', say: 'ฑอ มณโฑ', name: 'มณโฑ' },
+  { word: 'ฒ', emoji: '👴', say: 'ฒอ ผู้เฒ่า', name: 'ผู้เฒ่า' },
+  { word: 'ฬ', emoji: '🪁', say: 'ฬอ จุฬา', name: 'จุฬา' },
 ];
 
 /* คำตามสระ: เด็กดูรูปแล้วเลือกคำที่สะกดถูก คำลวงต่างกันแค่สระ */
@@ -42,6 +58,9 @@ export const THAI_VOWEL_WORDS = [
   { word: 'ตู้', emoji: '🗄️', wrong: ['ตา', 'ตี'] },
   { word: 'แมว', emoji: '🐱', wrong: ['มาว', 'โมว'] },
   { word: 'เรือ', emoji: '⛵', wrong: ['รือ', 'แรือ'] },
+  { word: 'ไก่', emoji: '🐔', wrong: ['กา', 'โก'] },
+  { word: 'เต่า', emoji: '🐢', wrong: ['ตา', 'โต'] },
+  { word: 'ใบ', emoji: '🍃', wrong: ['บา', 'โบ'] },
 ];
 
 /* เติมตัวสะกด: stem คือส่วนหน้า final คือตัวสะกดที่หายไป */

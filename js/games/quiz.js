@@ -66,6 +66,24 @@ function nearChoices(answer, lo, hi) {
   return shuffle(out);
 }
 
+/* นาฬิกาเข็ม เข็มยาวชี้ 12 เสมอ (บอกเวลาเต็มชั่วโมง) */
+function clockSVG(hour) {
+  let nums = '';
+  for (let n = 1; n <= 12; n++) {
+    const a = (n / 12) * Math.PI * 2;
+    nums += `<text x="${50 + 38 * Math.sin(a)}" y="${50 - 38 * Math.cos(a)}">${n}</text>`;
+  }
+  const a = (hour / 12) * Math.PI * 2;
+  return `
+    <svg class="clock" viewBox="0 0 100 100">
+      <circle class="face" cx="50" cy="50" r="47"/>
+      ${nums}
+      <line class="minute" x1="50" y1="50" x2="50" y2="17"/>
+      <line class="hour" x1="50" y1="50" x2="${50 + 24 * Math.sin(a)}" y2="${50 - 24 * Math.cos(a)}"/>
+      <circle class="pin" cx="50" cy="50" r="3.5"/>
+    </svg>`;
+}
+
 const emojiBoxes = (items, blankAt = -1) =>
   `<div class="seq-row">${items
     .map((it, i) => `<span class="seq-box emoji${i === blankAt ? ' blank' : ''}">${i === blankAt ? '?' : it}</span>`)
@@ -310,6 +328,51 @@ const KINDS = {
       choiceClass: 'emoji',
     };
   },
+
+  clock() {
+    const hour = randInt(1, 12);
+    const wrong = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((h) => h !== hour)).slice(0, 2);
+    return {
+      prompt: 'เข็มสั้นชี้เลขอะไร? นาฬิกาบอกกี่นาฬิกา',
+      visual: clockSVG(hour),
+      choices: shuffle([hour, ...wrong]).map((h) => ({ v: h, html: `${h} นาฬิกา` })),
+      answer: hour,
+      say: 'นาฬิกาบอกกี่นาฬิกา',
+      choiceClass: 'thai',
+    };
+  },
+
+  /* ตำแหน่งของตัวเลือกคือคำตอบ ต้องล็อกไม่ให้แถวพับบรรทัด */
+  position() {
+    const vertical = Math.random() < 0.4;
+    const items = shuffle(SIZE_ITEMS).slice(0, 3);
+    const target = randInt(0, 2);
+    const label = vertical
+      ? ['ข้างบน', 'ตรงกลาง', 'ข้างล่าง'][target]
+      : ['ทางซ้าย', 'ตรงกลาง', 'ทางขวา'][target];
+    return {
+      prompt: `แตะตัวที่อยู่${label}`,
+      visual: `<div class="shape-hint">${vertical ? '⬆️ บน · ล่าง ⬇️' : '⬅️ ซ้าย · ขวา ➡️'}</div>`,
+      choices: items.map((it, i) => ({ v: i, html: it })),
+      answer: target,
+      say: `แตะตัวที่อยู่${label}`,
+      choiceClass: 'emoji',
+      layout: vertical ? 'col' : 'row-fixed',
+    };
+  },
+
+  evenOdd() {
+    const item = pick(COUNT_ITEMS);
+    const n = randInt(1, 10);
+    return {
+      prompt: 'จับคู่ทีละสอง มีตัวเหลือไหม? เป็นจำนวนคู่หรือคี่',
+      visual: `<div class="big-num">${n}</div><div class="pair-tray">${`<span>${item}</span>`.repeat(n)}</div>`,
+      choices: [{ v: 'even', html: 'คู่' }, { v: 'odd', html: 'คี่' }],
+      answer: n % 2 === 0 ? 'even' : 'odd',
+      say: `${n} เป็นจำนวนคู่หรือคี่`,
+      choiceClass: 'thai',
+    };
+  },
 };
 
 const normalize = (c) => (typeof c === 'object' ? c : { v: c, html: c });
@@ -339,6 +402,7 @@ export function play(stage, config, hooks = {}) {
 
       $prompt.textContent = q.prompt;
       $visual.innerHTML = q.visual;
+      $action.className = `choices ${q.layout || ''}`;
       $action.innerHTML = q.choices
         .map(normalize)
         .map((c) => `<button class="choice ${q.choiceClass || ''} ${c.cls || ''}" data-v="${c.v}">${c.html}</button>`)

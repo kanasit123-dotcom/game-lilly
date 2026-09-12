@@ -53,6 +53,9 @@ export const LEVELS = [
   { id: 'q-size', subject: 'brain', type: 'quiz', icon: '🐘', title: 'ใหญ่หรือเล็ก',
     config: { kind: 'size', count: 6 } },
 
+  { id: 'q-position', subject: 'brain', type: 'quiz', icon: '🧭', title: 'ซ้าย ขวา บน ล่าง',
+    config: { kind: 'position', count: 6 } },
+
   { id: 'b-add2', subject: 'math', type: 'column', icon: '🎈', title: 'บวกสองหลัก',
     config: { op: '+', digitsB: 2, regroup: false, count: 5 } },
 
@@ -73,6 +76,12 @@ export const LEVELS = [
 
   { id: 'q-cmp', subject: 'math', type: 'quiz', icon: '🐊', title: 'ใครมากกว่า',
     config: { kind: 'compare', count: 6 } },
+
+  { id: 'q-evenodd', subject: 'math', type: 'quiz', icon: '👯', title: 'คู่หรือคี่',
+    config: { kind: 'evenOdd', count: 6 } },
+
+  { id: 't-cons3', subject: 'thai', type: 'wordmatch', icon: '🔔', title: 'พยัญชนะชุด 3',
+    config: { set: 'thaiCons3', rounds: 3 } },
 
   { id: 'q-odd', subject: 'brain', type: 'quiz', icon: '🤔', title: 'อันไหนไม่เข้าพวก',
     config: { kind: 'oddOne', count: 6 } },
@@ -101,6 +110,12 @@ export const LEVELS = [
   { id: 'q-letter', subject: 'en', type: 'quiz', icon: '🔡', title: 'เติมตัวอักษร',
     config: { kind: 'letter', count: 5 } },
 
+  { id: 'q-clock', subject: 'math', type: 'quiz', icon: '🕐', title: 'บอกเวลา',
+    config: { kind: 'clock', count: 6 } },
+
+  { id: 't-cons4', subject: 'thai', type: 'wordmatch', icon: '🚩', title: 'พยัญชนะชุด 4',
+    config: { set: 'thaiCons4', rounds: 3 } },
+
   { id: 'b-add4', subject: 'math', type: 'column', icon: '👑', title: 'นักคณิตตัวจิ๋ว',
     config: { op: '+', digitsB: 2, regroup: true, count: 6 } },
 
@@ -112,6 +127,9 @@ export const LEVELS = [
 
   { id: 't-trace2', subject: 'thai', type: 'trace', icon: '✏️', title: 'เขียน ก-ฮ ชุด 2',
     config: { set: 'thai2' } },
+
+  { id: 't-trace3', subject: 'thai', type: 'trace', icon: '✏️', title: 'เขียน ก-ฮ ชุด 3',
+    config: { set: 'thai3' } },
 
   { id: 'w-memory', subject: 'brain', type: 'memory', icon: '🃏', title: 'เกมความจำ',
     config: { set: 'sea', pairs: 4, rounds: 2 } },

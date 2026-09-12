@@ -9,6 +9,7 @@ import { THAI_CONSONANTS } from './thai.js';
 const SETS = {
   thai1: pickThai('กงจดตบปม'),
   thai2: pickThai('ขคชนผยรล'),
+  thai3: pickThai('วสหอฮธทฟ'),
   abc: 'ABCDEFGH'.split('').map((ch) => ({ glyph: ch, say: ch, lang: 'en-US', font: 'latin' })),
   digits: '0123456789'.split('').map((d) => ({ glyph: d, say: d, lang: 'th-TH', font: 'latin' })),
 };
