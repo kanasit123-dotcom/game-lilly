@@ -19,13 +19,18 @@ export function play(stage, config, hooks = {}) {
     let drag = null;
     const wrongWords = new Set();
 
-    const hint = config.set === 'letters'
+    const isThai = config.set.startsWith('thai');
+    const isLetters = config.set === 'letters';
+    const hint = isLetters
       ? 'ลากตัวพิมพ์เล็กไปวางบนตัวพิมพ์ใหญ่ที่คู่กัน'
-      : 'ลากคำไปวางบนรูป หรือแตะคำแล้วแตะรูป';
+      : isThai
+        ? 'ลากตัวอักษรไปวางบนรูป เช่น ก ไปที่ ไก่'
+        : 'ลากคำไปวางบนรูป หรือแตะคำแล้วแตะรูป';
+    const lang = isThai ? 'th-TH' : 'en-US';
 
     stage.innerHTML = `
       <div class="prompt" id="prompt">${hint}</div>
-      <div class="match-area${config.set === 'letters' ? ' letter-mode' : ''}">
+      <div class="match-area${isLetters || isThai ? ' letter-mode' : ''}">
         <div class="pic-row" id="pics"></div>
         <div class="word-row" id="words"></div>
       </div>
@@ -46,7 +51,7 @@ export function play(stage, config, hooks = {}) {
         .map((p) => `<div class="pic-card" data-word="${p.word}">${p.emoji}</div>`)
         .join('');
       $words.innerHTML = shuffle(pairs)
-        .map((p) => `<button class="word-card" data-word="${p.word}">${p.word}</button>`)
+        .map((p) => `<button class="word-card" data-word="${p.word}" data-say="${p.say || p.word}">${p.word}</button>`)
         .join('');
 
       $pics.querySelectorAll('.pic-card').forEach((pic) => {
@@ -105,7 +110,7 @@ export function play(stage, config, hooks = {}) {
 
     function selectCard(card) {
       sfx.tap();
-      speak(card.dataset.word, 'en-US');
+      speak(card.dataset.say, lang);
       if (selected === card) {
         card.classList.remove('selected');
         selected = null;
@@ -143,7 +148,7 @@ export function play(stage, config, hooks = {}) {
 
       sfx.correct();
       cheerBuddy(stage);
-      speak(word, 'en-US');
+      speak(card.dataset.say, lang);
       sayBubble(stage, pick(['เก่งมาก!', 'ถูกต้อง!', 'ใช่เลย 🌟']));
 
       if (matchedInRound < PER_ROUND) return;

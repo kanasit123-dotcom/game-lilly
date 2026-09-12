@@ -1,8 +1,9 @@
 import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
 import { sfx, speak } from '../audio.js';
+import { THAI_VOWEL_WORDS, THAI_FINAL_WORDS, THAI_FINAL_POOL } from './thai.js';
 
-/* เครื่องเกมแบบ "ดูโจทย์ แล้วแตะคำตอบ" ใช้ร่วมกัน 4 ด่าน
-   cfg: { kind: 'counting'|'sequence'|'compare'|'letter', count: n } */
+/* เครื่องเกมแบบ "ดูโจทย์ แล้วแตะคำตอบ" ใช้ร่วมกันหลายด่าน
+   cfg: { kind: 'counting'|'sequence'|'compare'|'letter'|'thaiVowel'|'thaiFinal', count: n } */
 
 const COUNT_ITEMS = ['🐢', '🦭', '🍓', '🍎', '🐥', '🐠', '🌷', '🍪', '⭐', '🎈', '🐞', '🍄'];
 
@@ -83,6 +84,37 @@ const KINDS = {
       answer,
       say: word,
       sayLang: 'en-US',
+      sayAfter: true,
+    };
+  },
+
+  thaiVowel() {
+    const { word, emoji, wrong } = pick(THAI_VOWEL_WORDS);
+    return {
+      prompt: 'รูปนี้อ่านว่าอะไร? แตะคำที่สะกดถูก',
+      visual: `<div class="letter-hint big">${emoji}</div>`,
+      choices: shuffle([word, ...wrong]),
+      answer: word,
+      say: word,
+      sayLang: 'th-TH',
+      sayAfter: true,
+      thaiChoices: true,
+    };
+  },
+
+  thaiFinal() {
+    const { stem, final, emoji, word } = pick(THAI_FINAL_WORDS);
+    const pool = THAI_FINAL_POOL.filter((c) => c !== final);
+    return {
+      prompt: 'เติมตัวสะกดที่หายไป',
+      visual: `<div class="letter-hint">${emoji}</div>
+               <div class="seq-row thai"><span class="seq-box">${stem}</span><span class="seq-box blank">?</span></div>`,
+      choices: shuffle([final, ...shuffle(pool).slice(0, 2)]),
+      answer: final,
+      say: word,
+      sayLang: 'th-TH',
+      sayAfter: true,
+      thaiChoices: true,
     };
   },
 };
@@ -113,7 +145,7 @@ export function play(stage, config, hooks = {}) {
       $prompt.textContent = q.prompt;
       $visual.innerHTML = q.visual;
       $action.innerHTML = q.choices
-        .map((v) => `<button class="choice" data-v="${v}">${v}</button>`)
+        .map((v) => `<button class="choice${q.thaiChoices ? ' thai' : ''}" data-v="${v}">${v}</button>`)
         .join('');
       $action.querySelectorAll('.choice').forEach((b) => { b.onclick = () => answer(b, q); });
       speak(q.say, q.sayLang || 'th-TH');
@@ -137,7 +169,7 @@ export function play(stage, config, hooks = {}) {
       cheerBuddy(stage);
       confetti(stage, 20);
       sayBubble(stage, pick(['เก่งมาก!', 'ถูกต้อง!', 'สุดยอด 🌟']));
-      if (config.kind === 'letter') speak(q.say, 'en-US');
+      if (q.sayAfter) speak(q.say, q.sayLang);
 
       await wait(1500);
       idx++;

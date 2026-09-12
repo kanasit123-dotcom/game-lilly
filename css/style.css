@@ -628,6 +628,42 @@ body {
 .word-card.nope { animation: wiggle .45s; }
 
 /* ===== ตั้งบวก/ตั้งลบแนวตั้ง ===== */
+.col-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2.5vw, 28px);
+  flex: 0 1 auto;
+  min-height: 0;
+  max-width: 100%;
+}
+
+/* ภาพช่วยตอนทด: ลูกบอล 10 ลูกมัดเป็นแท่งสิบ โผล่ข้างตารางเฉพาะตอนที่ต้องทด */
+.carry-aid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #fffbe8;
+  border: 3px dashed var(--yellow);
+  border-radius: var(--r-md);
+  padding: clamp(8px, 1.6vh, 16px) clamp(10px, 2vw, 18px);
+  animation: pop-in .4s cubic-bezier(.2, .9, .3, 1.5);
+  max-width: min(46vw, 360px);
+}
+.carry-aid[hidden] { display: none; }
+.carry-aid .blocks { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.carry-aid .rod { height: clamp(64px, 11vh, 96px); width: clamp(16px, 2.4vw, 24px); }
+.carry-aid .unit { width: clamp(17px, 2.6vw, 26px); }
+.carry-aid .units { gap: 5px; }
+.carry-aid-title {
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.8vw, 1.6rem);
+  color: var(--purple-dark);
+}
+.carry-aid-note { font-size: clamp(.85rem, 2vw, 1.05rem); color: var(--ink-soft); text-align: center; }
+
 .col-sum {
   display: grid;
   grid-template-columns: auto auto auto;
@@ -657,6 +693,7 @@ body {
 }
 .col-sum .cell.spacer { width: clamp(30px, 5vw, 48px); }
 .col-sum .cell.op { color: var(--ink-soft); }
+.col-sum .cell.blank { background: none; }
 
 .col-sum .cell.carry {
   height: clamp(22px, 3.4vh, 38px);
@@ -767,6 +804,8 @@ body {
 
 @media (max-width: 560px) {
   .keypad { grid-template-columns: repeat(5, auto); }
+  .col-area { flex-direction: column; gap: 8px; }
+  .carry-aid { max-width: 90vw; flex-direction: row; flex-wrap: wrap; justify-content: center; }
 }
 
 /* ===== ชุดคำถามแบบเลือกตอบ ===== */
@@ -819,6 +858,41 @@ body {
 }
 
 .letter-hint { font-size: clamp(2.6rem, 8vw, 4.6rem); line-height: 1; }
+.letter-hint.big { font-size: clamp(4rem, 14vw, 7.5rem); }
+
+/* ตัวเลือกภาษาไทยใช้ฟอนต์ไทย ไม่ต้องเว้นตัวอักษรห่างแบบคำอังกฤษ */
+.choice.thai { font-family: var(--font-th); font-weight: 400; letter-spacing: 0; font-size: clamp(1.8rem, 5vw, 3rem); }
+.seq-row.thai .seq-box { font-family: var(--font-th); font-weight: 400; }
+
+/* ===== เขียนตัวอักษรตามรอย ===== */
+.trace-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+.trace-wrap canvas {
+  border-radius: var(--r-md);
+  box-shadow: 0 6px 0 var(--card-edge), 0 10px 20px rgba(0, 0, 0, .1);
+  touch-action: none;
+  cursor: crosshair;
+}
+.trace-ok[hidden] { display: none; }
+.trace-ok {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(5rem, 20vw, 10rem);
+  color: var(--green);
+  text-shadow: 0 6px 0 var(--green-dark), 0 10px 20px rgba(0, 0, 0, .2);
+  pointer-events: none;
+  animation: star-pop .6s cubic-bezier(.2, .9, .3, 1.7);
+}
+.trace-actions { flex: 0 0 auto; }
+.trace-actions .btn { font-size: 1.1rem; padding: 12px 26px; }
 .croc { font-size: clamp(3rem, 9vw, 5rem); animation: hop 2s ease-in-out infinite; }
 .croc-hint { color: var(--ink-soft); font-size: clamp(.95rem, 2.2vw, 1.2rem); text-align: center; }
 

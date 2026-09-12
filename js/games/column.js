@@ -1,36 +1,46 @@
 import { randInt, wait, confetti, sayBubble, cheerBuddy, buddyHTML, pick } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 
-/* ตั้งบวก/ตั้งลบแนวตั้ง เดินทีละขั้นตามวิธีที่สอนในโรงเรียน
-   cfg: { op: '+' | '-', regroup: true|false, count: n }
-   regroup = มีตัวทด (บวก) หรือ มีการยืม (ลบ) */
+/* ตั้งบวก/ตั้งลบแนวตั้ง เดินทีละขั้นตามวิธีที่สอนในโรงเรียน เด็กกดแป้นตัวเลขใส่เอง
+   cfg: { op: '+' | '-', digitsB: 1|2, regroup, roundTens, count }
+   regroup  = มีตัวทด (บวก) หรือ มีการยืม (ลบ)
+   digitsB  = ตัวล่างเป็นเลขหลักเดียว (วางชิดขวาใต้หลักหน่วย)
+   roundTens = แบบง่ายสุด หลักหน่วยเป็น 0 ทั้งคู่ เช่น 10 + 70 */
 
-function genProblem(cfg) {
+function genAdd(cfg) {
   for (;;) {
-    // แบบง่ายสุดตามใบงาน: หลักหน่วยเป็น 0 ทั้งคู่ เช่น 10 + 70
     if (cfg.roundTens) {
       const at = randInt(1, 8);
       const bt = randInt(1, 9 - at);
       return { op: '+', a: at * 10, b: bt * 10, result: (at + bt) * 10 };
     }
 
-    if (cfg.op === '+') {
-      const at = randInt(1, 8);
-      const au = randInt(1, 9);
-      let bu;
-      if (cfg.regroup) {
-        bu = randInt(10 - au, 9);
-      } else {
-        if (au >= 9) continue;
-        bu = randInt(1, 9 - au);
-      }
-      const maxBt = 9 - at - (au + bu >= 10 ? 1 : 0);
-      if (maxBt < 1) continue;
-      const a = at * 10 + au;
-      const b = randInt(1, maxBt) * 10 + bu;
-      return { op: '+', a, b, result: a + b };
+    const at = randInt(1, 8);
+    const au = randInt(1, 9);
+    let bu;
+    if (cfg.regroup) {
+      bu = randInt(10 - au, 9);
+    } else {
+      if (au >= 9) continue;
+      bu = randInt(1, 9 - au);
     }
+    const carry = au + bu >= 10 ? 1 : 0;
 
+    let b;
+    if (cfg.digitsB === 1) {
+      b = bu;
+    } else {
+      const maxBt = 9 - at - carry;
+      if (maxBt < 1) continue;
+      b = randInt(1, maxBt) * 10 + bu;
+    }
+    const a = at * 10 + au;
+    return { op: '+', a, b, result: a + b };
+  }
+}
+
+function genSub(cfg) {
+  for (;;) {
     const at = randInt(2, 9);
     const au = randInt(0, 9);
     let bu, maxBt;
@@ -51,10 +61,11 @@ function genProblem(cfg) {
 }
 
 function generateProblems(cfg) {
+  const gen = cfg.op === '+' ? genAdd : genSub;
   const out = [];
   const seen = new Set();
   for (let guard = 0; out.length < cfg.count && guard < 400; guard++) {
-    const p = genProblem(cfg);
+    const p = gen(cfg);
     const key = `${p.a}${p.op}${p.b}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -79,12 +90,12 @@ function buildSteps(p) {
 
     if (sumU >= 10) {
       steps.push({
-        type: 'write', col: 'units', slot: 'answer', value: sumU % 10,
+        type: 'write', col: 'units', slot: 'answer', value: sumU % 10, aid: 'bundle',
         text: `${sumU} คือ 1 สิบ กับ ${sumU % 10} หน่วย — แตะช่องหลักหน่วยเพื่อเขียน ${sumU % 10}`,
       });
       steps.push({
-        type: 'write', col: 'tens', slot: 'carry', value: 1,
-        text: 'ทด 1 สิบ ขึ้นไปข้างบนหลักสิบ — แตะช่องทด ✨',
+        type: 'write', col: 'tens', slot: 'carry', value: 1, aid: 'keep',
+        text: 'แท่งสิบที่มัดได้ ทดขึ้นไปบนหลักสิบ — แตะช่องทด ✨',
       });
     } else {
       steps.push({
@@ -95,10 +106,22 @@ function buildSteps(p) {
 
     const carried = sumU >= 10 ? 1 : 0;
     const sumT = at + bt + carried;
-    steps.push({
-      type: 'ask', col: 'tens', answer: sumT,
-      text: carried ? `หลักสิบ: 1 + ${at} + ${bt} = ?` : `หลักสิบ: ${at} + ${bt} = ?`,
-    });
+
+    // ตัวล่างเป็นหลักเดียวและไม่มีทด: หลักสิบไม่มีอะไรมาบวก ยกลงมาเขียนได้เลย
+    if (bt === 0 && !carried) {
+      steps.push({
+        type: 'write', col: 'tens', slot: 'answer', value: at,
+        text: `หลักสิบไม่มีตัวบวก ก็ยก ${at} ลงมาเลย — แตะช่องหลักสิบ`,
+      });
+      return steps;
+    }
+
+    let askText;
+    if (bt === 0) askText = `หลักสิบ: 1 + ${at} = ?`;
+    else if (carried) askText = `หลักสิบ: 1 + ${at} + ${bt} = ?`;
+    else askText = `หลักสิบ: ${at} + ${bt} = ?`;
+
+    steps.push({ type: 'ask', col: 'tens', answer: sumT, text: askText });
     steps.push({ type: 'write', col: 'tens', slot: 'answer', value: sumT, text: `แตะช่องหลักสิบเพื่อเขียน ${sumT}` });
     return steps;
   }
@@ -145,13 +168,27 @@ function gridHTML(p, s) {
     `<span class="cell slot${on(col)}${pulsing(col, 'answer')}${popping(col, 'answer')}${s.answer[col] != null ? ' filled' : ''}"
            data-slot="answer" data-col="${col}">${s.answer[col] ?? ''}</span>`;
 
+  // ตัวล่างหลักเดียว: ช่องหลักสิบเว้นว่าง ให้เลขไปอยู่ชิดขวาใต้หลักหน่วย
+  const bottomTens = p.b < 10
+    ? '<span class="cell blank"></span>'
+    : `<span class="cell digit${on('tens')}">${bt}</span>`;
+
   return `
     <span class="cell spacer"></span>${carry('tens')}${carry('units')}
     <span class="cell spacer"></span>${top('tens', at)}${top('units', au)}
-    <span class="cell op">${p.op}</span>
-    <span class="cell digit${on('tens')}">${bt}</span><span class="cell digit${on('units')}">${bu}</span>
+    <span class="cell op">${p.op}</span>${bottomTens}<span class="cell digit${on('units')}">${bu}</span>
     <div class="col-rule"></div>
     <span class="cell spacer"></span>${slot('tens')}${slot('units')}`;
+}
+
+/* บล็อกฐานสิบ ใช้เป็นภาพช่วยเฉพาะตอนทด ให้เด็กเห็นว่า 10 หน่วยมัดเป็น 1 สิบได้จริง */
+function blocksMarkup(tens, units, readyCount = 0) {
+  const rods = '<div class="rod"></div>'.repeat(tens);
+  let cells = '';
+  for (let i = 0; i < units; i++) cells += `<div class="unit${i < readyCount ? ' ready' : ''}"></div>`;
+  const cols = Math.min(10, Math.max(units, 1));
+  return `<div class="rods">${rods}</div>
+          <div class="units${units ? '' : ' empty'}" style="grid-template-columns:repeat(${cols},auto)">${cells}</div>`;
 }
 
 export function play(stage, config, hooks = {}) {
@@ -167,12 +204,16 @@ export function play(stage, config, hooks = {}) {
 
     stage.innerHTML = `
       <div class="prompt" id="prompt"></div>
-      <div class="col-sum" id="grid"></div>
+      <div class="col-area">
+        <div class="col-sum" id="grid"></div>
+        <div class="carry-aid" id="aid" hidden></div>
+      </div>
       <div class="pad-wrap" id="action"></div>
       ${buddyHTML()}`;
 
     const $prompt = stage.querySelector('#prompt');
     const $grid = stage.querySelector('#grid');
+    const $aid = stage.querySelector('#aid');
     const $action = stage.querySelector('#action');
 
     const render = () => { $grid.innerHTML = gridHTML(problems[idx], s); };
@@ -184,10 +225,34 @@ export function play(stage, config, hooks = {}) {
       cell.classList.add('nope');
     }
 
+    async function showBundleAid() {
+      const p = problems[idx];
+      const au = p.a % 10, bu = p.b % 10;
+      const sumU = au + bu;
+      $aid.hidden = false;
+      $aid.innerHTML = `
+        <div class="carry-aid-title">${au} + ${bu} = ${sumU}</div>
+        <div class="blocks">${blocksMarkup(0, sumU, 10)}</div>
+        <div class="carry-aid-note">ครบ 10 หน่วยแล้ว มัดเป็น 1 สิบ!</div>`;
+
+      await wait(900);
+      sfx.bundle();
+      $aid.querySelectorAll('.unit.ready').forEach((u) => {
+        u.classList.remove('ready');
+        u.classList.add('bundling');
+      });
+      await wait(480);
+      $aid.querySelector('.blocks').innerHTML = blocksMarkup(1, sumU - 10);
+      $aid.querySelector('.rod')?.classList.add('new-rod');
+      $aid.querySelector('.carry-aid-note').textContent = `ได้ 1 สิบ เหลือ ${sumU - 10} หน่วย`;
+      speak('ครบสิบแล้ว มัดเป็นหนึ่งสิบ');
+      await wait(600);
+    }
+
     $grid.onclick = (e) => {
       const cell = e.target.closest('.cell');
       const st = steps[si];
-      if (!cell || !st) return;
+      if (!cell || !st || !s.pulse) return;
 
       if (st.type === 'write') {
         if (cell.dataset.slot !== st.slot || cell.dataset.col !== st.col) { nudge(cell); return; }
@@ -257,12 +322,13 @@ export function play(stage, config, hooks = {}) {
       setTimeout(runStep, 700);
     }
 
-    function runStep() {
+    async function runStep() {
       const st = steps[si];
       if (!st) { finishProblem(); return; }
 
       s.pop = null;
       $prompt.textContent = st.text;
+      if (st.aid !== 'keep') $aid.hidden = true;
 
       if (st.type === 'ask') {
         s.activeCol = st.col;
@@ -278,6 +344,12 @@ export function play(stage, config, hooks = {}) {
 
       $action.innerHTML = '';
       s.activeCol = st.type === 'borrow' ? 'tens' : st.col;
+      s.pulse = null;
+      render();
+
+      // ให้เด็กดูบล็อกมัดสิบให้จบก่อน ค่อยเปิดให้แตะช่อง
+      if (st.aid === 'bundle') await showBundleAid();
+
       s.pulse = st.type === 'borrow' ? { col: 'tens', slot: 'top' } : { col: st.col, slot: st.slot };
       render();
     }
@@ -287,6 +359,7 @@ export function play(stage, config, hooks = {}) {
       if (!missedThisOne) firstTry++;
       s.activeCol = null;
       s.pulse = null;
+      $aid.hidden = true;
       render();
       $prompt.textContent = `${p.a} ${p.op} ${p.b} = ${p.result} 🎉`;
       confetti(stage, 22);

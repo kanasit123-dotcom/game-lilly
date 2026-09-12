@@ -1,4 +1,10 @@
+import { THAI_CONSONANTS } from './thai.js';
+
 export const WORD_SETS = {
+  // พยัญชนะไทย แบ่งสองชุด ชุดละ 9 ตัว การ์ดรูป = สิ่งของ การ์ดคำ = ตัวอักษร
+  thaiCons1: THAI_CONSONANTS.slice(0, 9),
+  thaiCons2: THAI_CONSONANTS.slice(9, 18),
+
   animals: [
     { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'PIG', emoji: '🐷' },
     { word: 'COW', emoji: '🐮' }, { word: 'DUCK', emoji: '🦆' }, { word: 'FISH', emoji: '🐟' },

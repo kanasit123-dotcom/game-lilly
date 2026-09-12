@@ -2,18 +2,18 @@ import { go } from '../router.js';
 import { getLevel } from '../levels.js';
 import { awardStars, starsFor } from '../state.js';
 import { sfx } from '../audio.js';
-import { play as playAddition } from '../games/addition.js';
 import { play as playWordmatch } from '../games/wordmatch.js';
 import { play as playColumn } from '../games/column.js';
 import { play as playQuiz } from '../games/quiz.js';
 import { play as playMemory } from '../games/memory.js';
+import { play as playTrace } from '../games/trace.js';
 
 const GAMES = {
-  addition: playAddition,
   wordmatch: playWordmatch,
   column: playColumn,
   quiz: playQuiz,
   memory: playMemory,
+  trace: playTrace,
 };
 
 export function showGame(root, { levelId }) {
