@@ -14,6 +14,9 @@ export const LEVELS = [
   { id: 'w-animals', type: 'wordmatch', icon: '🐱', title: 'เพื่อนสัตว์',
     config: { set: 'animals', rounds: 3 } },
 
+  { id: 'w-sea', type: 'wordmatch', icon: '🐢', title: 'ใต้ทะเล',
+    config: { set: 'sea', rounds: 3 } },
+
   { id: 'q-seq', type: 'quiz', icon: '🔢', title: 'เติมเลขหาย',
     config: { kind: 'sequence', count: 5 } },
 
@@ -39,7 +42,7 @@ export const LEVELS = [
     config: { digitsB: 2, carry: true, count: 6 } },
 
   { id: 'w-memory', type: 'memory', icon: '🃏', title: 'เกมความจำ',
-    config: { set: 'animals', pairs: 4, rounds: 2 } },
+    config: { set: 'sea', pairs: 4, rounds: 2 } },
 
   { id: 'c-add1', type: 'column', icon: '📝', title: 'ตั้งบวกแนวตั้ง',
     config: { op: '+', regroup: false, count: 5 } },

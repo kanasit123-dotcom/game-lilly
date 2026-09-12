@@ -6,7 +6,7 @@ export function showHome(root) {
   const el = document.createElement('div');
   el.className = 'screen home';
   el.innerHTML = `
-    <div class="home-buddies"><span>🐰</span><span>🐱</span><span>🐻</span></div>
+    <div class="home-buddies"><span>🐢</span><span>🐰</span><span>🦭</span></div>
     <h1 class="outlined">โลกของลิลลี่</h1>
     <p class="tagline">เกมคณิตศาสตร์ และ ภาษาอังกฤษ</p>
     <button class="btn big green" id="play">เล่นเลย! ▶</button>

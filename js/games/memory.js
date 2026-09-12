@@ -1,4 +1,4 @@
-import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy } from '../utils.js';
+import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 import { WORD_SETS } from './words.js';
 
@@ -21,7 +21,7 @@ export function play(stage, config, hooks = {}) {
     stage.innerHTML = `
       <div class="prompt" id="prompt">พลิกการ์ดหาคู่ รูปกับคำที่เข้ากัน</div>
       <div class="mem-grid" id="grid"></div>
-      <div class="buddy">🐰</div>`;
+      ${buddyHTML()}`;
 
     const $prompt = stage.querySelector('#prompt');
     const $grid = stage.querySelector('#grid');

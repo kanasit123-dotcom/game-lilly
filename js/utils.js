@@ -39,6 +39,13 @@ export function sayBubble(host, text, ms = 1600) {
   setTimeout(() => b.remove(), ms);
 }
 
+/* เพื่อนซี้สุ่มใหม่ทุกด่าน ลิลลี่ชอบเต่ากับแมวน้ำเป็นพิเศษเลยใส่ไว้ให้เจอบ่อย */
+const BUDDIES = ['🐢', '🦭', '🐰', '🐱', '🐻', '🐧'];
+
+export const randomBuddy = () => pick(BUDDIES);
+
+export const buddyHTML = () => `<div class="buddy">${randomBuddy()}</div>`;
+
 export function cheerBuddy(host) {
   const buddy = host.querySelector('.buddy');
   if (!buddy) return;

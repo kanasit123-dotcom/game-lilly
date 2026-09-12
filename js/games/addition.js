@@ -1,4 +1,4 @@
-import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy } from '../utils.js';
+import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 
 /* สร้างโจทย์บวกที่คุมได้ว่าจะมีตัวทดหรือไม่ และผลลัพธ์ไม่เกิน 99 */
@@ -85,7 +85,7 @@ export function play(stage, config, hooks = {}) {
       <div class="equation" id="eq"></div>
       <div class="workspace" id="ws"></div>
       <div class="choices" id="action"></div>
-      <div class="buddy">🐰</div>`;
+      ${buddyHTML()}`;
 
     const $prompt = stage.querySelector('#prompt');
     const $eq = stage.querySelector('#eq');

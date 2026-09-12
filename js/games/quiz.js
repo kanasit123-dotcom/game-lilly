@@ -1,16 +1,17 @@
-import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy } from '../utils.js';
+import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 
 /* เครื่องเกมแบบ "ดูโจทย์ แล้วแตะคำตอบ" ใช้ร่วมกัน 4 ด่าน
    cfg: { kind: 'counting'|'sequence'|'compare'|'letter', count: n } */
 
-const COUNT_ITEMS = ['🍓', '🍎', '🐥', '🐠', '🌷', '🍪', '⭐', '🎈', '🐞', '🍄'];
+const COUNT_ITEMS = ['🐢', '🦭', '🍓', '🍎', '🐥', '🐠', '🌷', '🍪', '⭐', '🎈', '🐞', '🍄'];
 
 const LETTER_WORDS = [
   { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'SUN', emoji: '☀️' },
   { word: 'BUS', emoji: '🚌' }, { word: 'HAT', emoji: '🎩' }, { word: 'PIG', emoji: '🐷' },
   { word: 'CUP', emoji: '🥤' }, { word: 'BED', emoji: '🛏️' }, { word: 'KEY', emoji: '🔑' },
   { word: 'FISH', emoji: '🐟' }, { word: 'STAR', emoji: '⭐' }, { word: 'CAKE', emoji: '🍰' },
+  { word: 'SEAL', emoji: '🦭' }, { word: 'CRAB', emoji: '🦀' }, { word: 'TURTLE', emoji: '🐢' },
 ];
 
 function nearChoices(answer, lo, hi) {
@@ -98,7 +99,7 @@ export function play(stage, config, hooks = {}) {
       <div class="prompt" id="prompt"></div>
       <div class="quiz-visual" id="visual"></div>
       <div class="choices" id="action"></div>
-      <div class="buddy">🐰</div>`;
+      ${buddyHTML()}`;
 
     const $prompt = stage.querySelector('#prompt');
     const $visual = stage.querySelector('#visual');

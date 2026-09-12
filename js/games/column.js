@@ -1,4 +1,4 @@
-import { randInt, shuffle, wait, confetti, sayBubble, cheerBuddy, pick } from '../utils.js';
+import { randInt, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML, pick } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 
 /* ตั้งบวก/ตั้งลบแนวตั้ง เดินทีละขั้นตามวิธีที่สอนในโรงเรียน
@@ -166,7 +166,7 @@ export function play(stage, config, hooks = {}) {
       <div class="prompt" id="prompt"></div>
       <div class="col-sum" id="grid"></div>
       <div class="choices" id="action"></div>
-      <div class="buddy">🐰</div>`;
+      ${buddyHTML()}`;
 
     const $prompt = stage.querySelector('#prompt');
     const $grid = stage.querySelector('#grid');

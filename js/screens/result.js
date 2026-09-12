@@ -1,7 +1,7 @@
 import { go } from '../router.js';
 import { nextLevelId } from '../state.js';
 import { sfx, speak } from '../audio.js';
-import { confetti, wait } from '../utils.js';
+import { confetti, wait, randomBuddy } from '../utils.js';
 
 const PRAISE = {
   3: 'เยี่ยมมาก ลิลลี่! 🌟',
@@ -17,7 +17,7 @@ export function showResult(root, { levelId, stars, firstTry, total }) {
   const el = document.createElement('div');
   el.className = 'screen result';
   el.innerHTML = `
-    <div class="buddy-big">🐰</div>
+    <div class="buddy-big">${randomBuddy()}</div>
     <h2 class="outlined">${PRAISE[stars]}</h2>
     <div class="result-stars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
     <div class="score">ตอบถูกตั้งแต่ครั้งแรก ${firstTry} จาก ${total}</div>

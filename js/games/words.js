@@ -3,6 +3,12 @@ export const WORD_SETS = {
     { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'PIG', emoji: '🐷' },
     { word: 'COW', emoji: '🐮' }, { word: 'DUCK', emoji: '🦆' }, { word: 'FISH', emoji: '🐟' },
     { word: 'BEE', emoji: '🐝' }, { word: 'BIRD', emoji: '🐦' }, { word: 'FROG', emoji: '🐸' },
+    { word: 'TURTLE', emoji: '🐢' }, { word: 'SEAL', emoji: '🦭' },
+  ],
+  sea: [
+    { word: 'TURTLE', emoji: '🐢' }, { word: 'SEAL', emoji: '🦭' }, { word: 'CRAB', emoji: '🦀' },
+    { word: 'WHALE', emoji: '🐳' }, { word: 'SHARK', emoji: '🦈' }, { word: 'SQUID', emoji: '🦑' },
+    { word: 'FISH', emoji: '🐟' }, { word: 'SHELL', emoji: '🐚' }, { word: 'WAVE', emoji: '🌊' },
   ],
   food: [
     { word: 'APPLE', emoji: '🍎' }, { word: 'CAKE', emoji: '🍰' }, { word: 'MILK', emoji: '🥛' },

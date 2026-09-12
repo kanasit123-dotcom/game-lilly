@@ -1,4 +1,4 @@
-import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy } from '../utils.js';
+import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 import { WORD_SETS } from './words.js';
 
@@ -29,7 +29,7 @@ export function play(stage, config, hooks = {}) {
         <div class="pic-row" id="pics"></div>
         <div class="word-row" id="words"></div>
       </div>
-      <div class="buddy">🐰</div>`;
+      ${buddyHTML()}`;
 
     const $prompt = stage.querySelector('#prompt');
     const $pics = stage.querySelector('#pics');
