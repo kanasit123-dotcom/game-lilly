@@ -22,15 +22,34 @@ const SETS = {
       { word: 'กบ', emoji: '🐸' }, { word: 'ตา', emoji: '👁️' }, { word: 'มด', emoji: '🐜' },
       { word: 'โบ', emoji: '🎀' }, { word: 'งู', emoji: '🐍' }, { word: 'ปู', emoji: '🦀' },
       { word: 'ขา', emoji: '🦵' }, { word: 'ไก่', emoji: '🐔' }, { word: 'หมู', emoji: '🐷' },
+      { word: 'หมี', emoji: '🐻' }, { word: 'ผึ้ง', emoji: '🐝' }, { word: 'เต่า', emoji: '🐢' },
     ],
   },
 };
 
 const PER_LEVEL = 6;
-const COMBINING = /[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/;
+// สระบน + วรรณยุกต์ (ิ ี ึ ื ั ็ ่ ้ ๊ ๋ ์) และ สระล่าง (ุ ู)
+const ABOVE = /[\u0E31\u0E34-\u0E37\u0E47-\u0E4E]/;
+const BELOW = /[\u0E38-\u0E3A]/;
+const COMBINING = (ch) => ABOVE.test(ch) || BELOW.test(ch);
 
 /* สระบน-ล่างกับวรรณยุกต์เป็นตัวลอย ต้องมีวงกลมประให้เห็นตำแหน่ง เหมือนในหนังสือเรียน */
-const tileText = (ch) => (COMBINING.test(ch) ? '◌' + ch : ch);
+const tileText = (ch) => (COMBINING(ch) ? '◌' + ch : ch);
+
+/* จัดตัวอักษรเป็นช่องตามตำแหน่งจริงของอักษรไทย:
+   พยัญชนะและสระหน้า-หลัง (เ แ โ ไ ใ า ะ) อยู่แถวหลัก
+   สระบน/วรรณยุกต์ไปช่องเล็กเหนือพยัญชนะตัวก่อนหน้า สระล่างไปช่องเล็กใต้
+   ค่าในช่องคือ index ของตัวอักษรในคำ ลำดับการแตะยังเป็นลำดับเขียนปกติ */
+function toCells(letters) {
+  const cells = [];
+  letters.forEach((ch, i) => {
+    const last = cells[cells.length - 1];
+    if (last && ABOVE.test(ch)) last.above.push(i);
+    else if (last && BELOW.test(ch)) last.below.push(i);
+    else cells.push({ base: i, above: [], below: [] });
+  });
+  return cells;
+}
 
 /* ตัวลวงที่ไม่ซ้ำกับตัวในคำ */
 function distractors(word, lang, n) {
@@ -64,9 +83,20 @@ export function play(stage, config, hooks = {}) {
     const $slots = stage.querySelector('#slots');
     const $tiles = stage.querySelector('#tiles');
 
+    function slotHTML(i, small) {
+      const state = i < placed ? ' filled' : i === placed ? ' now' : '';
+      const shown = i < placed ? tileText(letters[i]) : '';
+      return `<span class="${small ? 'mark-slot' : 'spell-slot'}${state}">${shown}</span>`;
+    }
+
     function renderSlots() {
-      $slots.innerHTML = letters
-        .map((ch, i) => `<span class="spell-slot${i < placed ? ' filled' : ''}${i === placed ? ' now' : ''}">${i < placed ? ch : ''}</span>`)
+      $slots.innerHTML = toCells(letters)
+        .map((c) => `
+          <div class="spell-cell">
+            <div class="mark-row">${c.above.map((i) => slotHTML(i, true)).join('')}</div>
+            ${slotHTML(c.base, false)}
+            <div class="mark-row">${c.below.map((i) => slotHTML(i, true)).join('')}</div>
+          </div>`)
         .join('');
     }
 
@@ -118,7 +148,7 @@ export function play(stage, config, hooks = {}) {
       cheerBuddy(stage);
       confetti(stage, 22);
       speak(words[idx].word, set.lang);
-      sayBubble(stage, pick(['สะกดถูกเลย!', 'เก่งมาก!', 'อ่านได้แล้ว 🌟']));
+      sayBubble(stage, `${pick(['สะกดถูกเลย!', 'เก่งมาก!', 'อ่านได้แล้ว 🌟'])} ${words[idx].word}`);
 
       await wait(1600);
       idx++;

@@ -1421,6 +1421,32 @@ body {
   width: 100%;
 }
 .spell-slots, .spell-tiles { display: flex; gap: clamp(6px, 1.6vw, 14px); flex-wrap: wrap; justify-content: center; }
+.spell-slots { align-items: center; }
+
+/* หนึ่งช่องหลัก + แถวช่องเล็กบนและล่าง (สูงคงที่ให้พยัญชนะทุกตัวอยู่ระดับเดียวกัน) */
+.spell-cell {
+  display: grid;
+  grid-template-rows: var(--mark-h) auto var(--mark-h);
+  justify-items: center;
+  align-items: center;
+  --mark-h: clamp(34px, 5.5vh, 46px);
+}
+.mark-row { display: flex; gap: 4px; align-items: center; justify-content: center; height: 100%; }
+.mark-slot {
+  display: grid;
+  place-items: center;
+  width: clamp(38px, 7vw, 56px);
+  height: clamp(30px, 5vh, 40px);
+  border-radius: 10px;
+  border: 3px dashed var(--card-edge);
+  background: #fff;
+  font-family: var(--font-th);
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  line-height: 1;
+  color: var(--pink-dark);
+}
+.mark-slot.now { border-color: var(--blue); animation: ready-pulse 1.2s ease-in-out infinite; }
+.mark-slot.filled { border-style: solid; border-color: var(--green); background: #f0ffe8; animation: pop-in .35s cubic-bezier(.2, .9, .3, 1.5); }
 
 .spell-slot {
   display: grid;
