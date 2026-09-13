@@ -58,8 +58,9 @@ export function play(stage, config, hooks = {}) {
 
     await document.fonts.ready;
 
+    // ตัวเลข/ABC ใช้น้ำหนัก 600 พอ 700 หนาจนเด็กระบายไม่ทั่ว
     const fontStr = (item, px) =>
-      item.font === 'thai' ? `${px}px Itim, sans-serif` : `700 ${px}px Fredoka, Itim, sans-serif`;
+      item.font === 'thai' ? `${px}px Itim, sans-serif` : `600 ${px}px Fredoka, Itim, sans-serif`;
     let glyphPos = { font: '', x: 0, y: 0 };
 
     /* วัดขอบหมึกจริงของตัวอักษร แล้วขยายให้พอดี 68% ของกระดานและจัดกลางเอง
@@ -164,9 +165,10 @@ export function play(stage, config, hooks = {}) {
       drawing = true;
       $pad.setPointerCapture(e.pointerId);
       const { x, y } = pos(e);
-      const w = size * 0.075;
-      strokeStyle(ctx, w);
-      strokeStyle(pctx, w);
+      // เส้นที่เห็นบาง แต่เส้นที่ใช้ตรวจ (บน paint) กว้างกว่า 2 เท่า
+      // ตัวเลขฟอนต์หนามาก ถ้าตรวจด้วยเส้นบางเด็กต้องขีดซ้ำหลายรอบถึงผ่าน
+      strokeStyle(ctx, size * 0.075);
+      strokeStyle(pctx, size * 0.16);
       ctx.strokeStyle = '#ff8fc0';
       pctx.strokeStyle = '#000';
       ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 0.01, y); ctx.stroke();

@@ -1,4 +1,4 @@
-const CACHE = 'lilly-world-v8';
+const CACHE = 'lilly-world-v9';
 
 const SHELL = [
   './',
@@ -22,6 +22,10 @@ const SHELL = [
   'js/mini/coloring.js',
   'js/mini/garden.js',
   'js/mini/bakery.js',
+  'js/mini/xylo.js',
+  'js/mini/balloons.js',
+  'js/mini/aquarium.js',
+  'js/mini/dressup.js',
   'js/games/wordmatch.js',
   'js/games/column.js',
   'js/games/quiz.js',

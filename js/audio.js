@@ -45,6 +45,11 @@ function tone(freq, at, dur, { type = 'sine', gain = 0.16 } = {}) {
 
 const N = { C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99, A5: 880, C6: 1046.5, E6: 1318.5, G6: 1568 };
 
+/* โน้ตเดี่ยวสำหรับมินิเกมดนตรี */
+export function note(freq, dur = 0.6) {
+  tone(freq, 0, dur, { type: 'triangle', gain: 0.2 });
+}
+
 export const sfx = {
   tap() { tone(N.E5, 0, 0.1, { type: 'triangle', gain: 0.1 }); },
 

@@ -4,7 +4,8 @@ import { getMini, setMini } from '../state.js';
 
 /* ห้องระบายสี: รูปเส้นเป็น SVG แบ่งเป็นส่วนๆ (class r) แตะสีแล้วแตะส่วนที่อยากระบาย
    สีที่ระบายไว้บันทึกทุกครั้ง กลับมาเปิดใหม่ก็ยังอยู่
-   ส่วนที่เป็น class d คือรายละเอียด (ตา ปาก) ระบายไม่ได้ */
+   ส่วนที่เป็น class d คือรายละเอียด (ตา ปาก) ระบายไม่ได้
+   แบ่งเป็นชุดละ 3 รูป (cfg.pics) ให้แต่ละรางวัลสั้นพอดี ไม่ยาวจนเบื่อ */
 
 const S = 'stroke="#5a4a63" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
 
@@ -74,19 +75,70 @@ const PICTURES = [
     <path class="r" d="M60 84 L82 84 L82 106 L60 106 Z" ${S}/>
     <path class="r" d="M118 84 L140 84 L140 106 L118 106 Z" ${S}/>
     <circle class="d" cx="107" cy="132" r="2.5"/>` },
+
+  { id: 'car', icon: '🚗', name: 'รถ', svg: `
+    <path class="r" d="M28 102 L28 82 Q28 72 38 72 L62 72 L82 46 L132 46 L152 72 L172 72 Q182 72 182 82 L182 102 Z" ${S}/>
+    <path class="r" d="M86 52 L102 52 L102 70 L72 70 Z" ${S}/>
+    <path class="r" d="M110 52 L128 52 L144 70 L110 70 Z" ${S}/>
+    <circle class="r" cx="60" cy="108" r="17" ${S}/>
+    <circle class="r" cx="150" cy="108" r="17" ${S}/>
+    <circle class="r" cx="60" cy="108" r="6" ${S}/>
+    <circle class="r" cx="150" cy="108" r="6" ${S}/>
+    <circle class="r" cx="174" cy="88" r="5" ${S}/>
+    <circle class="r" cx="36" cy="88" r="5" ${S}/>` },
+
+  { id: 'butterfly', icon: '🦋', name: 'ผีเสื้อ', svg: `
+    <ellipse class="r" cx="66" cy="64" rx="30" ry="25" transform="rotate(-20 66 64)" ${S}/>
+    <ellipse class="r" cx="134" cy="64" rx="30" ry="25" transform="rotate(20 134 64)" ${S}/>
+    <ellipse class="r" cx="72" cy="108" rx="24" ry="19" transform="rotate(20 72 108)" ${S}/>
+    <ellipse class="r" cx="128" cy="108" rx="24" ry="19" transform="rotate(-20 128 108)" ${S}/>
+    <circle class="r" cx="62" cy="60" r="8" ${S}/>
+    <circle class="r" cx="138" cy="60" r="8" ${S}/>
+    <circle class="r" cx="72" cy="108" r="6" ${S}/>
+    <circle class="r" cx="128" cy="108" r="6" ${S}/>
+    <ellipse class="r" cx="100" cy="88" rx="8" ry="40" ${S}/>
+    <circle class="r" cx="100" cy="42" r="10" ${S}/>
+    <path class="d" d="M95 34 Q85 22 78 24 M105 34 Q115 22 122 24" stroke="#5a4a63" stroke-width="2.5" fill="none"/>
+    <circle class="d" cx="96" cy="40" r="2"/>
+    <circle class="d" cx="104" cy="40" r="2"/>` },
+
+  { id: 'icecream', icon: '🍦', name: 'ไอศกรีม', svg: `
+    <path class="r" d="M74 92 L100 152 L126 92 Z" ${S}/>
+    <path class="d" d="M82 104 L118 104 M88 118 L112 118 M94 132 L106 132" stroke="#5a4a63" stroke-width="2" fill="none"/>
+    <circle class="r" cx="100" cy="80" r="28" ${S}/>
+    <circle class="r" cx="100" cy="50" r="24" ${S}/>
+    <circle class="r" cx="100" cy="20" r="7" ${S}/>
+    <path class="d" d="M100 13 Q104 6 110 8" stroke="#5a4a63" stroke-width="2" fill="none"/>` },
+
+  { id: 'balloons', icon: '🎈', name: 'ลูกโป่ง', svg: `
+    <path class="d" d="M60 92 Q80 120 100 150 M100 78 L100 150 M140 94 Q120 120 100 150" stroke="#5a4a63" stroke-width="2" fill="none"/>
+    <ellipse class="r" cx="60" cy="58" rx="27" ry="33" ${S}/>
+    <ellipse class="r" cx="140" cy="60" rx="27" ry="33" ${S}/>
+    <ellipse class="r" cx="100" cy="44" rx="27" ry="33" ${S}/>
+    <path class="r" d="M55 90 L65 90 L60 97 Z" ${S}/>
+    <path class="r" d="M95 76 L105 76 L100 83 Z" ${S}/>
+    <path class="r" d="M135 92 L145 92 L140 99 Z" ${S}/>
+    <path class="r" d="M18 128 Q10 116 24 114 Q30 102 44 108 Q58 104 58 118 Q68 122 60 130 Z" ${S}/>` },
 ];
+
+export const PACKS = {
+  sea: ['turtle', 'seal', 'fish'],
+  home: ['house', 'flower', 'car'],
+  fun: ['butterfly', 'icecream', 'balloons'],
+};
 
 const PALETTE = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#9775fa', '#f783ac', '#a9e34b', '#63e6be', '#8d6e63', '#495057'];
 const ERASER = '#ffffff';
 
-export function mount(stage) {
+export function mount(stage, cfg = {}) {
+  const pics = (PACKS[cfg.pack] || PACKS.sea).map((id) => PICTURES.find((p) => p.id === id));
   let saved = getMini('coloring') || {};
-  let pic = PICTURES.find((p) => p.id === saved.current) || PICTURES[0];
+  let pic = pics.find((p) => p.id === saved.current) || pics[0];
   let color = PALETTE[0];
 
   stage.innerHTML = `
     <div class="mini-top">
-      ${PICTURES.map((p) => `<button class="pic-btn" data-id="${p.id}" title="${p.name}">${p.icon}</button>`).join('')}
+      ${pics.map((p) => `<button class="pic-btn" data-id="${p.id}" title="${p.name}">${p.icon}</button>`).join('')}
     </div>
     <div class="art-wrap"><svg class="art" viewBox="0 0 200 160" id="art"></svg></div>
     <div class="palette" id="palette">
@@ -129,7 +181,7 @@ export function mount(stage) {
   stage.querySelectorAll('.pic-btn').forEach((b) => {
     b.onclick = () => {
       sfx.tap();
-      pic = PICTURES.find((p) => p.id === b.dataset.id);
+      pic = pics.find((p) => p.id === b.dataset.id);
       speak(`ระบายสี${pic.name}`);
       persist();
       render();

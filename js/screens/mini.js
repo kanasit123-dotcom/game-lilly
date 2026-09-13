@@ -4,13 +4,24 @@ import { miniUnlocked } from '../rewards.js';
 import { mount as coloring } from '../mini/coloring.js';
 import { mount as garden } from '../mini/garden.js';
 import { mount as bakery } from '../mini/bakery.js';
+import { mount as xylo } from '../mini/xylo.js';
+import { mount as balloons } from '../mini/balloons.js';
+import { mount as aquarium } from '../mini/aquarium.js';
+import { mount as dressup } from '../mini/dressup.js';
 
-/* หน้าโฮสต์มินิเกม ไม่มีคะแนน ไม่มีดาว เล่นเพื่อสนุกอย่างเดียว */
+/* หน้าโฮสต์มินิเกม ไม่มีคะแนน ไม่มีดาว เล่นเพื่อสนุกอย่างเดียว
+   id ต้องตรงกับ id รางวัลใน rewards.js */
 
 const MINIS = {
-  coloring: { title: '🎨 ห้องระบายสี', mount: coloring },
+  coloring: { title: '🎨 ระบายสี: ใต้ทะเล', mount: coloring, cfg: { pack: 'sea' } },
+  coloring2: { title: '🏠 ระบายสี: บ้านแสนสุข', mount: coloring, cfg: { pack: 'home' } },
+  coloring3: { title: '🦋 ระบายสี: สวนสนุก', mount: coloring, cfg: { pack: 'fun' } },
+  xylo: { title: '🎵 ระนาดหรรษา', mount: xylo },
   garden: { title: '🌱 สวนผักของลิลลี่', mount: garden },
+  balloons: { title: '🎈 ป๊อปลูกโป่ง', mount: balloons },
   bakery: { title: '🧁 ร้านขนมของลิลลี่', mount: bakery },
+  aquarium: { title: '🐠 ตู้ปลาของลิลลี่', mount: aquarium },
+  dressup: { title: '👒 แต่งตัวเพื่อนซี้', mount: dressup },
 };
 
 export function showMini(root, { id }) {
@@ -29,5 +40,5 @@ export function showMini(root, { id }) {
   root.appendChild(el);
 
   el.querySelector('#back').onclick = () => { sfx.tap(); go('rewards'); };
-  mini.mount(el.querySelector('#stage'));
+  mini.mount(el.querySelector('#stage'), mini.cfg || {});
 }
