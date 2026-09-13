@@ -21,7 +21,8 @@ function pickThai(letters) {
   });
 }
 
-const PASS_RATIO = 0.6;
+// เส้นบางลงแล้ว (7.5% ของกระดาน ≈ ความหนาเส้นตัวอักษร) เลยลดเกณฑ์ให้ยังใจดีเท่าเดิม
+const PASS_RATIO = 0.5;
 
 export function play(stage, config, hooks = {}) {
   return new Promise(async (resolve) => {
@@ -57,14 +58,36 @@ export function play(stage, config, hooks = {}) {
 
     await document.fonts.ready;
 
-    // ตัวอักษรไทยมีที่ว่างบน-ล่างสำหรับสระและวรรณยุกต์ ตัวจริงเลยดูเล็ก ต้องขยายเผื่อ
-    function fontFor(item) {
-      return item.font === 'thai' ? `${size * 0.98}px Itim, sans-serif` : `700 ${size * 0.8}px Fredoka, Itim, sans-serif`;
+    const fontStr = (item, px) =>
+      item.font === 'thai' ? `${px}px Itim, sans-serif` : `700 ${px}px Fredoka, Itim, sans-serif`;
+    let glyphPos = { font: '', x: 0, y: 0 };
+
+    /* วัดขอบหมึกจริงของตัวอักษร แล้วขยายให้พอดี 68% ของกระดานและจัดกลางเอง
+       ใช้ textAlign=left กับ baseline=alphabetic ซึ่งเป็นค่าเริ่มต้นที่ทุกเบราว์เซอร์ตรงกัน
+       เพราะ Safari บนมือถือเคยวางตัวอักษรไปกองมุมขวาล่างตอนใช้ center/middle */
+    function fitGlyph(item) {
+      const probe = 100;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.font = fontStr(item, probe);
+      let m = ctx.measureText(item.glyph);
+      const inkW = (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) || probe * 0.6;
+      const inkH = (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) || probe * 0.7;
+      const px = Math.floor(probe * (size * 0.68) / Math.max(inkW, inkH));
+      const font = fontStr(item, px);
+      ctx.font = font;
+      m = ctx.measureText(item.glyph);
+      // หมึกอยู่ช่วง [x - left, x + right] และ [y - ascent, y + descent] เลื่อนให้กึ่งกลางตรงกลางกระดาน
+      glyphPos = {
+        font,
+        x: size / 2 - (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2,
+        y: size / 2 + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2,
+      };
     }
 
     function layout() {
-      const box = Math.min($wrap.clientWidth, $wrap.clientHeight, 460);
-      size = Math.max(200, Math.floor(box));
+      const box = Math.min($wrap.clientWidth, $wrap.clientHeight, window.innerWidth - 24, 460);
+      size = Math.max(180, Math.floor(box));
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       $pad.width = size * dpr;
       $pad.height = size * dpr;
@@ -79,26 +102,26 @@ export function play(stage, config, hooks = {}) {
       ctx.clearRect(0, 0, size, size);
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, size, size);
-      ctx.font = fontFor(item);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.font = glyphPos.font;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = '#e6dcef';
-      ctx.fillText(item.glyph, size / 2, size / 2);
+      ctx.fillText(item.glyph, glyphPos.x, glyphPos.y);
       // เส้นประรอบขอบตัวอักษร ให้ดูเหมือนแบบฝึกคัด
       ctx.strokeStyle = '#b08cff';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 6]);
-      ctx.strokeText(item.glyph, size / 2, size / 2);
+      ctx.strokeText(item.glyph, glyphPos.x, glyphPos.y);
       ctx.setLineDash([]);
     }
 
     function buildMask(item) {
       pctx.clearRect(0, 0, size, size);
-      pctx.font = fontFor(item);
-      pctx.textAlign = 'center';
-      pctx.textBaseline = 'middle';
+      pctx.font = glyphPos.font;
+      pctx.textAlign = 'left';
+      pctx.textBaseline = 'alphabetic';
       pctx.fillStyle = '#000';
-      pctx.fillText(item.glyph, size / 2, size / 2);
+      pctx.fillText(item.glyph, glyphPos.x, glyphPos.y);
       const data = pctx.getImageData(0, 0, size, size).data;
       maskPoints = [];
       const step = 3;
@@ -131,12 +154,17 @@ export function play(stage, config, hooks = {}) {
       target.lineWidth = width;
     }
 
+    // touch-action:none ใน CSS ยังไม่พอบนมือถือบางรุ่น หน้ายังเลื่อนตามนิ้ว ต้องกันที่ touch event ตรงๆ
+    const block = (e) => e.preventDefault();
+    $pad.addEventListener('touchstart', block, { passive: false });
+    $pad.addEventListener('touchmove', block, { passive: false });
+
     $pad.addEventListener('pointerdown', (e) => {
       if (done) return;
       drawing = true;
       $pad.setPointerCapture(e.pointerId);
       const { x, y } = pos(e);
-      const w = size * 0.11;
+      const w = size * 0.075;
       strokeStyle(ctx, w);
       strokeStyle(pctx, w);
       ctx.strokeStyle = '#ff8fc0';
@@ -172,6 +200,7 @@ export function play(stage, config, hooks = {}) {
     function showItem() {
       const item = items[idx];
       layout();
+      fitGlyph(item);
       drawGuide(item);
       buildMask(item);
       $ok.hidden = true;
