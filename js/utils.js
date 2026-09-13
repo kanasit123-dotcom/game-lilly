@@ -1,3 +1,5 @@
+import { getBuddies } from './rewards.js';
+
 export const randInt = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
 export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -49,10 +51,8 @@ export function blocksMarkup(tens, units, readyCount = 0) {
           <div class="units${units ? '' : ' empty'}" style="grid-template-columns:repeat(${cols},auto)">${cells}</div>`;
 }
 
-/* เพื่อนซี้สุ่มใหม่ทุกด่าน ลิลลี่ชอบเต่ากับแมวน้ำเป็นพิเศษเลยใส่ไว้ให้เจอบ่อย */
-const BUDDIES = ['🐢', '🦭', '🐰', '🐱', '🐻', '🐧'];
-
-export const randomBuddy = () => pick(BUDDIES);
+/* เพื่อนซี้สุ่มใหม่ทุกด่าน จากตัวที่ปลดล็อกแล้ว (ดู rewards.js) */
+export const randomBuddy = () => pick(getBuddies());
 
 export const buddyHTML = () => `<div class="buddy">${randomBuddy()}</div>`;
 

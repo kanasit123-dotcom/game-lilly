@@ -4,6 +4,8 @@ import { showMap } from './screens/map.js';
 import { showGame } from './screens/game.js';
 import { showResult } from './screens/result.js';
 import { showSummary } from './screens/summary.js';
+import { showRewards } from './screens/rewards.js';
+import { showMini } from './screens/mini.js';
 import { unlockAudio } from './audio.js';
 
 setRoot(document.getElementById('app'));
@@ -13,6 +15,8 @@ register('map', showMap);
 register('game', showGame);
 register('result', showResult);
 register('summary', showSummary);
+register('rewards', showRewards);
+register('mini', showMini);
 
 go('home');
 

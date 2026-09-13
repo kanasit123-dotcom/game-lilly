@@ -3,11 +3,12 @@ import { LEVELS } from './levels.js';
 const KEY = 'lilly-world-v1';
 const MAX_PLAYS = 400;
 
-let data = { stars: {}, plays: [] };
+const EMPTY = () => ({ stars: {}, plays: [], claimed: [], mini: {} });
+let data = EMPTY();
 
 try {
   const raw = localStorage.getItem(KEY);
-  if (raw) data = { stars: {}, plays: [], ...JSON.parse(raw) };
+  if (raw) data = { ...EMPTY(), ...JSON.parse(raw) };
 } catch {
   /* โหมดส่วนตัวหรือปิด storage อยู่ — เล่นได้แต่ไม่บันทึก */
 }
@@ -29,8 +30,21 @@ export function recordPlay(levelId, stars, firstTry, total) {
 
 export const getPlays = () => data.plays;
 
+/* รางวัลที่เด้ง popup ไปแล้ว จะได้ไม่เด้งซ้ำ */
+export const getClaimed = () => data.claimed;
+export function addClaimed(id) {
+  if (!data.claimed.includes(id)) { data.claimed.push(id); save(); }
+}
+
+/* ที่เก็บของมินิเกม (สวนผัก ขนม รูประบายสี) แยกตามชื่อเกม */
+export const getMini = (id) => data.mini[id];
+export function setMini(id, value) {
+  data.mini[id] = value;
+  save();
+}
+
 export function resetAll() {
-  data = { stars: {}, plays: [] };
+  data = EMPTY();
   save();
 }
 
