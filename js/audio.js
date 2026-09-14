@@ -83,16 +83,76 @@ function findVoice(lang) {
   return voices.find((v) => v.lang.toLowerCase().startsWith(p)) || null;
 }
 
+/* คืน Promise ที่จบเมื่อพูดเสร็จ (หรือทันทีถ้าเครื่องไม่มีเสียง) เกมที่อยากให้ฟังจนจบ
+   ค่อยไปข้อต่อไป ให้ await ได้ มีเวลาสำรองเผื่อเบราว์เซอร์ไม่ยิง event end (iOS เป็นบางครั้ง) */
 export function speak(text, lang = 'th-TH') {
-  if (!('speechSynthesis' in window)) return;
+  if (!('speechSynthesis' in window)) return Promise.resolve();
   if (!voices.length) refreshVoices();
   const voice = findVoice(lang);
-  if (!voice) return; // เครื่องไม่มีเสียงภาษานี้ ก็ไม่ต้องพูด
+  if (!voice) return Promise.resolve(); // เครื่องไม่มีเสียงภาษานี้ ก็ไม่ต้องพูด
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.voice = voice;
-  u.lang = voice.lang;
-  u.rate = lang.startsWith('en') ? 0.75 : 0.95;
-  u.pitch = 1.15;
-  speechSynthesis.speak(u);
+  return new Promise((resolve) => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.voice = voice;
+    u.lang = voice.lang;
+    u.rate = lang.startsWith('en') ? 0.75 : 0.95;
+    u.pitch = 1.15;
+    let done = false;
+    const finish = () => { if (!done) { done = true; clearTimeout(guard); resolve(); } };
+    const guard = setTimeout(finish, 1500 + text.length * 130);
+    u.onend = finish;
+    u.onerror = finish;
+    speechSynthesis.speak(u);
+  });
 }
+
+/* ---- เสียงเครื่องเคาะสำหรับมินิเกมกลอง สร้างจาก noise + oscillator ---- */
+
+let noiseBuf = null;
+function noise() {
+  if (!ctx) return null;
+  if (!noiseBuf) {
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = noiseBuf;
+  return src;
+}
+
+function burst(dur, { filter = 'highpass', freq = 1000, gain = 0.3, at = 0 } = {}) {
+  const src = noise();
+  if (!src) return;
+  const t0 = ctx.currentTime + at;
+  const f = ctx.createBiquadFilter();
+  f.type = filter;
+  f.frequency.value = freq;
+  const amp = ctx.createGain();
+  amp.gain.setValueAtTime(gain, t0);
+  amp.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(f).connect(amp).connect(ctx.destination);
+  src.start(t0);
+  src.stop(t0 + dur + 0.05);
+}
+
+export const perc = {
+  kick() {
+    if (!ctx) return;
+    const t0 = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const amp = ctx.createGain();
+    osc.frequency.setValueAtTime(160, t0);
+    osc.frequency.exponentialRampToValueAtTime(45, t0 + 0.25);
+    amp.gain.setValueAtTime(0.7, t0);
+    amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.35);
+    osc.connect(amp).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.4);
+  },
+  snare() { burst(0.18, { filter: 'bandpass', freq: 1800, gain: 0.5 }); tone(190, 0, 0.12, { type: 'triangle', gain: 0.25 }); },
+  hihat() { burst(0.07, { filter: 'highpass', freq: 7000, gain: 0.35 }); },
+  clap() { [0, 0.025, 0.05].forEach((at) => burst(0.09, { filter: 'bandpass', freq: 1200, gain: 0.4, at })); },
+  bell() { tone(880, 0, 0.5, { type: 'triangle', gain: 0.2 }); tone(1320, 0, 0.4, { type: 'sine', gain: 0.12 }); },
+  shaker() { burst(0.12, { filter: 'highpass', freq: 4500, gain: 0.25 }); },
+};

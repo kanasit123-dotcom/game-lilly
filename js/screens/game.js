@@ -8,6 +8,8 @@ import { play as playQuiz } from '../games/quiz.js';
 import { play as playMemory } from '../games/memory.js';
 import { play as playTrace } from '../games/trace.js';
 import { play as playSpell } from '../games/spell.js';
+import { play as playConnect } from '../games/connect.js';
+import { play as playOrder } from '../games/order.js';
 
 const GAMES = {
   wordmatch: playWordmatch,
@@ -16,6 +18,8 @@ const GAMES = {
   memory: playMemory,
   trace: playTrace,
   spell: playSpell,
+  connect: playConnect,
+  order: playOrder,
 };
 
 export function showGame(root, { levelId }) {

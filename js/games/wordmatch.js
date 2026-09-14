@@ -20,17 +20,20 @@ export function play(stage, config, hooks = {}) {
     const wrongWords = new Set();
 
     const isThai = config.set.startsWith('thai');
-    const isLetters = config.set === 'letters';
-    const hint = isLetters
-      ? 'ลากตัวพิมพ์เล็กไปวางบนตัวพิมพ์ใหญ่ที่คู่กัน'
-      : isThai
-        ? 'ลากตัวอักษรไปวางบนรูป เช่น ก ไปที่ ไก่'
-        : 'ลากคำไปวางบนรูป หรือแตะคำแล้วแตะรูป';
+    const isVowel = config.set === 'thaiVowels';
+    const isLetters = config.set.startsWith('letters');
+    const hint = isVowel
+      ? 'ลากสระไปวางบนคำที่ใช้สระนั้น'
+      : isLetters
+        ? 'ลากตัวพิมพ์เล็กไปวางบนตัวพิมพ์ใหญ่ที่คู่กัน'
+        : isThai
+          ? 'ลากตัวอักษรไปวางบนรูป เช่น ก ไปที่ ไก่'
+          : 'ลากคำไปวางบนรูป หรือแตะคำแล้วแตะรูป';
     const lang = isThai ? 'th-TH' : 'en-US';
 
     stage.innerHTML = `
       <div class="prompt" id="prompt">${hint}</div>
-      <div class="match-area${isLetters || isThai ? ' letter-mode' : ''}">
+      <div class="match-area${isLetters || isThai ? ' letter-mode' : ''}${isVowel ? ' vowel-mode' : ''}">
         <div class="pic-row" id="pics"></div>
         <div class="word-row" id="words"></div>
       </div>
@@ -51,7 +54,7 @@ export function play(stage, config, hooks = {}) {
         .map((p) => `<div class="pic-card" data-word="${p.word}">${p.emoji}</div>`)
         .join('');
       $words.innerHTML = shuffle(pairs)
-        .map((p) => `<button class="word-card" data-word="${p.word}" data-say="${p.say || p.word}">${p.word}</button>`)
+        .map((p) => `<button class="word-card" data-word="${p.word}" data-say="${p.say || p.word}" data-done="${p.done || p.say || p.word}">${p.word}</button>`)
         .join('');
 
       $pics.querySelectorAll('.pic-card').forEach((pic) => {
@@ -148,7 +151,7 @@ export function play(stage, config, hooks = {}) {
 
       sfx.correct();
       cheerBuddy(stage);
-      speak(card.dataset.say, lang);
+      speak(card.dataset.done, lang);
       sayBubble(stage, pick(['เก่งมาก!', 'ถูกต้อง!', 'ใช่เลย 🌟']));
 
       if (matchedInRound < PER_ROUND) return;

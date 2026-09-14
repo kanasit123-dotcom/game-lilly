@@ -84,3 +84,112 @@ export const THAI_FINAL_WORDS = [
 ];
 
 export const THAI_FINAL_POOL = ['ก', 'ง', 'น', 'ม', 'ว', 'บ', 'ด', 'ถ'];
+
+/* ---- ตำแหน่งอักษรไทย ใช้ร่วมกันทุกเกมที่แสดงตัวอักษรแยกส่วน ----
+   สระบน + วรรณยุกต์ (ิ ี ึ ื ั ็ ่ ้ ๊ ๋ ์) และ สระล่าง (ุ ู) */
+export const ABOVE = /[\u0E31\u0E34-\u0E37\u0E47-\u0E4E]/;
+export const BELOW = /[\u0E38-\u0E3A]/;
+export const isCombining = (ch) => ABOVE.test(ch) || BELOW.test(ch);
+
+/* สระบน-ล่างกับวรรณยุกต์เป็นตัวลอย ต้องมีวงกลมประให้เห็นตำแหน่ง เหมือนในหนังสือเรียน */
+export const tileText = (ch) => (isCombining(ch) ? '◌' + ch : ch);
+
+/* จัดตัวอักษรเป็นช่องตามตำแหน่งจริงของอักษรไทย:
+   พยัญชนะและสระหน้า-หลัง (เ แ โ ไ ใ า ะ) อยู่แถวหลัก
+   สระบน/วรรณยุกต์ไปช่องเล็กเหนือพยัญชนะตัวก่อนหน้า สระล่างไปช่องเล็กใต้
+   ค่าในช่องคือ index ของตัวอักษรในคำ ลำดับการแตะยังเป็นลำดับเขียนปกติ */
+export function toCells(letters) {
+  const cells = [];
+  letters.forEach((ch, i) => {
+    const last = cells[cells.length - 1];
+    if (last && ABOVE.test(ch)) last.above.push(i);
+    else if (last && BELOW.test(ch)) last.below.push(i);
+    else cells.push({ base: i, above: [], below: [] });
+  });
+  return cells;
+}
+
+/* ---- สระ ----
+   form = รูปสระที่โชว์บนปุ่ม (◌ แทนพยัญชนะ), name = ชื่อที่อ่านให้ฟัง,
+   glyphs = ตัวอักษรของสระตามลำดับที่ปรากฏในคำ (สระประสมมีหลายตัว เช่น เ-า) */
+export const THAI_VOWELS = {
+  'า': { form: '◌า', name: 'สระอา', glyphs: ['า'] },
+  'ี': { form: '◌ี', name: 'สระอี', glyphs: ['ี'] },
+  'ู': { form: '◌ู', name: 'สระอู', glyphs: ['ู'] },
+  'ิ': { form: '◌ิ', name: 'สระอิ', glyphs: ['ิ'] },
+  'ึ': { form: '◌ึ', name: 'สระอึ', glyphs: ['ึ'] },
+  'ื': { form: '◌ือ', name: 'สระอือ', glyphs: ['ื', 'อ'] },
+  'ุ': { form: '◌ุ', name: 'สระอุ', glyphs: ['ุ'] },
+  'ั': { form: '◌ั', name: 'สระอะ ไม้หันอากาศ', glyphs: ['ั'] },
+  'ำ': { form: '◌ำ', name: 'สระอำ', glyphs: ['ำ'] },
+  'เ': { form: 'เ◌', name: 'สระเอ', glyphs: ['เ'] },
+  'แ': { form: 'แ◌', name: 'สระแอ', glyphs: ['แ'] },
+  'โ': { form: 'โ◌', name: 'สระโอ', glyphs: ['โ'] },
+  'ไ': { form: 'ไ◌', name: 'สระไอ ไม้มลาย', glyphs: ['ไ'] },
+  'ใ': { form: 'ใ◌', name: 'สระใอ ไม้ม้วน', glyphs: ['ใ'] },
+  'เ-า': { form: 'เ◌า', name: 'สระเอา', glyphs: ['เ', 'า'] },
+  'เ-ือ': { form: 'เ◌ือ', name: 'สระเอือ', glyphs: ['เ', 'ื', 'อ'] },
+  'เ-ีย': { form: 'เ◌ีย', name: 'สระเอีย', glyphs: ['เ', 'ี', 'ย'] },
+  'ั-ว': { form: '◌ัว', name: 'สระอัว', glyphs: ['ั', 'ว'] },
+  'แ-ะ': { form: 'แ◌ะ', name: 'สระแอะ', glyphs: ['แ', 'ะ'] },
+  'โ-ะ': { form: 'โ◌ะ', name: 'สระโอะ', glyphs: ['โ', 'ะ'] },
+};
+
+/* เติมสระ: คำที่สระหายไป แบ่ง 2 ชุด สระเดี่ยวหลังพยัญชนะ กับ สระหน้า/สระประสม
+   เลือกเฉพาะคำที่มี emoji ชัดและเด็กอนุบาลรู้จัก */
+export const THAI_VOWEL_FILL = {
+  simple: [
+    { word: 'ปลา', emoji: '🐟', vowel: 'า' }, { word: 'ตา', emoji: '👁️', vowel: 'า' },
+    { word: 'ขา', emoji: '🦵', vowel: 'า' }, { word: 'ม้า', emoji: '🐴', vowel: 'า' },
+    { word: 'ชา', emoji: '🍵', vowel: 'า' }, { word: 'นา', emoji: '🌾', vowel: 'า' },
+    { word: 'หมี', emoji: '🐻', vowel: 'ี' }, { word: 'สี', emoji: '🎨', vowel: 'ี' },
+    { word: 'ผี', emoji: '👻', vowel: 'ี' },
+    { word: 'ปู', emoji: '🦀', vowel: 'ู' }, { word: 'งู', emoji: '🐍', vowel: 'ู' },
+    { word: 'หนู', emoji: '🐭', vowel: 'ู' }, { word: 'หมู', emoji: '🐷', vowel: 'ู' },
+    { word: 'ตู้', emoji: '🗄️', vowel: 'ู' },
+    { word: 'ลิง', emoji: '🐵', vowel: 'ิ' }, { word: 'หิน', emoji: '🪨', vowel: 'ิ' },
+    { word: 'ลิ้น', emoji: '👅', vowel: 'ิ' },
+    { word: 'ผึ้ง', emoji: '🐝', vowel: 'ึ' }, { word: 'ตึก', emoji: '🏢', vowel: 'ึ' },
+    { word: 'หมึก', emoji: '🦑', vowel: 'ึ' },
+    { word: 'มือ', emoji: '✋', vowel: 'ื' }, { word: 'หนังสือ', emoji: '📖', vowel: 'ื' },
+    { word: 'กุ้ง', emoji: '🦐', vowel: 'ุ' }, { word: 'ถุง', emoji: '👝', vowel: 'ุ' },
+    { word: 'ตุ๊กตา', emoji: '🧸', vowel: 'ุ' },
+    { word: 'ฟัน', emoji: '🦷', vowel: 'ั' }, { word: 'ผัก', emoji: '🥬', vowel: 'ั' },
+    { word: 'ถัง', emoji: '🪣', vowel: 'ั' }, { word: 'นั่ง', emoji: '🪑', vowel: 'ั' },
+    { word: 'น้ำ', emoji: '💧', vowel: 'ำ' }, { word: 'ดำ', emoji: '⚫', vowel: 'ำ' },
+    { word: 'ขำ', emoji: '😂', vowel: 'ำ' },
+  ],
+  front: [
+    { word: 'เกม', emoji: '🎮', vowel: 'เ' }, { word: 'เพลง', emoji: '🎵', vowel: 'เ' },
+    { word: 'เลข', emoji: '🔢', vowel: 'เ' },
+    { word: 'แมว', emoji: '🐱', vowel: 'แ' }, { word: 'แขน', emoji: '💪', vowel: 'แ' },
+    { word: 'แก้ว', emoji: '🥛', vowel: 'แ' }, { word: 'แหวน', emoji: '💍', vowel: 'แ' },
+    { word: 'แพะ', emoji: '🐐', vowel: 'แ-ะ' },
+    { word: 'โบ', emoji: '🎀', vowel: 'โ' }, { word: 'โซ่', emoji: '⛓️', vowel: 'โ' },
+    { word: 'โคม', emoji: '🏮', vowel: 'โ' }, { word: 'โลก', emoji: '🌍', vowel: 'โ' },
+    { word: 'โต๊ะ', emoji: '🪑', vowel: 'โ-ะ' },
+    { word: 'ไก่', emoji: '🐔', vowel: 'ไ' }, { word: 'ไข่', emoji: '🥚', vowel: 'ไ' },
+    { word: 'ไม้', emoji: '🪵', vowel: 'ไ' }, { word: 'ไฟ', emoji: '🔥', vowel: 'ไ' },
+    { word: 'ใบ', emoji: '🍃', vowel: 'ใ' }, { word: 'ใจ', emoji: '❤️', vowel: 'ใ' },
+    { word: 'เต่า', emoji: '🐢', vowel: 'เ-า' }, { word: 'เขา', emoji: '⛰️', vowel: 'เ-า' },
+    { word: 'เก้า', emoji: '9️⃣', vowel: 'เ-า' },
+    { word: 'เสือ', emoji: '🐯', vowel: 'เ-ือ' }, { word: 'เรือ', emoji: '⛵', vowel: 'เ-ือ' },
+    { word: 'เสื้อ', emoji: '👕', vowel: 'เ-ือ' },
+    { word: 'เตียง', emoji: '🛏️', vowel: 'เ-ีย' }, { word: 'เขียน', emoji: '✏️', vowel: 'เ-ีย' },
+    { word: 'เรียน', emoji: '📚', vowel: 'เ-ีย' },
+    { word: 'วัว', emoji: '🐄', vowel: 'ั-ว' }, { word: 'หัวใจ', emoji: '❤️', vowel: 'ั-ว' },
+  ],
+};
+
+/* หา index ของตัวสระในคำ ไล่หาทีละตัวตามลำดับ (สระประสมกระจายอยู่หน้า-บน-หลังพยัญชนะ) */
+export function vowelIndexes(word, vowelKey) {
+  const out = [];
+  let from = 0;
+  for (const g of THAI_VOWELS[vowelKey].glyphs) {
+    const i = word.indexOf(g, from);
+    if (i < 0) return out;
+    out.push(i);
+    from = i + 1;
+  }
+  return out;
+}

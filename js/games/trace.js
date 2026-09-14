@@ -4,21 +4,38 @@ import { THAI_CONSONANTS } from './thai.js';
 
 /* เขียนตัวอักษรตามรอย: ตัวอักษรสีจางเป็นแบบ เด็กลากนิ้วทับ
    ผ่านเมื่อระบายทับตัวอักษรได้มากพอ ไม่จับผิดเรื่องลำดับเส้น เพราะเด็ก 5 ขวบยังไม่ต้องเป๊ะ
-   cfg: { set: 'thai1'|'thai2'|'abc'|'digits' } */
+   cfg: { set: 'thai1'|'thai2'|'thai3'|'abc'|'abc2'|'abc3'|'abc4'|'digits' }
+   แต่ละ "ข้อ" อาจมีหลายตัวให้เขียนต่อกัน (ABC เขียนตัวใหญ่แล้วต่อด้วยตัวเล็กในข้อเดียว)
+   จุดความคืบหน้าและดาวนับต่อข้อ ไม่ใช่ต่อตัว */
 
 const SETS = {
   thai1: pickThai('กงจดตบปม'),
   thai2: pickThai('ขคชนผยรล'),
   thai3: pickThai('วสหอฮธทฟ'),
-  abc: 'ABCDEFGH'.split('').map((ch) => ({ glyph: ch, say: ch, lang: 'en-US', font: 'latin' })),
-  digits: '0123456789'.split('').map((d) => ({ glyph: d, say: d, lang: 'th-TH', font: 'latin' })),
+  abc: pickAbc('ABCDEF'),
+  abc2: pickAbc('GHIJKL'),
+  abc3: pickAbc('MNOPQR'),
+  abc4: pickAbc('STUVWXYZ'),
+  digits: '0123456789'.split('').map((d) => ({ parts: [{ glyph: d, say: d, hint: `เขียน ${d}` }], lang: 'th-TH', font: 'latin' })),
 };
 
 function pickThai(letters) {
   return [...letters].map((ch) => {
     const c = THAI_CONSONANTS.find((x) => x.word === ch);
-    return { glyph: ch, say: c.say, hint: `${c.emoji} ${ch} ${c.name}`, lang: 'th-TH', font: 'thai' };
+    return { parts: [{ glyph: ch, say: c.say, hint: `เขียน ${c.emoji} ${ch} ${c.name}` }], lang: 'th-TH', font: 'thai' };
   });
+}
+
+// ตัวใหญ่แล้วตัวเล็กติดกัน เด็กจะได้จำเป็นคู่ (ผู้ใช้ขอมา)
+function pickAbc(letters) {
+  return [...letters].map((ch) => ({
+    parts: [
+      { glyph: ch, say: ch, hint: `เขียน ${ch} ตัวใหญ่` },
+      { glyph: ch.toLowerCase(), say: ch, hint: `เขียน ${ch.toLowerCase()} ตัวเล็ก` },
+    ],
+    lang: 'en-US',
+    font: 'latin',
+  }));
 }
 
 // เส้นบางลงแล้ว (7.5% ของกระดาน ≈ ความหนาเส้นตัวอักษร) เลยลดเกณฑ์ให้ยังใจดีเท่าเดิม
@@ -27,10 +44,13 @@ const PASS_RATIO = 0.5;
 export function play(stage, config, hooks = {}) {
   return new Promise(async (resolve) => {
     const items = SETS[config.set] || SETS.thai1;
-    let idx = 0;
+    let idx = 0;      // ข้อ
+    let part = 0;     // ตัวที่กำลังเขียนในข้อนั้น
     let firstTry = 0;
     let clears = 0;
+    let missedItem = false; // ตัวไหนในข้อล้างเกิน 1 ครั้ง ข้อนั้นไม่นับว่าได้ตั้งแต่ครั้งแรก
     let done = false;
+    const current = () => items[idx].parts[part];
 
     stage.innerHTML = `
       <div class="prompt" id="prompt"></div>
@@ -200,42 +220,51 @@ export function play(stage, config, hooks = {}) {
     };
 
     function showItem() {
-      const item = items[idx];
+      const item = { ...items[idx], ...current() };
       layout();
       fitGlyph(item);
       drawGuide(item);
       buildMask(item);
       $ok.hidden = true;
-      $prompt.textContent = item.hint ? `เขียน ${item.hint}` : `เขียน ${item.glyph}`;
+      $prompt.textContent = item.hint;
     }
 
     async function succeed() {
       done = true;
       const item = items[idx];
-      if (clears <= 1) firstTry++;
+      if (clears > 1) missedItem = true;
       $ok.hidden = false;
       sfx.correct();
       cheerBuddy(stage);
       confetti(stage, 20);
-      speak(item.say, item.lang);
       sayBubble(stage, pick(['เขียนสวยมาก!', 'เก่งจัง!', 'ได้แล้ว 🌟']));
-      await wait(1400);
+      await Promise.all([wait(1400), speak(current().say, item.lang)]);
 
-      idx++;
       clears = 0;
       done = false;
+      part++;
+      if (part < item.parts.length) {
+        showItem();
+        speak(current().say, item.lang);
+        return;
+      }
+
+      if (!missedItem) firstTry++;
+      missedItem = false;
+      part = 0;
+      idx++;
       if (idx >= items.length) {
         hooks.onProgress?.(items.length, items.length);
         resolve({ firstTry, total: items.length });
       } else {
         hooks.onProgress?.(idx, items.length);
         showItem();
-        speak(items[idx].say, items[idx].lang);
+        speak(current().say, items[idx].lang);
       }
     }
 
     hooks.onProgress?.(0, items.length);
     showItem();
-    speak(items[0].say, items[0].lang);
+    speak(current().say, items[0].lang);
   });
 }

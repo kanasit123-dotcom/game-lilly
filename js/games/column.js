@@ -344,6 +344,19 @@ export function play(stage, config, hooks = {}) {
       render();
     }
 
+    /* สรุปวิธีทำเป็นบรรทัดสั้นๆ เอาจากขั้นตอน "ask" ที่เด็กเพิ่งตอบไป
+       ให้เห็นภาพรวมทั้งข้ออีกครั้งก่อนไปข้อต่อไป */
+    function recapLines(p) {
+      const lines = steps
+        .filter((st) => st.type === 'ask')
+        .map((st) => st.text.replace('?', st.answer));
+      const au = p.a % 10, bu = p.b % 10;
+      if (p.op === '+' && au + bu >= 10) lines.splice(1, 0, `${au + bu} คือ 1 สิบ กับ ${(au + bu) % 10} หน่วย เขียน ${(au + bu) % 10} ทด 1`);
+      if (p.op !== '+' && au < bu) lines.unshift(`${au} ลบ ${bu} ไม่ได้ ยืม 1 สิบ มาเป็น ${au + 10}`);
+      if (p.op === '+' && p.b < 10 && au + bu < 10) lines.push(`หลักสิบไม่มีตัวบวก ยก ${Math.floor(p.a / 10)} ลงมา`);
+      return lines;
+    }
+
     async function finishProblem() {
       const p = problems[idx];
       if (!missedThisOne) firstTry++;
@@ -351,14 +364,33 @@ export function play(stage, config, hooks = {}) {
       s.pulse = null;
       $aid.hidden = true;
       render();
-      $prompt.textContent = `${p.a} ${p.op} ${p.b} = ${p.result} 🎉`;
+
+      const last = idx + 1 >= problems.length;
+      $prompt.textContent = 'ทำเสร็จแล้ว! 🎉';
+      $action.innerHTML = `
+        <div class="col-summary">
+          <div class="col-summary-eq">
+            <b>${p.a}</b><span>${p.op}</span><b>${p.b}</b><span>=</span><b class="ans">${p.result}</b>
+          </div>
+          <div class="col-summary-steps">${recapLines(p).map((t) => `<div>${t}</div>`).join('')}</div>
+          <button class="btn green col-next" id="next" hidden>${last ? 'เสร็จแล้ว ⭐' : 'ข้อต่อไป ▶'}</button>
+        </div>`;
       confetti(stage, 22);
       cheerBuddy(stage);
       sfx.win();
       sayBubble(stage, pick(['เยี่ยมมาก!', 'ตั้งเลขเก่งมาก!', 'ถูกต้อง 🌟']));
-      speak(`${p.a} ${p.op === '+' ? 'บวก' : 'ลบ'} ${p.b} เท่ากับ ${p.result}`);
 
-      await wait(2000);
+      // อ่านสรุปให้จบก่อน ค่อยโผล่ปุ่มไปข้อต่อไป (ผู้ใช้ทักว่าเมื่อก่อนเสียงโดนตัดกลางคัน)
+      await Promise.all([
+        wait(1200),
+        speak(`${p.a} ${p.op === '+' ? 'บวก' : 'ลบ'} ${p.b} เท่ากับ ${p.result}`),
+      ]);
+
+      const $next = $action.querySelector('#next');
+      if (!$next) return; // ผู้ใช้กดออกไปแล้ว
+      $next.hidden = false;
+      await new Promise((r) => { $next.onclick = () => { sfx.tap(); r(); }; });
+
       idx++;
       if (idx >= problems.length) {
         hooks.onProgress?.(problems.length, problems.length);

@@ -1,5 +1,6 @@
 import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
 import { sfx, speak } from '../audio.js';
+import { toCells, tileText } from './thai.js';
 
 /* สะกดคำ: ดูรูป ฟังเสียง แล้วแตะตัวอักษรเรียงทีละตัวลงช่อง
    แตะผิดตัวแค่สั่นเบาๆ ไม่ให้สะกดผิดค้างไว้ในช่อง
@@ -28,28 +29,6 @@ const SETS = {
 };
 
 const PER_LEVEL = 6;
-// สระบน + วรรณยุกต์ (ิ ี ึ ื ั ็ ่ ้ ๊ ๋ ์) และ สระล่าง (ุ ู)
-const ABOVE = /[\u0E31\u0E34-\u0E37\u0E47-\u0E4E]/;
-const BELOW = /[\u0E38-\u0E3A]/;
-const COMBINING = (ch) => ABOVE.test(ch) || BELOW.test(ch);
-
-/* สระบน-ล่างกับวรรณยุกต์เป็นตัวลอย ต้องมีวงกลมประให้เห็นตำแหน่ง เหมือนในหนังสือเรียน */
-const tileText = (ch) => (COMBINING(ch) ? '◌' + ch : ch);
-
-/* จัดตัวอักษรเป็นช่องตามตำแหน่งจริงของอักษรไทย:
-   พยัญชนะและสระหน้า-หลัง (เ แ โ ไ ใ า ะ) อยู่แถวหลัก
-   สระบน/วรรณยุกต์ไปช่องเล็กเหนือพยัญชนะตัวก่อนหน้า สระล่างไปช่องเล็กใต้
-   ค่าในช่องคือ index ของตัวอักษรในคำ ลำดับการแตะยังเป็นลำดับเขียนปกติ */
-function toCells(letters) {
-  const cells = [];
-  letters.forEach((ch, i) => {
-    const last = cells[cells.length - 1];
-    if (last && ABOVE.test(ch)) last.above.push(i);
-    else if (last && BELOW.test(ch)) last.below.push(i);
-    else cells.push({ base: i, above: [], below: [] });
-  });
-  return cells;
-}
 
 /* ตัวลวงที่ไม่ซ้ำกับตัวในคำ */
 function distractors(word, lang, n) {
@@ -147,10 +126,9 @@ export function play(stage, config, hooks = {}) {
       sfx.correct();
       cheerBuddy(stage);
       confetti(stage, 22);
-      speak(words[idx].word, set.lang);
       sayBubble(stage, `${pick(['สะกดถูกเลย!', 'เก่งมาก!', 'อ่านได้แล้ว 🌟'])} ${words[idx].word}`);
 
-      await wait(1600);
+      await Promise.all([wait(1600), speak(words[idx].word, set.lang)]);
       idx++;
       if (idx >= words.length) {
         hooks.onProgress?.(words.length, words.length);

@@ -1088,6 +1088,20 @@ body {
 .word-card.used { opacity: 0; pointer-events: none; transform: scale(.5); }
 .word-card.nope { animation: wiggle .45s; }
 
+/* รู้จักสระ: การ์ดรูปมี emoji กับคำอยู่ด้วยกัน การ์ดลากเป็นรูปสระใช้ฟอนต์ไทย */
+.vowel-mode .pic-card {
+  aspect-ratio: auto;
+  min-height: clamp(96px, 17vw, 160px);
+  gap: 2px;
+  font-size: clamp(2rem, 5.5vw, 3rem);
+  line-height: 1.1;
+  min-width: clamp(84px, 16vw, 130px);
+  padding: 8px 10px;
+}
+.vowel-mode .pic-card b { font-family: var(--font-th); font-weight: 400; font-size: clamp(1.2rem, 3.2vw, 1.8rem); color: var(--ink); }
+.vowel-mode .word-card { font-family: var(--font-th); font-weight: 400; font-size: clamp(1.6rem, 4.4vw, 2.4rem); }
+.vowel-mode .pic-card .answer-tag { font-family: var(--font-th); font-weight: 400; }
+
 /* ===== ตั้งบวก/ตั้งลบแนวตั้ง ===== */
 .col-area {
   display: flex;
@@ -1269,6 +1283,42 @@ body {
   .carry-aid { max-width: 90vw; flex-direction: row; flex-wrap: wrap; justify-content: center; }
 }
 
+/* สรุปหลังทำเสร็จแต่ละข้อ (โผล่แทนแป้นตัวเลข) อ่านออกเสียงจบก่อน ค่อยโผล่ปุ่มไปข้อต่อไป */
+.col-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.4vh, 12px);
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: clamp(10px, 2vh, 18px) clamp(18px, 4vw, 34px);
+  box-shadow: 0 6px 0 var(--card-edge), 0 10px 20px rgba(0, 0, 0, .1);
+  animation: pop-in .45s cubic-bezier(.2, .9, .3, 1.5);
+  max-width: 92vw;
+}
+.col-summary-eq {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 18px);
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 5.5vw, 3.2rem);
+  color: var(--ink);
+  line-height: 1.2;
+}
+.col-summary-eq span { color: var(--ink-soft); }
+.col-summary-eq .ans { color: var(--green-dark); background: #f0ffe8; border-radius: var(--r-sm); padding: 0 14px; }
+.col-summary-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: clamp(.95rem, 2.2vw, 1.2rem);
+  color: var(--ink-soft);
+  text-align: center;
+}
+.col-next { font-size: clamp(1.1rem, 2.8vw, 1.5rem); padding: 12px 34px; animation: pop-in .35s cubic-bezier(.2, .9, .3, 1.5); }
+.col-next[hidden] { display: none; }
+
 /* ===== ชุดคำถามแบบเลือกตอบ ===== */
 .quiz-visual {
   display: flex;
@@ -1408,6 +1458,27 @@ body {
 /* ตัวเลือกภาษาไทยใช้ฟอนต์ไทย ไม่ต้องเว้นตัวอักษรห่างแบบคำอังกฤษ */
 .choice.thai { font-family: var(--font-th); font-weight: 400; letter-spacing: 0; font-size: clamp(1.8rem, 5vw, 3rem); }
 .seq-row.thai .seq-box { font-family: var(--font-th); font-weight: 400; }
+
+/* เติมสระ: ช่องที่โชว์ตัวอักษรให้ (given) เป็นสีขาวเรียบ ช่องสระที่หายเป็นสีฟ้าเด้ง */
+.spell-slot.given, .mark-slot.given { border-style: solid; border-color: var(--card-edge); color: var(--ink); }
+.spell-slot.given { font-family: var(--font-th); font-weight: 400; }
+.vowel-fill { flex-wrap: nowrap; }
+.choice.vowel { min-width: clamp(84px, 15vw, 130px); }
+
+/* โจทย์ปัญหา: ถาดสองใบคั่นด้วยเครื่องหมาย ตัวที่ให้เพื่อนไปจางลงและมีกากบาท */
+.story-row { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 18px); flex-wrap: wrap; }
+.story-op { font-family: var(--font-num); font-weight: 700; font-size: clamp(2rem, 6vw, 3.4rem); color: var(--ink-soft); }
+.count-tray.story { padding: clamp(8px, 1.6vh, 16px); max-width: min(100%, 300px); }
+.count-tray.story span { font-size: clamp(1.7rem, 5vw, 2.8rem); }
+.count-tray.story span.gone { opacity: .3; filter: grayscale(.8); position: relative; }
+.count-tray.story span.gone::after {
+  content: '✕';
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  color: var(--pink-dark);
+  font-size: .8em;
+  opacity: 1;
+}
 
 /* ===== สะกดคำ / ผสมคำ ===== */
 .spell-area {
@@ -1668,3 +1739,350 @@ body {
   .dots i { width: 10px; height: 10px; }
   .game-bar .star-counter { font-size: .95rem; padding: 6px 14px; }
 }
+
+/* ===== เกมโยงเส้น ===== */
+.connect-area {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 clamp(6px, 3vw, 24px);
+  touch-action: none;
+}
+
+.connect-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.connect-lines line.temp {
+  stroke: var(--purple);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.connect-lines line.done {
+  stroke: var(--green-dark);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.connect-col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2.4vh, 22px);
+  width: clamp(96px, 26vw, 170px);
+}
+
+.connect-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: clamp(64px, 12vh, 100px);
+  width: 100%;
+  background: var(--card);
+  border: 4px solid transparent;
+  border-radius: var(--r-md);
+  box-shadow: 0 5px 0 var(--card-edge);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform .12s, box-shadow .12s, border-color .12s, background .12s;
+}
+.connect-item:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--card-edge); }
+
+.ci-emoji { font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1; }
+.ci-name {
+  font-family: var(--font-th);
+  font-size: clamp(.75rem, 2vw, 1rem);
+  color: var(--ink-soft);
+  line-height: 1.1;
+  text-align: center;
+}
+
+.connect-item.selected {
+  border-color: var(--purple);
+  animation: ready-pulse 1s ease-in-out infinite;
+}
+.connect-item.hover-target {
+  border-color: var(--blue);
+  box-shadow: 0 5px 0 var(--blue-dark);
+  transform: scale(1.06);
+}
+.connect-item.solved {
+  border-color: var(--green);
+  background: #f0ffe8;
+  box-shadow: 0 5px 0 var(--green-dark);
+  cursor: default;
+}
+.connect-item.nope { animation: wiggle .45s; }
+
+@media (max-width: 560px) {
+  .connect-area { padding: 0 4px; }
+  .connect-col { width: clamp(88px, 30vw, 140px); gap: clamp(8px, 2vh, 16px); }
+  .ci-name { font-size: clamp(.68rem, 2.6vw, .85rem); }
+}
+
+/* ===== เรียงลำดับ ===== */
+.order-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(14px, 4vh, 40px);
+  width: 100%;
+}
+
+.order-slots, .order-tiles {
+  display: flex;
+  gap: clamp(8px, 2vw, 18px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.order-slots { align-items: center; }
+
+.order-slot {
+  display: grid;
+  place-items: center;
+  min-width: clamp(60px, 11vw, 96px);
+  height: clamp(60px, 11vw, 96px);
+  border-radius: var(--r-sm);
+  border: 4px dashed var(--card-edge);
+  background: #fff;
+  padding: 4px;
+}
+.order-slot.now { border-color: var(--blue); animation: ready-pulse 1.2s ease-in-out infinite; }
+.order-slot.filled { border-style: solid; border-color: var(--green); background: #f0ffe8; animation: pop-in .35s cubic-bezier(.2, .9, .3, 1.5); }
+.order-slot.story {
+  min-width: clamp(78px, 17vw, 130px);
+  height: clamp(90px, 18vw, 140px);
+  flex-direction: column;
+  gap: 2px;
+}
+
+.order-tile {
+  font-family: var(--font-num);
+  font-weight: 700;
+  color: #fff;
+  background: var(--pink);
+  border: none;
+  border-radius: var(--r-sm);
+  min-width: clamp(60px, 11vw, 96px);
+  height: clamp(60px, 11vw, 96px);
+  padding: 4px 8px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 0 var(--pink-dark), 0 8px 14px rgba(0, 0, 0, .12);
+  transition: transform .08s, box-shadow .08s, opacity .25s;
+}
+.order-tile:nth-child(2n) { background: var(--blue); box-shadow: 0 6px 0 var(--blue-dark), 0 8px 14px rgba(0,0,0,.12); }
+.order-tile:nth-child(3n) { background: var(--purple); box-shadow: 0 6px 0 var(--purple-dark), 0 8px 14px rgba(0,0,0,.12); }
+.order-tile:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0, 0, 0, .2); }
+.order-tile.used { opacity: .18; pointer-events: none; transform: scale(.85); }
+.order-tile.nope { animation: wiggle .45s; }
+
+/* การ์ดเรื่องราว: กว้างขึ้น มีทั้ง emoji และคำบรรยาย เลยใช้พื้นหลังอ่อนแทนสีทึบ ให้อ่านคำง่าย */
+.order-tile.story {
+  min-width: clamp(78px, 17vw, 130px);
+  height: clamp(90px, 18vw, 140px);
+  flex-direction: column;
+  gap: 2px;
+  background: var(--card);
+  box-shadow: 0 6px 0 var(--card-edge), 0 8px 14px rgba(0, 0, 0, .1);
+}
+
+.ot-num { font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1; }
+
+.ot-emoji { font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1; }
+.order-slot.story .ot-emoji, .order-tile.story .ot-emoji { font-size: clamp(1.6rem, 4.5vw, 2.4rem); }
+
+.ot-emoji.size-1 { font-size: clamp(1rem, 3vw, 1.4rem); }
+.ot-emoji.size-2 { font-size: clamp(1.5rem, 4.5vw, 2.1rem); }
+.ot-emoji.size-3 { font-size: clamp(2rem, 6vw, 2.9rem); }
+.ot-emoji.size-4 { font-size: clamp(2.6rem, 8vw, 3.8rem); }
+
+.ot-cap {
+  font-family: var(--font-th);
+  font-weight: 400;
+  color: var(--ink);
+  font-size: clamp(.7rem, 2vw, .95rem);
+  line-height: 1.15;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .order-slots, .order-tiles { gap: clamp(6px, 1.6vw, 12px); }
+  .order-area { gap: clamp(10px, 3vh, 24px); }
+}
+
+/* ===== วาดรูปอิสระ ===== */
+.draw-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+}
+.draw-wrap canvas {
+  background: #fff;
+  border-radius: var(--r-md);
+  box-shadow: 0 6px 0 var(--card-edge), 0 10px 20px rgba(0, 0, 0, .1);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* ปุ่มขนาดพู่กัน (•/●) ใช้ .swatch เดิม แต่ไม่มีสีพื้นแบบสวอตช์สี เลยใส่ตัวหนังสือสีเข้มเอง */
+.brush-size {
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+}
+
+@media (max-width: 560px) {
+  .stamps .pic-btn {
+    width: clamp(46px, 11vw, 60px);
+    height: clamp(46px, 9vh, 60px);
+  }
+}
+
+/* ===== กลองหรรษา ===== */
+.drum-kit {
+  display: grid;
+  grid-template-columns: repeat(3, clamp(84px, 22vw, 150px));
+  grid-auto-rows: clamp(84px, 22vw, 150px);
+  gap: clamp(10px, 2.4vw, 20px);
+  justify-content: center;
+  align-content: center;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.drum-pad {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 8px 0 var(--dc), 0 12px 20px rgba(0, 0, 0, .18);
+  color: #fff;
+  font-family: var(--font-th);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  touch-action: none;
+  transition: transform .06s, box-shadow .06s;
+}
+.drum-pad:active {
+  transform: translateY(4px);
+  box-shadow: 0 4px 0 var(--dc), 0 8px 14px rgba(0, 0, 0, .16);
+}
+.dp-emoji { font-size: clamp(1.8rem, 6vw, 3rem); line-height: 1; }
+.dp-name { font-size: clamp(.7rem, 2vw, .95rem); }
+
+.drum-pad.hit { animation: pad-hit .28s ease-out; }
+.drum-pad.hit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  animation: pad-ring .4s ease-out;
+  pointer-events: none;
+}
+@keyframes pad-hit {
+  0% { transform: scale(1); }
+  35% { transform: scale(.88); }
+  100% { transform: scale(1); }
+}
+@keyframes pad-ring {
+  0% { opacity: .8; transform: scale(.7); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+
+@media (max-width: 560px) {
+  .drum-kit {
+    grid-template-columns: repeat(2, clamp(90px, 30vw, 150px));
+    grid-auto-rows: clamp(90px, 30vw, 150px);
+  }
+}
+
+/* ===== ตกปลา ===== */
+.pond {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  max-width: 720px;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, #bfe9ff 0%, #6ec6ff 60%, #2f96de 100%);
+  box-shadow: inset 0 0 0 6px rgba(255, 255, 255, .5), 0 6px 0 var(--card-edge);
+}
+/* พื้นบ่อ: สาหร่าย ก้อนหิน เปลือกหอย ให้บ่อไม่โล่ง */
+.pond::after {
+  content: '🌿 🪨 🌿 🐚 🌿';
+  position: absolute;
+  left: 0; right: 0; bottom: 4px;
+  text-align: center;
+  letter-spacing: clamp(10px, 4vw, 40px);
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  opacity: .85;
+  pointer-events: none;
+}
+.fish {
+  position: absolute;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  line-height: 1;
+  user-select: none;
+  touch-action: none;
+  font-size: clamp(2rem, var(--sz), 3.4rem);
+  transform: scaleX(var(--flip, 1));
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .15));
+  animation-name: swim-across;
+  animation-duration: var(--dur);
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+.fish-emoji { display: block; }
+@keyframes swim-across {
+  to { transform: translateX(var(--dx)) scaleX(var(--flip, 1)); }
+}
+.fish.boing .fish-emoji { animation: cheer .5s ease-in-out 2; }
+.fish.caught {
+  animation: catch-float .5s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes catch-float {
+  to { transform: translateY(-70px) scale(1.15) scaleX(var(--flip, 1)); opacity: 0; }
+}
+
+.bucket {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 1.6em;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  flex: 0 0 auto;
+}
+.fish-count b { font-family: var(--font-num); color: var(--blue-dark); font-size: 1.2em; }

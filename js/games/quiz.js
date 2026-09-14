@@ -1,10 +1,11 @@
 import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML, blocksMarkup } from '../utils.js';
 import { sfx, speak } from '../audio.js';
-import { THAI_VOWEL_WORDS, THAI_FINAL_WORDS, THAI_FINAL_POOL } from './thai.js';
+import { THAI_VOWEL_WORDS, THAI_FINAL_WORDS, THAI_FINAL_POOL, THAI_VOWELS, THAI_VOWEL_FILL, vowelIndexes, toCells, tileText } from './thai.js';
 
 /* เครื่องเกมแบบ "ดูโจทย์ แล้วแตะคำตอบ" ใช้ร่วมกันหลายด่าน
-   cfg: { kind, count }
-   แต่ละ kind คืน { prompt, visual, choices, answer, say, sayLang, sayAfter, choiceClass }
+   cfg: { kind, count, ...ค่าเฉพาะ kind }
+   แต่ละ kind รับ cfg แล้วคืน { prompt, visual, choices, answer, say, sayLang, sayAfter, choiceClass, onCorrect }
+   onCorrect($visual) ใช้เปลี่ยนภาพหลังตอบถูก เช่น เติมสระลงช่องว่าง
    choices เป็น string หรือ { v, html, cls } ก็ได้ */
 
 const COUNT_ITEMS = ['🐢', '🦭', '🍓', '🍎', '🐥', '🐠', '🌷', '🍪', '⭐', '🎈', '🐞', '🍄'];
@@ -52,6 +53,26 @@ const COLORS = [
   { en: 'ORANGE', th: 'ส้ม', emoji: '🟠' }, { en: 'PURPLE', th: 'ม่วง', emoji: '🟣' },
   { en: 'BLACK', th: 'ดำ', emoji: '⚫' }, { en: 'WHITE', th: 'ขาว', emoji: '⚪' },
   { en: 'BROWN', th: 'น้ำตาล', emoji: '🟤' }, { en: 'PINK', th: 'ชมพู', emoji: '🩷' },
+];
+
+/* โจทย์ปัญหา: ของที่นับได้พร้อมลักษณนาม ให้ประโยคอ่านเป็นภาษาไทยถูกต้อง */
+const STORY_ITEMS = [
+  { e: '🍎', n: 'แอปเปิ้ล', cl: 'ลูก' }, { e: '🍓', n: 'สตรอว์เบอร์รี', cl: 'ลูก' },
+  { e: '🍪', n: 'คุกกี้', cl: 'ชิ้น' }, { e: '🎈', n: 'ลูกโป่ง', cl: 'ลูก' },
+  { e: '🐢', n: 'เต่า', cl: 'ตัว' }, { e: '🦭', n: 'แมวน้ำ', cl: 'ตัว' },
+  { e: '🐟', n: 'ปลา', cl: 'ตัว' }, { e: '🌷', n: 'ดอกไม้', cl: 'ดอก' },
+  { e: '🐥', n: 'ลูกเจี๊ยบ', cl: 'ตัว' }, { e: '⭐', n: 'ดาว', cl: 'ดวง' },
+];
+
+/* คำ CVC ที่สระตรงกลางหายไป ให้เลือก a e i o u */
+const EN_VOWEL_WORDS = [
+  { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'SUN', emoji: '☀️' },
+  { word: 'BUS', emoji: '🚌' }, { word: 'HAT', emoji: '🎩' }, { word: 'PIG', emoji: '🐷' },
+  { word: 'CUP', emoji: '🥤' }, { word: 'BED', emoji: '🛏️' }, { word: 'PEN', emoji: '🖊️' },
+  { word: 'BAT', emoji: '🦇' }, { word: 'BUG', emoji: '🐛' }, { word: 'HEN', emoji: '🐔' },
+  { word: 'FOX', emoji: '🦊' }, { word: 'BOX', emoji: '📦' }, { word: 'JAM', emoji: '🍯' },
+  { word: 'NET', emoji: '🥅' }, { word: 'POT', emoji: '🍲' }, { word: 'WEB', emoji: '🕸️' },
+  { word: 'LIP', emoji: '👄' }, { word: 'TEN', emoji: '🔟' },
 ];
 
 const SIZE_ITEMS = ['🐘', '🐢', '🦭', '🐱', '🍎', '⭐', '🎈', '🚗', '🌳', '🐟'];
@@ -361,6 +382,85 @@ const KINDS = {
     };
   },
 
+  /* เติมสระ: โชว์คำที่สระหายไป (ช่องว่างอยู่ตำแหน่งจริงของสระ หน้า/บน/ล่าง/หลัง)
+     ตอบถูกแล้วสระเด้งลงช่อง พร้อมอ่านคำและชื่อสระให้ฟัง */
+  thaiVowelFill(cfg) {
+    const pool = THAI_VOWEL_FILL[cfg.pool] || THAI_VOWEL_FILL.simple;
+    const { word, emoji, vowel } = pick(pool);
+    const letters = [...word];
+    const blanks = new Set(vowelIndexes(word, vowel));
+    const others = shuffle([...new Set(pool.map((w) => w.vowel))].filter((v) => v !== vowel)).slice(0, 2);
+
+    const wordHTML = (showAll) => toCells(letters).map((c) => {
+      const slot = (i, small) => {
+        const blank = blanks.has(i) && !showAll;
+        const fresh = blanks.has(i) && showAll;
+        return `<span class="${small ? 'mark-slot' : 'spell-slot'} ${blank ? 'now' : fresh ? 'filled' : 'given'}">${blank ? '' : tileText(letters[i])}</span>`;
+      };
+      return `<div class="spell-cell">
+        <div class="mark-row">${c.above.map((i) => slot(i, true)).join('')}</div>
+        ${slot(c.base, false)}
+        <div class="mark-row">${c.below.map((i) => slot(i, true)).join('')}</div>
+      </div>`;
+    }).join('');
+
+    return {
+      prompt: 'สระอะไรหายไป? แตะสระที่ถูก',
+      visual: `<div class="letter-hint">${emoji}</div><div class="spell-slots vowel-fill">${wordHTML(false)}</div>`,
+      choices: shuffle([vowel, ...others]).map((v) => ({ v, html: THAI_VOWELS[v].form })),
+      answer: vowel,
+      say: `${word} ${THAI_VOWELS[vowel].name}`,
+      sayLang: 'th-TH',
+      sayAfter: true,
+      choiceClass: 'thai vowel',
+      onCorrect($visual) { $visual.querySelector('.vowel-fill').innerHTML = wordHTML(true); },
+    };
+  },
+
+  /* โจทย์ปัญหาบวก-ลบไม่เกิน 10 มีรูปให้นับ ตัวที่ให้เพื่อนไปจะจางลง */
+  wordProblem() {
+    const it = pick(STORY_ITEMS);
+    const add = Math.random() < 0.55;
+    const a = add ? randInt(2, 6) : randInt(3, 9);
+    const b = add ? randInt(1, 9 - a) : randInt(1, a - 1);
+    const answer = add ? a + b : a - b;
+    const tray = (n, dim = 0) =>
+      `<div class="count-tray story">${Array.from({ length: n }, (_, i) => `<span class="${i >= n - dim ? 'gone' : ''}">${it.e}</span>`).join('')}</div>`;
+    const prompt = add
+      ? `ลิลลี่มี${it.n} ${a} ${it.cl} แม่ให้อีก ${b} ${it.cl} รวมกันมีกี่${it.cl}?`
+      : `ลิลลี่มี${it.n} ${a} ${it.cl} ให้เพื่อนไป ${b} ${it.cl} เหลือกี่${it.cl}?`;
+    return {
+      prompt,
+      visual: add
+        ? `<div class="story-row">${tray(a)}<span class="story-op">+</span>${tray(b)}</div>`
+        : `<div class="story-row">${tray(a, b)}</div>`,
+      choices: nearChoices(answer, 0, 12),
+      answer,
+      say: prompt.replace('?', ''),
+    };
+  },
+
+  /* เติมสระอังกฤษ a e i o u ตรงกลางคำ CVC */
+  enVowel() {
+    const { word, emoji } = pick(EN_VOWEL_WORDS);
+    const at = 1;
+    const answer = word[at];
+    const boxes = word
+      .split('')
+      .map((ch, i) => `<span class="seq-box${i === at ? ' blank' : ''}">${i === at ? '?' : ch}</span>`)
+      .join('');
+    const others = shuffle('AEIOU'.split('').filter((c) => c !== answer)).slice(0, 2);
+    return {
+      prompt: 'เติมสระ a e i o u ที่หายไป',
+      visual: `<div class="letter-hint">${emoji}</div><div class="seq-row">${boxes}</div>`,
+      choices: shuffle([answer, ...others]),
+      answer,
+      say: word,
+      sayLang: 'en-US',
+      sayAfter: true,
+    };
+  },
+
   evenOdd() {
     const item = pick(COUNT_ITEMS);
     const n = randInt(1, 10);
@@ -396,7 +496,7 @@ export function play(stage, config, hooks = {}) {
     const $action = stage.querySelector('#action');
 
     function startQuestion() {
-      const q = make();
+      const q = make(config);
       missedThisOne = false;
       hooks.onProgress?.(idx, total);
 
@@ -429,9 +529,10 @@ export function play(stage, config, hooks = {}) {
       cheerBuddy(stage);
       confetti(stage, 20);
       sayBubble(stage, pick(['เก่งมาก!', 'ถูกต้อง!', 'สุดยอด 🌟']));
-      if (q.sayAfter) speak(q.say, q.sayLang);
+      q.onCorrect?.($visual);
 
-      await wait(1500);
+      // รอเสียงอ่านคำเฉลยจบก่อน ไม่ให้โจทย์ข้อถัดไปพูดแทรก
+      await Promise.all([wait(1500), q.sayAfter ? speak(q.say, q.sayLang) : null]);
       idx++;
       if (idx >= total) {
         hooks.onProgress?.(total, total);

@@ -29,6 +29,9 @@ export const LEVELS = [
   { id: 'q-shadow', subject: 'brain', type: 'quiz', icon: '🌑', title: 'จับคู่เงา',
     config: { kind: 'shadow', count: 6 } },
 
+  { id: 'b-connect1', subject: 'brain', type: 'connect', icon: '🐝', title: 'โยงเส้นคู่กัน',
+    config: { set: 'pairs', rounds: 3 } },
+
   { id: 't-trace1', subject: 'thai', type: 'trace', icon: '✏️', title: 'เขียน ก-ฮ',
     config: { set: 'thai1' } },
 
@@ -53,6 +56,12 @@ export const LEVELS = [
   { id: 'q-size', subject: 'brain', type: 'quiz', icon: '🐘', title: 'ใหญ่หรือเล็ก',
     config: { kind: 'size', count: 6 } },
 
+  { id: 'b-order-size', subject: 'brain', type: 'order', icon: '🎈', title: 'เรียงเล็กไปใหญ่',
+    config: { kind: 'size', count: 5 } },
+
+  { id: 'm-order', subject: 'math', type: 'order', icon: '📈', title: 'เรียงตัวเลข',
+    config: { kind: 'numbers', count: 5 } },
+
   { id: 'q-position', subject: 'brain', type: 'quiz', icon: '🧭', title: 'ซ้าย ขวา บน ล่าง',
     config: { kind: 'position', count: 6 } },
 
@@ -61,6 +70,9 @@ export const LEVELS = [
 
   { id: 't-spell', subject: 'thai', type: 'spell', icon: '📖', title: 'ผสมคำไทย',
     config: { set: 'th1' } },
+
+  { id: 't-vowel-match', subject: 'thai', type: 'wordmatch', icon: '🐟', title: 'รู้จักสระ',
+    config: { set: 'thaiVowels', rounds: 3 } },
 
   { id: 'w-sea', subject: 'en', type: 'wordmatch', icon: '🐢', title: 'ใต้ทะเล',
     config: { set: 'sea', rounds: 3 } },
@@ -71,11 +83,23 @@ export const LEVELS = [
   { id: 't-vowel', subject: 'thai', type: 'quiz', icon: '🦀', title: 'คำตามสระ',
     config: { kind: 'thaiVowel', count: 6 } },
 
+  { id: 't-vowelfill1', subject: 'thai', type: 'quiz', icon: '✍️', title: 'เติมสระ',
+    config: { kind: 'thaiVowelFill', pool: 'simple', count: 6 } },
+
+  { id: 'b-connect2', subject: 'brain', type: 'connect', icon: '🚒', title: 'ใครใช้อะไร',
+    config: { set: 'jobs', rounds: 3 } },
+
   { id: 'e-numbers', subject: 'en', type: 'quiz', icon: '1️⃣', title: 'one two three',
     config: { kind: 'enNumbers', count: 6 } },
 
   { id: 'q-cmp', subject: 'math', type: 'quiz', icon: '🐊', title: 'ใครมากกว่า',
     config: { kind: 'compare', count: 6 } },
+
+  { id: 'm-story', subject: 'math', type: 'quiz', icon: '🧺', title: 'โจทย์ปัญหา',
+    config: { kind: 'wordProblem', count: 6 } },
+
+  { id: 'w-case2', subject: 'en', type: 'wordmatch', icon: '🅾️', title: 'A กับ a ชุด 2',
+    config: { set: 'letters2', rounds: 3 } },
 
   { id: 'q-evenodd', subject: 'math', type: 'quiz', icon: '👯', title: 'คู่หรือคี่',
     config: { kind: 'evenOdd', count: 6 } },
@@ -86,6 +110,9 @@ export const LEVELS = [
   { id: 'q-odd', subject: 'brain', type: 'quiz', icon: '🤔', title: 'อันไหนไม่เข้าพวก',
     config: { kind: 'oddOne', count: 6 } },
 
+  { id: 'b-connect3', subject: 'brain', type: 'connect', icon: '☀️', title: 'ตรงข้ามกัน',
+    config: { set: 'opposites', rounds: 3 } },
+
   { id: 'b-add3', subject: 'math', type: 'column', icon: '✨', title: 'มัดสิบครั้งแรก',
     config: { op: '+', digitsB: 1, regroup: true, count: 5 } },
 
@@ -94,6 +121,9 @@ export const LEVELS = [
 
   { id: 'e-spell', subject: 'en', type: 'spell', icon: '🔠', title: 'สะกดคำอังกฤษ',
     config: { set: 'en1' } },
+
+  { id: 'b-story', subject: 'brain', type: 'order', icon: '🐣', title: 'เรียงลำดับเหตุการณ์',
+    config: { kind: 'story', count: 5 } },
 
   { id: 'q-numline', subject: 'math', type: 'quiz', icon: '🐸', title: 'กบกระโดด',
     config: { kind: 'numberLine', count: 6 } },
@@ -104,11 +134,17 @@ export const LEVELS = [
   { id: 't-thaidigit', subject: 'thai', type: 'quiz', icon: '๑', title: 'เลขไทย ๑๒๓',
     config: { kind: 'thaiNumerals', count: 6 } },
 
-  { id: 't-abc', subject: 'en', type: 'trace', icon: '🅰️', title: 'เขียน ABC',
+  { id: 't-abc', subject: 'en', type: 'trace', icon: '🅰️', title: 'เขียน A-F ใหญ่เล็ก',
     config: { set: 'abc' } },
+
+  { id: 't-vowelfill2', subject: 'thai', type: 'quiz', icon: '🐯', title: 'เติมสระหน้า',
+    config: { kind: 'thaiVowelFill', pool: 'front', count: 6 } },
 
   { id: 'q-letter', subject: 'en', type: 'quiz', icon: '🔡', title: 'เติมตัวอักษร',
     config: { kind: 'letter', count: 5 } },
+
+  { id: 't-abc2', subject: 'en', type: 'trace', icon: '🖊️', title: 'เขียน G-L ใหญ่เล็ก',
+    config: { set: 'abc2' } },
 
   { id: 'q-clock', subject: 'math', type: 'quiz', icon: '🕐', title: 'บอกเวลา',
     config: { kind: 'clock', count: 6 } },
@@ -122,6 +158,12 @@ export const LEVELS = [
   { id: 't-final', subject: 'thai', type: 'quiz', icon: '🐦', title: 'เติมตัวสะกด',
     config: { kind: 'thaiFinal', count: 6 } },
 
+  { id: 'e-vowel', subject: 'en', type: 'quiz', icon: '🦊', title: 'สระ a e i o u',
+    config: { kind: 'enVowel', count: 6 } },
+
+  { id: 't-abc3', subject: 'en', type: 'trace', icon: '🖊️', title: 'เขียน M-R ใหญ่เล็ก',
+    config: { set: 'abc3' } },
+
   { id: 'w-things', subject: 'en', type: 'wordmatch', icon: '🚗', title: 'ของรอบตัว',
     config: { set: 'things', rounds: 3 } },
 
@@ -133,6 +175,9 @@ export const LEVELS = [
 
   { id: 'w-memory', subject: 'brain', type: 'memory', icon: '🃏', title: 'เกมความจำ',
     config: { set: 'sea', pairs: 4, rounds: 2 } },
+
+  { id: 't-abc4', subject: 'en', type: 'trace', icon: '🖊️', title: 'เขียน S-Z ใหญ่เล็ก',
+    config: { set: 'abc4' } },
 
   { id: 'c-sub1', subject: 'math', type: 'column', icon: '➖', title: 'ตั้งลบแนวตั้ง',
     config: { op: '-', regroup: false, count: 5 } },
