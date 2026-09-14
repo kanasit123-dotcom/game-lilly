@@ -19,6 +19,7 @@ const MINIS = {
   coloring: { title: '🎨 ระบายสี: ใต้ทะเล', mount: coloring, cfg: { pack: 'sea' } },
   coloring2: { title: '🏠 ระบายสี: บ้านแสนสุข', mount: coloring, cfg: { pack: 'home' } },
   coloring3: { title: '🦋 ระบายสี: สวนสนุก', mount: coloring, cfg: { pack: 'fun' } },
+  coloring4: { title: '🎂 ระบายสี: วันเกิด', mount: coloring, cfg: { pack: 'party' } },
   xylo: { title: '🎵 ระนาดหรรษา', mount: xylo },
   garden: { title: '🌱 สวนผักของลิลลี่', mount: garden },
   balloons: { title: '🎈 ป๊อปลูกโป่ง', mount: balloons },

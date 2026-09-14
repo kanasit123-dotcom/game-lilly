@@ -1,6 +1,6 @@
 import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML, blocksMarkup } from '../utils.js';
 import { sfx, speak } from '../audio.js';
-import { THAI_VOWEL_WORDS, THAI_FINAL_WORDS, THAI_FINAL_POOL, THAI_VOWELS, THAI_VOWEL_FILL, vowelIndexes, toCells, tileText } from './thai.js';
+import { THAI_VOWEL_WORDS, THAI_VOWEL_WORDS2, THAI_FINAL_WORDS, THAI_FINAL_WORDS2, THAI_FINAL_POOL, THAI_FINAL_POOL2, THAI_READ, THAI_VOWELS, THAI_VOWEL_FILL, vowelIndexes, toCells, tileText } from './thai.js';
 
 /* เครื่องเกมแบบ "ดูโจทย์ แล้วแตะคำตอบ" ใช้ร่วมกันหลายด่าน
    cfg: { kind, count, ...ค่าเฉพาะ kind }
@@ -9,6 +9,7 @@ import { THAI_VOWEL_WORDS, THAI_FINAL_WORDS, THAI_FINAL_POOL, THAI_VOWELS, THAI_
    choices เป็น string หรือ { v, html, cls } ก็ได้ */
 
 const COUNT_ITEMS = ['🐢', '🦭', '🍓', '🍎', '🐥', '🐠', '🌷', '🍪', '⭐', '🎈', '🐞', '🍄'];
+const COUNT_ITEMS2 = ['🐬', '🐙', '🦋', '🍭', '🍩', '🧁', '🌈', '🐝', '🦆', '🌻', '🍉', '🐧'];
 
 const LETTER_WORDS = [
   { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'SUN', emoji: '☀️' },
@@ -17,6 +18,18 @@ const LETTER_WORDS = [
   { word: 'FISH', emoji: '🐟' }, { word: 'STAR', emoji: '⭐' }, { word: 'CAKE', emoji: '🍰' },
   { word: 'SEAL', emoji: '🦭' }, { word: 'CRAB', emoji: '🦀' }, { word: 'TURTLE', emoji: '🐢' },
 ];
+
+const LETTER_WORDS2 = [
+  { word: 'FROG', emoji: '🐸' }, { word: 'DUCK', emoji: '🦆' }, { word: 'BIRD', emoji: '🐦' },
+  { word: 'MILK', emoji: '🥛' }, { word: 'BOOK', emoji: '📕' }, { word: 'MOON', emoji: '🌙' },
+  { word: 'TREE', emoji: '🌳' }, { word: 'SHIP', emoji: '🚢' }, { word: 'LION', emoji: '🦁' },
+  { word: 'BEAR', emoji: '🐻' }, { word: 'CORN', emoji: '🌽' }, { word: 'RAIN', emoji: '🌧️' },
+  { word: 'KITE', emoji: '🪁' }, { word: 'DRUM', emoji: '🥁' }, { word: 'RING', emoji: '💍' },
+  { word: 'BALL', emoji: '⚽' }, { word: 'APPLE', emoji: '🍎' }, { word: 'HORSE', emoji: '🐴' },
+];
+
+/* อ่านคำอังกฤษ: โชว์คำ เลือกรูป (รวมคำจากทุกชุด) */
+const EN_READ_WORDS = [...LETTER_WORDS, ...LETTER_WORDS2];
 
 const SHAPES = [
   { name: 'วงกลม', items: ['🔴', '🔵', '🟢', '🟡', '🟠', '🟣'] },
@@ -30,6 +43,10 @@ const PATTERN_PAIRS = [
   ['🔴', '🔵'], ['🍎', '🍌'], ['🐱', '🐶'], ['⭐', '🌙'], ['🟥', '🟨'], ['🐢', '🦭'], ['🌸', '🍀'],
 ];
 const PATTERN_TRIPLES = [['🔴', '🔵', '🟢'], ['🍎', '🍌', '🍇'], ['🐢', '🦭', '🐟']];
+const PATTERN_PAIRS2 = [
+  ['🐰', '🥕'], ['☀️', '🌙'], ['🍦', '🍩'], ['🚗', '🚌'], ['🦋', '🌸'], ['🐬', '🐙'], ['⚽', '🏀'], ['🟦', '🟪'],
+];
+const PATTERN_TRIPLES2 = [['🌸', '🌻', '🌷'], ['🍓', '🍋', '🍇'], ['🐬', '🐙', '🦀'], ['🔺', '🟡', '🟦']];
 
 const CATEGORY_GROUPS = [
   ['🐱', '🐶', '🐭', '🐰', '🐻', '🐢', '🦭'],
@@ -41,11 +58,32 @@ const CATEGORY_GROUPS = [
   ['🍰', '🍪', '🍩', '🍭', '🍦'],
 ];
 
+const CATEGORY_GROUPS2 = [
+  ['🐟', '🐙', '🦀', '🐬', '🦈', '🐳'],
+  ['🐦', '🦆', '🦉', '🐧', '🦜'],
+  ['🐝', '🦋', '🐞', '🐜', '🐛'],
+  ['✈️', '🚁', '🚀', '🛸'],
+  ['🍴', '🥄', '🍽️', '🥣', '🥢'],
+  ['✏️', '📕', '🎒', '✂️', '📏'],
+  ['👁️', '👃', '👂', '✋', '🦶'],
+  ['🎸', '🥁', '🎹', '🎺', '🎻'],
+];
+
+const SHADOW_POOL2 = ['🐰', '🐻', '🦁', '🐧', '🐬', '🐙', '🦆', '🐝', '🦋', '🌵', '🚲', '🚂', '🚁', '🎸', '🍄', '🍦', '⛄', '🎂', '👑', '🪁'];
+
 const SHADOW_POOL = ['🐱', '🐶', '🐘', '🦒', '🐢', '🦭', '🐟', '🦀', '🐸', '🦋', '🚗', '✈️', '⛵', '🌳', '🏠', '⭐', '🍎', '🍌', '🎈', '☂️'];
 
 const THAI_DIGITS = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙', '๑๐'];
 
-const EN_NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const EN_NUMBERS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
+
+const thaiNumeral = (n) => String(n).split('').map((d) => THAI_DIGITS[+d]).join('');
+
+/* เหรียญบาท: ค่ากับสีตามเหรียญจริง (1 บาทเงิน, 2 บาททอง, 5 บาทเงิน, 10 บาทสองสี) */
+const COINS = [
+  { v: 1, cls: 'c1' }, { v: 2, cls: 'c2' }, { v: 5, cls: 'c5' }, { v: 10, cls: 'c10' },
+];
 
 const COLORS = [
   { en: 'RED', th: 'แดง', emoji: '🔴' }, { en: 'BLUE', th: 'น้ำเงิน', emoji: '🔵' },
@@ -77,9 +115,9 @@ const EN_VOWEL_WORDS = [
 
 const SIZE_ITEMS = ['🐘', '🐢', '🦭', '🐱', '🍎', '⭐', '🎈', '🚗', '🌳', '🐟'];
 
-function nearChoices(answer, lo, hi) {
+function nearChoices(answer, lo, hi, deltas = [1, -1, 2, -2, 3, -3]) {
   const out = [answer];
-  for (const d of shuffle([1, -1, 2, -2, 3, -3])) {
+  for (const d of shuffle(deltas)) {
     if (out.length >= 3) break;
     const v = answer + d;
     if (v >= lo && v <= hi && !out.includes(v)) out.push(v);
@@ -87,22 +125,44 @@ function nearChoices(answer, lo, hi) {
   return shuffle(out);
 }
 
-/* นาฬิกาเข็ม เข็มยาวชี้ 12 เสมอ (บอกเวลาเต็มชั่วโมง) */
-function clockSVG(hour) {
+/* นาฬิกาเข็ม เข็มยาวชี้ 12 (เต็มชั่วโมง) หรือชี้ 6 (ครึ่งชั่วโมง เข็มสั้นอยู่กึ่งกลางระหว่างเลข) */
+function clockSVG(hour, half = false) {
   let nums = '';
   for (let n = 1; n <= 12; n++) {
     const a = (n / 12) * Math.PI * 2;
     nums += `<text x="${50 + 38 * Math.sin(a)}" y="${50 - 38 * Math.cos(a)}">${n}</text>`;
   }
-  const a = (hour / 12) * Math.PI * 2;
+  const a = ((hour + (half ? 0.5 : 0)) / 12) * Math.PI * 2;
   return `
     <svg class="clock" viewBox="0 0 100 100">
       <circle class="face" cx="50" cy="50" r="47"/>
       ${nums}
-      <line class="minute" x1="50" y1="50" x2="50" y2="17"/>
+      <line class="minute" x1="50" y1="50" x2="50" y2="${half ? 83 : 17}"/>
       <line class="hour" x1="50" y1="50" x2="${50 + 24 * Math.sin(a)}" y2="${50 - 24 * Math.cos(a)}"/>
       <circle class="pin" cx="50" cy="50" r="3.5"/>
     </svg>`;
+}
+
+/* ตั้งเลขแนวตั้งแบบย่อ (ไม่มีขั้นตอน) ใช้ในบวกเร็ว/ลบเร็ว ให้หน้าตาเหมือนเกมตั้งเลขจริง */
+function miniSumHTML(a, op, b) {
+  const digits = (n) => (n >= 10
+    ? `<span class="cell digit">${Math.floor(n / 10)}</span><span class="cell digit">${n % 10}</span>`
+    : `<span class="cell blank"></span><span class="cell digit">${n}</span>`);
+  return `
+    <div class="col-sum mini-sum">
+      <span class="cell spacer"></span>${digits(a)}
+      <span class="cell op">${op}</span>${digits(b)}
+      <div class="col-rule"></div>
+      <span class="cell spacer"></span><span class="cell blank"></span><span class="cell slot ask" id="mini-ans">?</span>
+    </div>`;
+}
+function fillMiniSum($visual, answer) {
+  const slot = $visual.querySelector('#mini-ans');
+  if (!slot) return;
+  slot.textContent = answer;
+  slot.classList.add('filled', 'pop');
+  slot.classList.remove('ask');
+  if (answer >= 10) slot.classList.add('wide');
 }
 
 const emojiBoxes = (items, blankAt = -1) =>
@@ -111,32 +171,37 @@ const emojiBoxes = (items, blankAt = -1) =>
     .join('')}</div>`;
 
 const KINDS = {
-  counting() {
-    const item = pick(COUNT_ITEMS);
-    const n = randInt(3, 12);
+  counting(cfg) {
+    const item = pick(cfg.items === 2 ? COUNT_ITEMS2 : COUNT_ITEMS);
+    const max = cfg.max || 12;
+    const n = randInt(cfg.min || 3, max);
     return {
       prompt: 'นับดูสิ มีทั้งหมดกี่ชิ้น?',
       visual: `<div class="count-tray">${`<span>${item}</span>`.repeat(n)}</div>`,
-      choices: nearChoices(n, 1, 15),
+      choices: nearChoices(n, 1, max + 3),
       answer: n,
       say: 'มีทั้งหมดกี่ชิ้น',
     };
   },
 
-  sequence() {
-    const start = randInt(1, 14);
+  /* cfg.steps = [1] | [1, 2, 5, 10] สุ่มว่านับทีละเท่าไหร่, cfg.max = เลขสูงสุด */
+  sequence(cfg) {
+    const step = pick(cfg.steps || [1]);
+    const max = cfg.max || 17;
+    const start = step === 1 ? randInt(1, max - 3) : step * randInt(1, Math.floor(max / step) - 3);
     const gap = randInt(0, 3);
-    const nums = [0, 1, 2, 3].map((i) => start + i);
+    const nums = [0, 1, 2, 3].map((i) => start + i * step);
     const answer = nums[gap];
     const boxes = nums
       .map((v, i) => `<span class="seq-box${i === gap ? ' blank' : ''}">${i === gap ? '?' : v}</span>`)
       .join('');
+    const deltas = step === 1 ? undefined : [step, -step, 1, -1, 2, -2];
     return {
-      prompt: 'เลขอะไรหายไปนะ?',
+      prompt: step === 1 ? 'เลขอะไรหายไปนะ?' : `นับทีละ ${step} เลขอะไรหายไป?`,
       visual: `<div class="seq-row">${boxes}</div>`,
-      choices: nearChoices(answer, 1, 20),
+      choices: nearChoices(answer, 1, max + step, deltas),
       answer,
-      say: 'เลขอะไรหายไป',
+      say: step === 1 ? 'เลขอะไรหายไป' : `นับทีละ ${step} เลขอะไรหายไป`,
     };
   },
 
@@ -153,8 +218,8 @@ const KINDS = {
     };
   },
 
-  letter() {
-    const { word, emoji } = pick(LETTER_WORDS);
+  letter(cfg) {
+    const { word, emoji } = pick(cfg.set === 2 ? LETTER_WORDS2 : LETTER_WORDS);
     const at = randInt(0, word.length - 1);
     const answer = word[at];
     const boxes = word
@@ -173,8 +238,8 @@ const KINDS = {
     };
   },
 
-  thaiVowel() {
-    const { word, emoji, wrong } = pick(THAI_VOWEL_WORDS);
+  thaiVowel(cfg) {
+    const { word, emoji, wrong } = pick(cfg.set === 2 ? THAI_VOWEL_WORDS2 : THAI_VOWEL_WORDS);
     return {
       prompt: 'รูปนี้อ่านว่าอะไร? แตะคำที่สะกดถูก',
       visual: `<div class="letter-hint big">${emoji}</div>`,
@@ -187,9 +252,9 @@ const KINDS = {
     };
   },
 
-  thaiFinal() {
-    const { stem, final, emoji, word } = pick(THAI_FINAL_WORDS);
-    const pool = THAI_FINAL_POOL.filter((c) => c !== final);
+  thaiFinal(cfg) {
+    const { stem, final, emoji, word } = pick(cfg.set === 2 ? THAI_FINAL_WORDS2 : THAI_FINAL_WORDS);
+    const pool = (cfg.set === 2 ? THAI_FINAL_POOL2 : THAI_FINAL_POOL).filter((c) => c !== final);
     return {
       prompt: 'เติมตัวสะกดที่หายไป',
       visual: `<div class="letter-hint">${emoji}</div>
@@ -219,14 +284,15 @@ const KINDS = {
     };
   },
 
-  pattern() {
-    const useTriple = Math.random() < 0.3;
-    const set = useTriple ? pick(PATTERN_TRIPLES) : pick(PATTERN_PAIRS);
+  pattern(cfg) {
+    const useTriple = Math.random() < (cfg.set === 2 ? 0.45 : 0.3);
+    const pairs = cfg.set === 2 ? PATTERN_PAIRS2 : PATTERN_PAIRS;
+    const set = useTriple ? pick(cfg.set === 2 ? PATTERN_TRIPLES2 : PATTERN_TRIPLES) : pick(pairs);
     const unit = useTriple ? set : pick([[set[0], set[1]], [set[0], set[0], set[1]], [set[0], set[1], set[1]]]);
     const len = unit.length * 2 + (unit.length === 2 ? 1 : 0);
     const seq = Array.from({ length: len }, (_, i) => unit[i % unit.length]);
     const answer = seq[len - 1];
-    const distract = shuffle(PATTERN_PAIRS.flat().filter((e) => !set.includes(e)))[0];
+    const distract = shuffle(pairs.flat().filter((e) => !set.includes(e)))[0];
     return {
       prompt: 'ดูแบบรูปสิ ตัวต่อไปคืออะไร?',
       visual: emojiBoxes(seq, len - 1),
@@ -237,8 +303,8 @@ const KINDS = {
     };
   },
 
-  oddOne() {
-    const [gA, gB] = shuffle(CATEGORY_GROUPS).slice(0, 2);
+  oddOne(cfg) {
+    const [gA, gB] = shuffle(cfg.set === 2 ? CATEGORY_GROUPS2 : CATEGORY_GROUPS).slice(0, 2);
     const same = shuffle(gA).slice(0, 3);
     const odd = pick(gB);
     return {
@@ -251,8 +317,8 @@ const KINDS = {
     };
   },
 
-  shadow() {
-    const [answer, ...others] = shuffle(SHADOW_POOL).slice(0, 3);
+  shadow(cfg) {
+    const [answer, ...others] = shuffle(cfg.set === 2 ? SHADOW_POOL2 : SHADOW_POOL).slice(0, 3);
     return {
       prompt: 'เงานี้เป็นของใครนะ?',
       visual: `<div class="shadow">${answer}</div>`,
@@ -292,24 +358,26 @@ const KINDS = {
     };
   },
 
-  thaiNumerals() {
-    const item = pick(COUNT_ITEMS);
-    const n = randInt(1, 9);
-    const wrong = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9].filter((k) => k !== n)).slice(0, 2);
+  thaiNumerals(cfg) {
+    const item = pick(cfg.max > 10 ? COUNT_ITEMS2 : COUNT_ITEMS);
+    const lo = cfg.min || 1, hi = cfg.max || 9;
+    const n = randInt(lo, hi);
+    const wrong = nearChoices(n, lo, hi).filter((k) => k !== n).slice(0, 2);
     return {
       prompt: 'นับแล้วแตะเลขไทย',
       visual: `<div class="count-tray">${`<span>${item}</span>`.repeat(n)}</div>`,
-      choices: shuffle([n, ...wrong]).map((k) => ({ v: k, html: THAI_DIGITS[k] })),
+      choices: shuffle([n, ...wrong]).map((k) => ({ v: k, html: thaiNumeral(k) })),
       answer: n,
       say: 'นับแล้วแตะเลขไทย',
       choiceClass: 'thai',
     };
   },
 
-  enNumbers() {
-    const item = pick(COUNT_ITEMS);
-    const n = randInt(1, 10);
-    const wrong = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter((k) => k !== n)).slice(0, 2);
+  enNumbers(cfg) {
+    const item = pick(cfg.max > 10 ? COUNT_ITEMS2 : COUNT_ITEMS);
+    const lo = cfg.min || 1, hi = cfg.max || 10;
+    const n = randInt(lo, hi);
+    const wrong = nearChoices(n, lo, hi).filter((k) => k !== n).slice(0, 2);
     return {
       prompt: 'มีกี่อัน? แตะคำภาษาอังกฤษ',
       visual: `<div class="count-tray">${`<span>${item}</span>`.repeat(n)}</div>`,
@@ -350,16 +418,152 @@ const KINDS = {
     };
   },
 
-  clock() {
+  clock(cfg) {
     const hour = randInt(1, 12);
-    const wrong = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((h) => h !== hour)).slice(0, 2);
+    if (!cfg.half) {
+      const wrong = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((h) => h !== hour)).slice(0, 2);
+      return {
+        prompt: 'เข็มสั้นชี้เลขอะไร? นาฬิกาบอกกี่นาฬิกา',
+        visual: clockSVG(hour),
+        choices: shuffle([hour, ...wrong]).map((h) => ({ v: h, html: `${h} นาฬิกา` })),
+        answer: hour,
+        say: 'นาฬิกาบอกกี่นาฬิกา',
+        choiceClass: 'thai',
+      };
+    }
+    // ครึ่งชั่วโมง: เข็มยาวชี้ 6 ตัวเลือกเป็นเวลาแบบ 3:30 ให้เทียบเข็มยาวเป็นหลัก
+    const half = Math.random() < 0.6;
+    const label = (h, hf) => `${h}:${hf ? '30' : '00'}`;
+    const say = (h, hf) => `${h} นาฬิกา${hf ? ' 30 นาที' : ''}`;
+    const next = (hour % 12) + 1;
+    const answer = label(hour, half);
+    const wrong = half ? [label(hour, false), label(next, true)] : [label(hour, true), label(next, false)];
     return {
-      prompt: 'เข็มสั้นชี้เลขอะไร? นาฬิกาบอกกี่นาฬิกา',
-      visual: clockSVG(hour),
-      choices: shuffle([hour, ...wrong]).map((h) => ({ v: h, html: `${h} นาฬิกา` })),
-      answer: hour,
-      say: 'นาฬิกาบอกกี่นาฬิกา',
-      choiceClass: 'thai',
+      prompt: 'เข็มยาวชี้ 12 คือเต็มชั่วโมง ชี้ 6 คือครึ่งชั่วโมง นาฬิกาบอกเวลาเท่าไหร่?',
+      visual: clockSVG(hour, half),
+      choices: shuffle([answer, ...wrong]).map((t) => ({ v: t, html: t })),
+      answer,
+      say: 'นาฬิกาบอกเวลาเท่าไหร่',
+      sayDone: say(hour, half),
+      choiceClass: 'time',
+    };
+  },
+
+  /* ---------- ชุด 2: บวกลบเร็ว (ยังตั้งแนวตั้งเหมือนเกมตั้งเลข ให้เด็กคิดวิธีเดียว) ---------- */
+
+  quickAdd(cfg) {
+    const max = cfg.max || 10;
+    const a = randInt(1, max - 1);
+    const b = randInt(1, max - a);
+    return {
+      prompt: 'บวกเร็ว! ได้เท่าไหร่?',
+      visual: miniSumHTML(a, '+', b),
+      choices: nearChoices(a + b, 0, max + 2),
+      answer: a + b,
+      say: `${a} บวก ${b} ได้เท่าไหร่`,
+      sayDone: `${a} บวก ${b} เท่ากับ ${a + b}`,
+      onCorrect($visual) { fillMiniSum($visual, a + b); },
+    };
+  },
+
+  quickSub(cfg) {
+    const max = cfg.max || 10;
+    const a = randInt(2, max);
+    const b = randInt(1, a - 1);
+    return {
+      prompt: 'ลบเร็ว! เหลือเท่าไหร่?',
+      visual: miniSumHTML(a, '−', b),
+      choices: nearChoices(a - b, 0, max),
+      answer: a - b,
+      say: `${a} ลบ ${b} เหลือเท่าไหร่`,
+      sayDone: `${a} ลบ ${b} เท่ากับ ${a - b}`,
+      onCorrect($visual) { fillMiniSum($visual, a - b); },
+    };
+  },
+
+  /* ครบสิบ: กรอบสิบช่อง มีลูกบอลอยู่แล้ว n ลูก ต้องเติมอีกกี่ลูก */
+  makeTen() {
+    const n = randInt(1, 9);
+    const cells = (fill) => Array.from({ length: 10 }, (_, i) =>
+      `<span class="tf-cell${i < n ? ' on' : fill && i >= n ? ' new' : ''}"></span>`).join('');
+    return {
+      prompt: `มีอยู่ ${n} ลูก ต้องเติมอีกกี่ลูกถึงจะครบ 10?`,
+      visual: `<div class="ten-frame">${cells(false)}</div>`,
+      choices: nearChoices(10 - n, 1, 9),
+      answer: 10 - n,
+      say: `มีอยู่ ${n} ลูก ต้องเติมอีกกี่ลูกถึงจะครบสิบ`,
+      sayDone: `${n} กับ ${10 - n} รวมเป็น 10`,
+      onCorrect($visual) { $visual.querySelector('.ten-frame').innerHTML = cells(true); },
+    };
+  },
+
+  /* เหรียญบาท: รวมค่าเหรียญ 2-4 เหรียญ ไม่เกิน 20 บาท */
+  money() {
+    let coins;
+    do {
+      coins = Array.from({ length: randInt(2, 4) }, () => pick(COINS));
+    } while (coins.reduce((s, c) => s + c.v, 0) > 20);
+    const total = coins.reduce((s, c) => s + c.v, 0);
+    return {
+      prompt: 'เหรียญทั้งหมดรวมกันกี่บาท?',
+      visual: `<div class="coins">${coins.map((c) => `<span class="coin ${c.cls}"><b>${c.v}</b><small>บาท</small></span>`).join('')}</div>`,
+      choices: nearChoices(total, 1, 24, [1, -1, 2, -2, 5, -5]),
+      answer: total,
+      say: 'เหรียญทั้งหมดรวมกันกี่บาท',
+      sayDone: `รวมเป็น ${total} บาท`,
+    };
+  },
+
+  /* อ่านคำไทย: โชว์คำ (ไม่อ่านให้ฟังก่อน) เลือกรูปที่ตรง */
+  thaiRead(cfg) {
+    const pool = THAI_READ[cfg.set] || THAI_READ[1];
+    const target = pick(pool);
+    const others = shuffle(pool.filter((w) => w.emoji !== target.emoji && w.word !== target.word)).slice(0, 2);
+    return {
+      prompt: 'อ่านคำนี้สิ แล้วแตะรูปที่ตรงกับคำ',
+      visual: `<div class="read-word thai">${target.word}</div>`,
+      choices: shuffle([target, ...others]).map((w) => ({ v: w.word, html: w.emoji })),
+      answer: target.word,
+      say: 'อ่านคำนี้ แล้วแตะรูปที่ตรงกับคำ',
+      sayDone: target.word,
+      choiceClass: 'emoji',
+    };
+  },
+
+  enRead() {
+    const target = pick(EN_READ_WORDS);
+    const others = shuffle(EN_READ_WORDS.filter((w) => w.emoji !== target.emoji && w.word !== target.word)).slice(0, 2);
+    return {
+      prompt: 'อ่านคำภาษาอังกฤษ แล้วแตะรูปที่ตรงกับคำ',
+      visual: `<div class="read-word">${target.word}</div>`,
+      choices: shuffle([target, ...others]).map((w) => ({ v: w.word, html: w.emoji })),
+      answer: target.word,
+      say: 'อ่านคำภาษาอังกฤษ แล้วแตะรูป',
+      sayDone: target.word,
+      sayDoneLang: 'en-US',
+      choiceClass: 'emoji',
+    };
+  },
+
+  /* ตัวอักษรถัดไป: A B ? หรือ A ? C */
+  abcNext() {
+    const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const i = randInt(0, 23);
+    const gap = randInt(1, 2);
+    const letters = [ABC[i], ABC[i + 1], ABC[i + 2]];
+    const answer = letters[gap];
+    const boxes = letters
+      .map((ch, k) => `<span class="seq-box${k === gap ? ' blank' : ''}">${k === gap ? '?' : ch}</span>`)
+      .join('');
+    const others = shuffle([i - 2, i - 1, i + 3, i + 4].filter((k) => k >= 0 && k < 26).map((k) => ABC[k])).slice(0, 2);
+    return {
+      prompt: 'ตัวอักษรอะไรหายไป? เรียง A B C',
+      visual: `<div class="seq-row">${boxes}</div>`,
+      choices: shuffle([answer, ...others]),
+      answer,
+      say: 'ตัวอักษรอะไรหายไป',
+      sayDone: letters.join(' '),
+      sayDoneLang: 'en-US',
     };
   },
 
@@ -532,7 +736,8 @@ export function play(stage, config, hooks = {}) {
       q.onCorrect?.($visual);
 
       // รอเสียงอ่านคำเฉลยจบก่อน ไม่ให้โจทย์ข้อถัดไปพูดแทรก
-      await Promise.all([wait(1500), q.sayAfter ? speak(q.say, q.sayLang) : null]);
+      const after = q.sayDone || (q.sayAfter ? q.say : null);
+      await Promise.all([wait(1500), after ? speak(after, q.sayDoneLang || q.sayLang) : null]);
       idx++;
       if (idx >= total) {
         hooks.onProgress?.(total, total);

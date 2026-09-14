@@ -3,7 +3,7 @@ import { totalStars, getClaimed, addClaimed } from './state.js';
 /* รางวัลปลดล็อกตามดาวสะสม เรียงจากน้อยไปมาก
    type: trophy = ของสะสมโชว์ในตู้, buddy = เพื่อนซี้ตัวใหม่โผล่ในเกม, mini = มินิเกมให้เล่น
    มินิเกมแต่ละอันสั้นๆ (ระบายสีชุดละ 3 รูป) กระจายทุก 5-10 ดาว ให้มีของใหม่บ่อยๆ ไม่เบื่อ
-   58 ด่าน ดาวสูงสุด 174 ดวง รางวัลสุดท้ายวางไว้ที่ 150 (ไม่ต้องได้ 3 ดาวทุกด่านก็ถึง) */
+   92 ด่าน ดาวสูงสุด 276 ดวง รางวัลสุดท้ายวางไว้ที่ 260 (ไม่ต้องได้ 3 ดาวทุกด่านก็ถึง) */
 export const REWARDS = [
   { id: 'medal1', stars: 3, type: 'trophy', emoji: '🏅', title: 'เหรียญดาวดวงแรก', desc: 'เริ่มต้นได้สวย!' },
   { id: 'coloring', stars: 5, type: 'mini', emoji: '🎨', title: 'ระบายสี: ใต้ทะเล', desc: 'เต่า แมวน้ำ ปลา รอให้ระบาย' },
@@ -30,7 +30,15 @@ export const REWARDS = [
   { id: 'rainbow-cup', stars: 125, type: 'trophy', emoji: '🌈', title: 'ถ้วยรุ้งสุดยอด', desc: 'เก่งที่สุดในโลกของลิลลี่!', cup: true },
   { id: 'dolphin', stars: 132, type: 'buddy', emoji: '🐬', title: 'เพื่อนใหม่: โลมา', desc: 'เพื่อนจากทะเลลึก' },
   { id: 'star-cup', stars: 140, type: 'trophy', emoji: '🌟', title: 'ถ้วยดาวทอง', desc: 'สุดยอดนักเรียนตัวจริง', cup: true },
-  { id: 'gold-medal', stars: 150, type: 'trophy', emoji: '🥇', title: 'เหรียญทองโลกของลิลลี่', desc: 'เล่นเก่งครบทุกด่าน ภูมิใจมาก!' },
+  { id: 'gold-medal', stars: 150, type: 'trophy', emoji: '🥇', title: 'เหรียญทองโลกของลิลลี่', desc: 'เล่นเก่งมาก ภูมิใจสุดๆ!' },
+  { id: 'butterfly', stars: 160, type: 'buddy', emoji: '🦋', title: 'เพื่อนใหม่: ผีเสื้อ', desc: 'บินมาเชียร์ในเกม' },
+  { id: 'coloring4', stars: 172, type: 'mini', emoji: '🎂', title: 'ระบายสี: วันเกิด', desc: 'แมวเหมียว จรวด เค้กวันเกิด' },
+  { id: 'ribbon', stars: 185, type: 'trophy', emoji: '🎖️', title: 'เหรียญกล้าหาญ', desc: 'ไม่กลัวโจทย์ยากเลย' },
+  { id: 'octopus', stars: 200, type: 'buddy', emoji: '🐙', title: 'เพื่อนใหม่: หมึกยักษ์', desc: 'แปดแขนโบกมือให้' },
+  { id: 'castle', stars: 215, type: 'trophy', emoji: '🏰', title: 'ปราสาทของลิลลี่', desc: 'สร้างจากดาว 215 ดวง' },
+  { id: 'koala', stars: 230, type: 'buddy', emoji: '🐨', title: 'เพื่อนใหม่: โคอาลา', desc: 'ขี้อ้อนที่สุด' },
+  { id: 'shooting-star', stars: 245, type: 'trophy', emoji: '🌠', title: 'ดาวตกแห่งความฝัน', desc: 'ขอพรได้เลย', cup: true },
+  { id: 'world-cup', stars: 260, type: 'trophy', emoji: '🌍', title: 'ถ้วยโลกของลิลลี่', desc: 'เก่งที่สุดในโลกจริงๆ!', cup: true },
 ];
 
 // ลิลลี่ชอบเต่ากับแมวน้ำเป็นพิเศษ สองตัวนี้อยู่ตั้งแต่แรก ที่เหลือต้องเก็บดาวปลดล็อก

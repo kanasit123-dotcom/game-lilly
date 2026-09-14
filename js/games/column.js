@@ -4,8 +4,8 @@ import { sfx, speak } from '../audio.js';
 /* ตั้งบวก/ตั้งลบแนวตั้ง เดินทีละขั้นตามวิธีที่สอนในโรงเรียน เด็กกดแป้นตัวเลขใส่เอง
    cfg: { op: '+' | '-', digitsB: 1|2, regroup, roundTens, count }
    regroup  = มีตัวทด (บวก) หรือ มีการยืม (ลบ)
-   digitsB  = ตัวล่างเป็นเลขหลักเดียว (วางชิดขวาใต้หลักหน่วย)
-   roundTens = แบบง่ายสุด หลักหน่วยเป็น 0 ทั้งคู่ เช่น 10 + 70 */
+   digitsB  = ตัวล่างเป็นเลขหลักเดียว (วางชิดขวาใต้หลักหน่วย) ใช้ได้ทั้งบวกและลบ
+   roundTens = แบบง่ายสุด หลักหน่วยเป็น 0 ทั้งคู่ เช่น 10 + 70 หรือ 80 − 30 */
 
 function genAdd(cfg) {
   for (;;) {
@@ -41,6 +41,12 @@ function genAdd(cfg) {
 
 function genSub(cfg) {
   for (;;) {
+    if (cfg.roundTens) {
+      const at = randInt(2, 9);
+      const bt = randInt(1, at - 1);
+      return { op: '−', a: at * 10, b: bt * 10, result: (at - bt) * 10 };
+    }
+
     const at = randInt(2, 9);
     const au = randInt(0, 9);
     let bu, maxBt;
@@ -53,8 +59,13 @@ function genSub(cfg) {
       bu = randInt(0, au);
       maxBt = at - 1;
     }
-    if (maxBt < 1) continue;
     const a = at * 10 + au;
+    // ตัวลบหลักเดียว: หลักสิบไม่มีอะไรมาลบ (at >= 2 ทำให้ยืมแล้วหลักสิบยังไม่เป็น 0)
+    if (cfg.digitsB === 1) {
+      if (bu < 1) continue;
+      return { op: '−', a, b: bu, result: a - bu };
+    }
+    if (maxBt < 1) continue;
     const b = randInt(1, maxBt) * 10 + bu;
     return { op: '−', a, b, result: a - b };
   }
@@ -141,6 +152,14 @@ function buildSteps(p) {
     type: 'write', col: 'units', slot: 'answer', value: topU - bu,
     text: `แตะช่องหลักหน่วยเพื่อเขียน ${topU - bu}`,
   });
+  // ตัวลบหลักเดียว: หลักสิบไม่มีตัวลบ ยกลงมาเขียนได้เลย (ถ้ายืมไปแล้วก็ยกตัวที่เหลือ)
+  if (p.b < 10) {
+    steps.push({
+      type: 'write', col: 'tens', slot: 'answer', value: topT,
+      text: `หลักสิบไม่มีตัวลบ ก็ยก ${topT} ลงมาเลย — แตะช่องหลักสิบ`,
+    });
+    return steps;
+  }
   steps.push({ type: 'ask', col: 'tens', answer: topT - bt, text: `หลักสิบ: ${topT} − ${bt} = ?` });
   steps.push({
     type: 'write', col: 'tens', slot: 'answer', value: topT - bt,
@@ -354,6 +373,7 @@ export function play(stage, config, hooks = {}) {
       if (p.op === '+' && au + bu >= 10) lines.splice(1, 0, `${au + bu} คือ 1 สิบ กับ ${(au + bu) % 10} หน่วย เขียน ${(au + bu) % 10} ทด 1`);
       if (p.op !== '+' && au < bu) lines.unshift(`${au} ลบ ${bu} ไม่ได้ ยืม 1 สิบ มาเป็น ${au + 10}`);
       if (p.op === '+' && p.b < 10 && au + bu < 10) lines.push(`หลักสิบไม่มีตัวบวก ยก ${Math.floor(p.a / 10)} ลงมา`);
+      if (p.op !== '+' && p.b < 10) lines.push(`หลักสิบไม่มีตัวลบ ยก ${Math.floor(p.a / 10) - (au < bu ? 1 : 0)} ลงมา`);
       return lines;
     }
 

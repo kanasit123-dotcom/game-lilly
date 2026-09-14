@@ -119,12 +119,60 @@ const PICTURES = [
     <path class="r" d="M95 76 L105 76 L100 83 Z" ${S}/>
     <path class="r" d="M135 92 L145 92 L140 99 Z" ${S}/>
     <path class="r" d="M18 128 Q10 116 24 114 Q30 102 44 108 Q58 104 58 118 Q68 122 60 130 Z" ${S}/>` },
+
+  { id: 'cat', icon: '🐱', name: 'แมว', svg: `
+    <path class="r" d="M58 70 L46 22 L88 50 Z" ${S}/>
+    <path class="r" d="M142 70 L154 22 L112 50 Z" ${S}/>
+    <ellipse class="r" cx="100" cy="96" rx="54" ry="44" ${S}/>
+    <path class="r" d="M62 66 L56 40 L78 56 Z" ${S}/>
+    <path class="r" d="M138 66 L144 40 L122 56 Z" ${S}/>
+    <path class="r" d="M92 106 L108 106 L100 114 Z" ${S}/>
+    <path class="r" d="M16 128 L36 118 L36 138 Z" ${S}/>
+    <path class="r" d="M56 128 L36 118 L36 138 Z" ${S}/>
+    <circle class="r" cx="36" cy="128" r="6" ${S}/>
+    <circle class="d" cx="80" cy="88" r="5"/>
+    <circle class="d" cx="120" cy="88" r="5"/>
+    <path class="d" d="M100 114 Q100 124 88 124 M100 114 Q100 124 112 124" stroke="#5a4a63" stroke-width="2.5" fill="none"/>
+    <path class="d" d="M40 96 L70 102 M40 112 L70 108 M160 96 L130 102 M160 112 L130 108" stroke="#5a4a63" stroke-width="2" fill="none"/>` },
+
+  { id: 'rocket', icon: '🚀', name: 'จรวด', svg: `
+    <path class="r" d="M100 8 Q132 48 128 108 L72 108 Q68 48 100 8 Z" ${S}/>
+    <path class="r" d="M72 78 L42 118 L72 118 Z" ${S}/>
+    <path class="r" d="M128 78 L158 118 L128 118 Z" ${S}/>
+    <path class="r" d="M84 108 L116 108 L110 124 L90 124 Z" ${S}/>
+    <path class="r" d="M90 124 Q100 156 110 124 Z" ${S}/>
+    <circle class="r" cx="100" cy="66" r="14" ${S}/>
+    <circle class="r" cx="30" cy="30" r="8" ${S}/>
+    <circle class="r" cx="172" cy="44" r="11" ${S}/>
+    <circle class="r" cx="24" cy="140" r="6" ${S}/>
+    <circle class="d" cx="150" cy="16" r="2.5"/>
+    <circle class="d" cx="52" cy="68" r="2.5"/>
+    <circle class="d" cx="178" cy="120" r="2.5"/>` },
+
+  { id: 'cake', icon: '🎂', name: 'เค้กวันเกิด', svg: `
+    <path class="r" d="M40 96 L160 96 L160 138 Q100 152 40 138 Z" ${S}/>
+    <path class="r" d="M62 62 L138 62 L138 96 L62 96 Z" ${S}/>
+    <ellipse class="r" cx="100" cy="96" rx="60" ry="11" ${S}/>
+    <ellipse class="r" cx="100" cy="62" rx="38" ry="8" ${S}/>
+    <path class="r" d="M80 34 L86 34 L86 58 L80 58 Z" ${S}/>
+    <path class="r" d="M97 28 L103 28 L103 58 L97 58 Z" ${S}/>
+    <path class="r" d="M114 34 L120 34 L120 58 L114 58 Z" ${S}/>
+    <ellipse class="r" cx="83" cy="26" rx="4" ry="7" ${S}/>
+    <ellipse class="r" cx="100" cy="20" rx="4" ry="7" ${S}/>
+    <ellipse class="r" cx="117" cy="26" rx="4" ry="7" ${S}/>
+    <circle class="r" cx="70" cy="114" r="6" ${S}/>
+    <circle class="r" cx="100" cy="122" r="6" ${S}/>
+    <circle class="r" cx="130" cy="114" r="6" ${S}/>
+    <circle class="r" cx="24" cy="40" r="8" ${S}/>
+    <circle class="r" cx="176" cy="30" r="8" ${S}/>
+    <path class="d" d="M24 48 L20 70 M176 38 L180 60" stroke="#5a4a63" stroke-width="2" fill="none"/>` },
 ];
 
 export const PACKS = {
   sea: ['turtle', 'seal', 'fish'],
   home: ['house', 'flower', 'car'],
   fun: ['butterfly', 'icecream', 'balloons'],
+  party: ['cat', 'rocket', 'cake'],
 };
 
 const PALETTE = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#9775fa', '#f783ac', '#a9e34b', '#63e6be', '#8d6e63', '#495057'];

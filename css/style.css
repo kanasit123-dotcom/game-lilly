@@ -765,6 +765,32 @@ body {
   padding: 2px 12px;
   border-radius: 999px;
 }
+/* ป้ายชื่อโลกด้านบนแผนที่ */
+.world-sign {
+  position: absolute;
+  top: 6%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: clamp(.9rem, 2vw, 1.2rem);
+  color: var(--ink);
+  box-shadow: 0 4px 0 var(--card-edge), 0 6px 14px rgba(0, 0, 0, .08);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+.world-sign::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  width: 4px;
+  height: 14px;
+  background: var(--card-edge);
+  transform: translateX(-50%);
+}
+
 /* เด้งเฉพาะด่านที่ควรเล่นต่อ ด่านอื่นเปิดให้กดได้หมดแต่ไม่ต้องแย่งความสนใจ */
 .node.current { animation: node-pulse 2.4s ease-in-out infinite; }
 .node.current .node-num { background: var(--green); box-shadow: 0 3px 0 var(--green-dark); }
@@ -1479,6 +1505,75 @@ body {
   font-size: .8em;
   opacity: 1;
 }
+
+/* บวกเร็ว/ลบเร็ว: ตั้งเลขแนวตั้งย่อ ช่องคำตอบเป็น ? สีชมพูจนกว่าจะตอบ */
+.mini-sum { padding: clamp(6px, 1.2vh, 14px) clamp(14px, 3vw, 28px); }
+.col-sum .cell.slot.ask { color: var(--pink-dark); border-color: var(--pink); background: #fff6fb; animation: ready-pulse 1.3s ease-in-out infinite; }
+.col-sum .cell.slot.wide { width: auto; min-width: clamp(56px, 11vw, 100px); padding: 0 8px; }
+
+/* ครบสิบ: กรอบ 10 ช่อง 2 แถว ลูกบอลที่มีอยู่สีฟ้า ที่เติมใหม่สีเหลืองเด้ง */
+.ten-frame {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(4px, 1vw, 8px);
+  background: #fff;
+  padding: clamp(8px, 1.6vh, 14px);
+  border-radius: var(--r-md);
+  box-shadow: 0 5px 0 var(--card-edge);
+}
+.tf-cell {
+  width: clamp(40px, 8vw, 64px);
+  height: clamp(40px, 8vw, 64px);
+  border-radius: 12px;
+  border: 3px dashed var(--card-edge);
+  display: grid;
+  place-items: center;
+}
+.tf-cell::after { content: ''; width: 70%; height: 70%; border-radius: 50%; }
+.tf-cell.on { border-style: solid; }
+.tf-cell.on::after { background: var(--blue); box-shadow: inset 0 -4px 0 var(--blue-dark); }
+.tf-cell.new { border-style: solid; border-color: var(--yellow); }
+.tf-cell.new::after { background: var(--yellow); box-shadow: inset 0 -4px 0 var(--yellow-dark); animation: pop-in .45s cubic-bezier(.2, .9, .3, 1.6); }
+
+/* เหรียญบาท: เหรียญกลมสีตามของจริง มีเลขค่าใหญ่ๆ */
+.coins { display: flex; gap: clamp(10px, 2.4vw, 22px); flex-wrap: wrap; justify-content: center; }
+.coin {
+  width: clamp(64px, 13vw, 100px);
+  height: clamp(64px, 13vw, 100px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  line-height: 1;
+  font-family: var(--font-num);
+  font-weight: 700;
+  color: #5a4a2a;
+  border: 5px solid rgba(255, 255, 255, .7);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, .18), inset 0 -6px 0 rgba(0, 0, 0, .12);
+}
+.coin b { font-size: clamp(1.5rem, 4.4vw, 2.4rem); }
+.coin small { font-family: var(--font-th); font-size: clamp(.65rem, 1.6vw, .85rem); }
+.coin.c1 { background: #d9dde3; }
+.coin.c2 { background: #e9c46a; }
+.coin.c5 { background: #c9ced6; width: clamp(72px, 14.5vw, 112px); height: clamp(72px, 14.5vw, 112px); }
+.coin.c10 { background: radial-gradient(circle, #e9c46a 0 46%, #cfd4db 48%); width: clamp(76px, 15vw, 118px); height: clamp(76px, 15vw, 118px); }
+
+/* อ่านคำ: คำใหญ่ๆ บนการ์ด ไม่มีรูปช่วย ให้เด็กอ่านเอง */
+.read-word {
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 8vw, 4.4rem);
+  color: var(--purple-dark);
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: clamp(10px, 2vh, 20px) clamp(24px, 6vw, 48px);
+  box-shadow: 0 6px 0 var(--card-edge);
+  letter-spacing: 2px;
+}
+.read-word.thai { font-family: var(--font-th); font-weight: 400; letter-spacing: 0; color: var(--ink); line-height: 1.5; }
+
+/* เวลาแบบ 3:30 */
+.choice.time { font-size: clamp(1.6rem, 4.6vw, 2.6rem); letter-spacing: 1px; }
 
 /* ===== สะกดคำ / ผสมคำ ===== */
 .spell-area {

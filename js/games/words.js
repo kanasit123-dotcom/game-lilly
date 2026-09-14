@@ -28,6 +28,33 @@ export const WORD_SETS = {
     { word: 'STAR', emoji: '⭐' }, { word: 'SUN', emoji: '☀️' }, { word: 'HAT', emoji: '🎩' },
     { word: 'BOAT', emoji: '⛵' }, { word: 'KEY', emoji: '🔑' }, { word: 'CUP', emoji: '🥤' },
   ],
+  body: [
+    { word: 'EYE', emoji: '👁️' }, { word: 'NOSE', emoji: '👃' }, { word: 'EAR', emoji: '👂' },
+    { word: 'HAND', emoji: '✋' }, { word: 'FOOT', emoji: '🦶' }, { word: 'MOUTH', emoji: '👄' },
+    { word: 'TOOTH', emoji: '🦷' }, { word: 'LEG', emoji: '🦵' }, { word: 'TONGUE', emoji: '👅' },
+  ],
+  veg: [
+    { word: 'CARROT', emoji: '🥕' }, { word: 'TOMATO', emoji: '🍅' }, { word: 'POTATO', emoji: '🥔' },
+    { word: 'LEMON', emoji: '🍋' }, { word: 'PEACH', emoji: '🍑' }, { word: 'KIWI', emoji: '🥝' },
+    { word: 'CHERRY', emoji: '🍒' }, { word: 'PEAR', emoji: '🍐' }, { word: 'MELON', emoji: '🍈' },
+    { word: 'MANGO', emoji: '🥭' }, { word: 'COCONUT', emoji: '🥥' }, { word: 'ONION', emoji: '🧅' },
+  ],
+  nature: [
+    { word: 'RAIN', emoji: '🌧️' }, { word: 'SNOW', emoji: '❄️' }, { word: 'CLOUD', emoji: '☁️' },
+    { word: 'MOON', emoji: '🌙' }, { word: 'TREE', emoji: '🌳' }, { word: 'FLOWER', emoji: '🌸' },
+    { word: 'LEAF', emoji: '🍃' }, { word: 'RAINBOW', emoji: '🌈' }, { word: 'FIRE', emoji: '🔥' },
+  ],
+  animals2: [
+    { word: 'HORSE', emoji: '🐴' }, { word: 'SHEEP', emoji: '🐑' }, { word: 'GOAT', emoji: '🐐' },
+    { word: 'RABBIT', emoji: '🐰' }, { word: 'MOUSE', emoji: '🐭' }, { word: 'MONKEY', emoji: '🐵' },
+    { word: 'LION', emoji: '🦁' }, { word: 'TIGER', emoji: '🐯' }, { word: 'ELEPHANT', emoji: '🐘' },
+    { word: 'BEAR', emoji: '🐻' }, { word: 'PANDA', emoji: '🐼' }, { word: 'DOLPHIN', emoji: '🐬' },
+  ],
+  home: [
+    { word: 'BED', emoji: '🛏️' }, { word: 'DOOR', emoji: '🚪' }, { word: 'CHAIR', emoji: '🪑' },
+    { word: 'LAMP', emoji: '💡' }, { word: 'CLOCK', emoji: '🕐' }, { word: 'PHONE', emoji: '📱' },
+    { word: 'SOAP', emoji: '🧼' }, { word: 'BATH', emoji: '🛁' }, { word: 'SPOON', emoji: '🥄' },
+  ],
   // จับคู่ตัวพิมพ์ใหญ่กับตัวพิมพ์เล็ก — emoji คือฝั่งที่โชว์เป็นการ์ดรูป
   letters: [
     { word: 'a', emoji: 'A' }, { word: 'b', emoji: 'B' }, { word: 'e', emoji: 'E' },
@@ -57,5 +84,24 @@ export const WORD_SETS = {
     { word: 'ใ◌', emoji: '🍃<b>ใบ</b>', say: 'สระใอ', done: 'ใบ สระใอ' },
     { word: 'เ◌า', emoji: '🐢<b>เต่า</b>', say: 'สระเอา', done: 'เต่า สระเอา' },
     { word: 'เ◌ือ', emoji: '🐯<b>เสือ</b>', say: 'สระเอือ', done: 'เสือ สระเอือ' },
+  ],
+  thaiVowels2: [
+    { word: '◌า', emoji: '🦵<b>ขา</b>', say: 'สระอา', done: 'ขา สระอา' },
+    { word: '◌ี', emoji: '🎨<b>สี</b>', say: 'สระอี', done: 'สี สระอี' },
+    { word: '◌ู', emoji: '🐍<b>งู</b>', say: 'สระอู', done: 'งู สระอู' },
+    { word: '◌ิ', emoji: '🪨<b>หิน</b>', say: 'สระอิ', done: 'หิน สระอิ' },
+    { word: '◌ึ', emoji: '🏢<b>ตึก</b>', say: 'สระอึ', done: 'ตึก สระอึ' },
+    { word: '◌ือ', emoji: '📖<b>หนังสือ</b>', say: 'สระอือ', done: 'หนังสือ สระอือ' },
+    { word: '◌ุ', emoji: '👝<b>ถุง</b>', say: 'สระอุ', done: 'ถุง สระอุ' },
+    { word: '◌ั', emoji: '🥬<b>ผัก</b>', say: 'ไม้หันอากาศ', done: 'ผัก ไม้หันอากาศ' },
+    { word: '◌ำ', emoji: '⚫<b>ดำ</b>', say: 'สระอำ', done: 'ดำ สระอำ' },
+    { word: 'แ◌', emoji: '💪<b>แขน</b>', say: 'สระแอ', done: 'แขน สระแอ' },
+    { word: 'โ◌', emoji: '🌍<b>โลก</b>', say: 'สระโอ', done: 'โลก สระโอ' },
+    { word: 'ไ◌', emoji: '🥚<b>ไข่</b>', say: 'สระไอ', done: 'ไข่ สระไอ' },
+    { word: 'ใ◌', emoji: '❤️<b>ใจ</b>', say: 'สระใอ', done: 'ใจ สระใอ' },
+    { word: 'เ◌า', emoji: '⛰️<b>เขา</b>', say: 'สระเอา', done: 'เขา สระเอา' },
+    { word: 'เ◌ือ', emoji: '⛵<b>เรือ</b>', say: 'สระเอือ', done: 'เรือ สระเอือ' },
+    { word: 'เ◌ีย', emoji: '🛏️<b>เตียง</b>', say: 'สระเอีย', done: 'เตียง สระเอีย' },
+    { word: '◌ัว', emoji: '🐄<b>วัว</b>', say: 'สระอัว', done: 'วัว สระอัว' },
   ],
 };

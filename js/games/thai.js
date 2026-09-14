@@ -85,6 +85,51 @@ export const THAI_FINAL_WORDS = [
 
 export const THAI_FINAL_POOL = ['ก', 'ง', 'น', 'ม', 'ว', 'บ', 'ด', 'ถ'];
 
+/* ชุด 2: คำยาวขึ้น ตัวลวงเป็นคำจริงที่สะกดคล้ายกัน (เช่น หมา หมี หมู) ให้ได้ฝึกอ่านจริงๆ */
+export const THAI_VOWEL_WORDS2 = [
+  { word: 'หมา', emoji: '🐶', wrong: ['หมี', 'หมู'] },
+  { word: 'หมี', emoji: '🐻', wrong: ['หมา', 'หมู'] },
+  { word: 'เสือ', emoji: '🐯', wrong: ['เสา', 'สือ'] },
+  { word: 'เรือ', emoji: '⛵', wrong: ['เรา', 'รือ'] },
+  { word: 'มือ', emoji: '✋', wrong: ['มา', 'มี'] },
+  { word: 'ไข่', emoji: '🥚', wrong: ['ขา', 'โข่'] },
+  { word: 'กุ้ง', emoji: '🦐', wrong: ['กิ้ง', 'แก้ง'] },
+  { word: 'ลิง', emoji: '🐵', wrong: ['ลุง', 'แลง'] },
+  { word: 'ดาว', emoji: '⭐', wrong: ['ดิว', 'เดา'] },
+  { word: 'บ้าน', emoji: '🏠', wrong: ['บิน', 'บุน'] },
+  { word: 'ช้าง', emoji: '🐘', wrong: ['ชิง', 'โช้ง'] },
+  { word: 'ส้ม', emoji: '🍊', wrong: ['สาม', 'สิม'] },
+  { word: 'ฟัน', emoji: '🦷', wrong: ['ฟีน', 'ฟูน'] },
+  { word: 'นก', emoji: '🐦', wrong: ['นา', 'นู'] },
+  { word: 'หอย', emoji: '🐚', wrong: ['หาย', 'เหย'] },
+  { word: 'ผีเสื้อ', emoji: '🦋', wrong: ['ผาเสือ', 'ผีเสา'] },
+  { word: 'แตงโม', emoji: '🍉', wrong: ['ตางโม', 'แตงมา'] },
+  { word: 'กล้วย', emoji: '🍌', wrong: ['กลาย', 'กลุ้ย'] },
+  { word: 'ดอกไม้', emoji: '🌸', wrong: ['ดากไม้', 'ดอกมี'] },
+  { word: 'รองเท้า', emoji: '👟', wrong: ['รางเท้า', 'รองเตา'] },
+];
+
+export const THAI_FINAL_WORDS2 = [
+  { stem: 'หมว', final: 'ก', emoji: '🧢', word: 'หมวก' },
+  { stem: 'เทีย', final: 'น', emoji: '🕯️', word: 'เทียน' },
+  { stem: 'ม', final: 'ด', emoji: '🐜', word: 'มด' },
+  { stem: 'เป็', final: 'ด', emoji: '🦆', word: 'เป็ด' },
+  { stem: 'น', final: 'ม', emoji: '🥛', word: 'นม' },
+  { stem: 'ขว', final: 'ด', emoji: '🍼', word: 'ขวด' },
+  { stem: 'ถั', final: 'ง', emoji: '🪣', word: 'ถัง' },
+  { stem: 'หมึ', final: 'ก', emoji: '🦑', word: 'หมึก' },
+  { stem: 'แข', final: 'น', emoji: '💪', word: 'แขน' },
+  { stem: 'เตีย', final: 'ง', emoji: '🛏️', word: 'เตียง' },
+  { stem: 'บอ', final: 'ล', emoji: '⚽', word: 'บอล' },
+  { stem: 'หอ', final: 'ย', emoji: '🐚', word: 'หอย' },
+  { stem: 'กุ้', final: 'ง', emoji: '🦐', word: 'กุ้ง' },
+  { stem: 'ตึ', final: 'ก', emoji: '🏢', word: 'ตึก' },
+  { stem: 'เค้', final: 'ก', emoji: '🍰', word: 'เค้ก' },
+  { stem: 'ร่', final: 'ม', emoji: '☂️', word: 'ร่ม' },
+];
+
+export const THAI_FINAL_POOL2 = ['ก', 'ง', 'น', 'ม', 'ด', 'ล', 'ย', 'บ'];
+
 /* ---- ตำแหน่งอักษรไทย ใช้ร่วมกันทุกเกมที่แสดงตัวอักษรแยกส่วน ----
    สระบน + วรรณยุกต์ (ิ ี ึ ื ั ็ ่ ้ ๊ ๋ ์) และ สระล่าง (ุ ู) */
 export const ABOVE = /[\u0E31\u0E34-\u0E37\u0E47-\u0E4E]/;
@@ -193,3 +238,23 @@ export function vowelIndexes(word, vowelKey) {
   }
   return out;
 }
+
+/* อ่านคำ: โชว์คำให้อ่านเอง แล้วเลือกรูปที่ตรง (ไม่อ่านออกเสียงให้ก่อน)
+   ชุด 1 คำสั้นสระเดี่ยว ชุด 2 สระหน้า/สระประสม/มีตัวสะกด */
+const uniq = (list) => {
+  const seen = new Set();
+  return list.filter((w) => (seen.has(w.word) ? false : (seen.add(w.word), true)));
+};
+export const THAI_READ = {
+  1: uniq([
+    ...THAI_VOWEL_FILL.simple,
+    { word: 'นก', emoji: '🐦' }, { word: 'กบ', emoji: '🐸' }, { word: 'มด', emoji: '🐜' },
+    { word: 'โบ', emoji: '🎀' }, { word: 'ไก่', emoji: '🐔' }, { word: 'เต่า', emoji: '🐢' },
+  ]),
+  2: uniq([
+    ...THAI_VOWEL_FILL.front,
+    ...THAI_FINAL_WORDS2.map((w) => ({ word: w.word, emoji: w.emoji })),
+    { word: 'บ้าน', emoji: '🏠' }, { word: 'ช้าง', emoji: '🐘' }, { word: 'ดาว', emoji: '⭐' },
+    { word: 'รถ', emoji: '🚗' }, { word: 'ผีเสื้อ', emoji: '🦋' }, { word: 'กล้วย', emoji: '🍌' },
+  ]),
+};

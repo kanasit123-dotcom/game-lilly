@@ -53,9 +53,26 @@ const SET_OPPOSITES = [
   { a: { e: '📖', name: 'เปิดหนังสือ' }, b: { e: '📕', name: 'ปิดหนังสือ' } },
 ];
 
-const SETS = { pairs: SET_PAIRS, jobs: SET_JOBS, opposites: SET_OPPOSITES };
+/* ใครอยู่ที่ไหน — สัตว์กับที่อยู่ */
+const SET_HOMES = [
+  { a: { e: '🐟', name: 'ปลา' }, b: { e: '🌊', name: 'ทะเล' } },
+  { a: { e: '🐦', name: 'นก' }, b: { e: '🌳', name: 'ต้นไม้' } },
+  { a: { e: '🐧', name: 'เพนกวิน' }, b: { e: '🧊', name: 'น้ำแข็ง' } },
+  { a: { e: '🐪', name: 'อูฐ' }, b: { e: '🏜️', name: 'ทะเลทราย' } },
+  { a: { e: '🐒', name: 'ลิง' }, b: { e: '🌴', name: 'ต้นมะพร้าว' } },
+  { a: { e: '🐝', name: 'ผึ้ง' }, b: { e: '🌸', name: 'ดอกไม้' } },
+  { a: { e: '🐄', name: 'วัว' }, b: { e: '🌾', name: 'ทุ่งหญ้า' } },
+  { a: { e: '🐢', name: 'เต่า' }, b: { e: '🏖️', name: 'ชายหาด' } },
+  { a: { e: '🦭', name: 'แมวน้ำ' }, b: { e: '❄️', name: 'ขั้วโลก' } },
+  { a: { e: '🐸', name: 'กบ' }, b: { e: '💧', name: 'สระน้ำ' } },
+  { a: { e: '🐶', name: 'หมา' }, b: { e: '🏠', name: 'บ้าน' } },
+  { a: { e: '🐭', name: 'หนู' }, b: { e: '🕳️', name: 'รู' } },
+];
+
+const SETS = { pairs: SET_PAIRS, jobs: SET_JOBS, opposites: SET_OPPOSITES, homes: SET_HOMES };
 const PROMPTS = {
   pairs: 'ลากเส้นจับคู่ของที่เข้ากัน',
+  homes: 'ใครอยู่ที่ไหน ลากเส้นจับคู่',
   jobs: 'ใครใช้ของอะไร ลากเส้นจับคู่',
   opposites: 'ลากเส้นจับคู่ที่ตรงข้ามกัน',
 };
@@ -292,7 +309,9 @@ export function play(stage, config, hooks = {}) {
       const pair = roundPairs[sourceKey];
       const say = config.set === 'opposites'
         ? `${pair.a.name} ตรงข้ามกับ ${pair.b.name}`
-        : `${pair.a.name} กับ ${pair.b.name}`;
+        : config.set === 'homes'
+          ? `${pair.a.name} อยู่ที่ ${pair.b.name}`
+          : `${pair.a.name} กับ ${pair.b.name}`;
       speak(say);
       sayBubble(stage, pick(['เก่งมาก!', 'ถูกต้อง!', 'ใช่เลย 🌟']));
 

@@ -33,18 +33,21 @@ function shuffledOrder(n) {
   return order;
 }
 
-function makeNumbers() {
+/* cfg.max = เลขสูงสุด (ค่าเริ่มต้น 20), cfg.desc = เรียงจากมากไปน้อย */
+function makeNumbers(cfg = {}) {
+  const max = cfg.max || 20;
   let nums;
   let prompt;
   if (Math.random() < 0.3) {
-    const start = randInt(1, 6) * 2; // เลขคู่เริ่ม 2..12
+    const start = randInt(1, Math.floor(max / 2) - 4) * 2; // เลขคู่
     nums = [0, 1, 2, 3, 4].map((i) => start + i * 2);
-    prompt = 'นับทีละ 2 เรียงจากน้อยไปมาก';
+    prompt = cfg.desc ? 'นับทีละ 2 เรียงจากมากไปน้อย' : 'นับทีละ 2 เรียงจากน้อยไปมาก';
   } else {
-    const start = randInt(1, 16);
+    const start = randInt(1, max - 4);
     nums = [0, 1, 2, 3, 4].map((i) => start + i);
-    prompt = 'เรียงตัวเลขจากน้อยไปมาก';
+    prompt = cfg.desc ? 'เรียงตัวเลขจากมากไปน้อย' : 'เรียงตัวเลขจากน้อยไปมาก';
   }
+  if (cfg.desc) nums.reverse();
   const items = nums.map((n) => ({ html: `<span class="ot-num">${n}</span>`, say: String(n) }));
   return { prompt, items, sayDone: nums.join(' ') };
 }
@@ -110,7 +113,7 @@ export function play(stage, config, hooks = {}) {
     function makeRound() {
       if (kind === 'size') return makeSize();
       if (kind === 'story') return makeStory(nextStory);
-      return makeNumbers();
+      return makeNumbers(config);
     }
 
     function renderSlots() {

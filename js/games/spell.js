@@ -26,6 +26,27 @@ const SETS = {
       { word: 'หมี', emoji: '🐻' }, { word: 'ผึ้ง', emoji: '🐝' }, { word: 'เต่า', emoji: '🐢' },
     ],
   },
+  en2: {
+    lang: 'en-US',
+    words: [
+      { word: 'BEE', emoji: '🐝' }, { word: 'COW', emoji: '🐮' }, { word: 'EGG', emoji: '🥚' },
+      { word: 'FOX', emoji: '🦊' }, { word: 'HEN', emoji: '🐔' }, { word: 'JAM', emoji: '🍯' },
+      { word: 'KEY', emoji: '🔑' }, { word: 'MAP', emoji: '🗺️' }, { word: 'NET', emoji: '🥅' },
+      { word: 'OWL', emoji: '🦉' }, { word: 'PEN', emoji: '🖊️' }, { word: 'WEB', emoji: '🕸️' },
+      { word: 'BOX', emoji: '📦' }, { word: 'CAR', emoji: '🚗' }, { word: 'BUG', emoji: '🐛' },
+    ],
+  },
+  th2: {
+    lang: 'th-TH',
+    words: [
+      { word: 'เสือ', emoji: '🐯' }, { word: 'เรือ', emoji: '⛵' }, { word: 'กุ้ง', emoji: '🦐' },
+      { word: 'มือ', emoji: '✋' }, { word: 'ไข่', emoji: '🥚' }, { word: 'ใบ', emoji: '🍃' },
+      { word: 'ดาว', emoji: '⭐' }, { word: 'บ้าน', emoji: '🏠' }, { word: 'รถ', emoji: '🚗' },
+      { word: 'ช้าง', emoji: '🐘' }, { word: 'ลิง', emoji: '🐵' }, { word: 'หมา', emoji: '🐶' },
+      { word: 'ข้าว', emoji: '🍚' }, { word: 'ส้ม', emoji: '🍊' }, { word: 'ฟัน', emoji: '🦷' },
+      { word: 'ถุง', emoji: '👝' }, { word: 'หอย', emoji: '🐚' }, { word: 'นม', emoji: '🥛' },
+    ],
+  },
 };
 
 const PER_LEVEL = 6;

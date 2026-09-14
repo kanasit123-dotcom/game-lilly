@@ -1,5 +1,5 @@
 import { go } from '../router.js';
-import { LEVELS, SUBJECTS } from '../levels.js';
+import { LEVELS, SUBJECTS, WORLDS } from '../levels.js';
 import { getStars, totalStars, nextUnplayedId } from '../state.js';
 import { sfx } from '../audio.js';
 
@@ -39,14 +39,21 @@ function nodeHTML(lv, i, pt, W, currentId) {
     </button>`;
 }
 
-function stageHTML(levels, currentId) {
+/* ป้ายชื่อโลก ปักไว้ด้านบนเหนือด่านแรกของแต่ละโลก (เฉพาะตอนดูทุกหมวด) */
+function signHTML(w, pt, W) {
+  return `<div class="world-sign" style="left:${(pt.x / W) * 100}%">${w.icon} ${w.name}</div>`;
+}
+
+function stageHTML(levels, currentId, withSigns) {
   const W = EDGE * 2 + GAP * Math.max(levels.length - 1, 0);
   const pts = levels.map((lv, i) => ({ x: EDGE + i * GAP, y: 330 - Math.sin(i * 0.85) * 155 }));
+  const signs = withSigns ? WORLDS.filter((w) => w.from < levels.length).map((w) => signHTML(w, pts[w.from], W)) : [];
   return `
     <div class="map-stage" style="aspect-ratio:${W} / ${H}">
       <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
         <path class="map-path" d="${smoothPath(pts)}"/>
       </svg>
+      ${signs.join('')}
       ${levels.map((lv, i) => nodeHTML(lv, i, pts[i], W, currentId)).join('')}
     </div>`;
 }
@@ -72,7 +79,7 @@ export function showMap(root) {
 
   function renderStage() {
     const levels = activeSubject === 'all' ? LEVELS : LEVELS.filter((l) => l.subject === activeSubject);
-    wrap.innerHTML = stageHTML(levels, currentId);
+    wrap.innerHTML = stageHTML(levels, currentId, activeSubject === 'all');
 
     wrap.querySelectorAll('.node').forEach((node) => {
       node.onclick = () => {

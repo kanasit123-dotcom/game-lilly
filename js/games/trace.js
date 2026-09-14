@@ -12,6 +12,7 @@ const SETS = {
   thai1: pickThai('กงจดตบปม'),
   thai2: pickThai('ขคชนผยรล'),
   thai3: pickThai('วสหอฮธทฟ'),
+  thai4: pickThai('ฆซญฎถภศษ'),
   abc: pickAbc('ABCDEF'),
   abc2: pickAbc('GHIJKL'),
   abc3: pickAbc('MNOPQR'),
