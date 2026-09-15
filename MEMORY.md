@@ -11,7 +11,7 @@ Latest completed commit before this memory: see `git log`
 - This is a learning game for Lilly, aimed roughly at kindergarten 2-3.
 - Do not add more lesson levels. Wait for feedback from real play on the iPad first.
 - Lilly especially likes seals, turtles, and rabbits.
-- Do not use bears, pigs, hippos, or dogs in production content or rewards.
+- Do not use bears, pigs, hippos, or dogs in production content or rewards. Koala counts as a bear (Thai: หมีโคอาลา) and teddy-bear emoji 🧸 counts too — the koala buddy became a squirrel on 2026-09-15.
 - Other animals and insects are acceptable.
 - The experience should be cute, calm, readable, touch-friendly, and usable on mobile.
 

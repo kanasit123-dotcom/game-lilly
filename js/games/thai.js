@@ -198,7 +198,7 @@ export const THAI_VOWEL_FILL = {
     { word: 'หมึก', emoji: '🦑', vowel: 'ึ' },
     { word: 'มือ', emoji: '✋', vowel: 'ื' }, { word: 'หนังสือ', emoji: '📖', vowel: 'ื' },
     { word: 'กุ้ง', emoji: '🦐', vowel: 'ุ' }, { word: 'ถุง', emoji: '👝', vowel: 'ุ' },
-    { word: 'ตุ๊กตา', emoji: '🧸', vowel: 'ุ' },
+    { word: 'ตุ๊กตา', emoji: '🎎', vowel: 'ุ' },
     { word: 'ฟัน', emoji: '🦷', vowel: 'ั' }, { word: 'ผัก', emoji: '🥬', vowel: 'ั' },
     { word: 'ถัง', emoji: '🪣', vowel: 'ั' }, { word: 'นั่ง', emoji: '🪑', vowel: 'ั' },
     { word: 'น้ำ', emoji: '💧', vowel: 'ำ' }, { word: 'ดำ', emoji: '⚫', vowel: 'ำ' },

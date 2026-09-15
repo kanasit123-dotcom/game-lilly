@@ -36,7 +36,7 @@ export const REWARDS = [
   { id: 'ribbon', stars: 185, type: 'trophy', emoji: '🎖️', title: 'เหรียญกล้าหาญ', desc: 'ไม่กลัวโจทย์ยากเลย' },
   { id: 'octopus', stars: 200, type: 'buddy', emoji: '🐙', title: 'เพื่อนใหม่: หมึกยักษ์', desc: 'แปดแขนโบกมือให้' },
   { id: 'castle', stars: 215, type: 'trophy', emoji: '🏰', title: 'ปราสาทของลิลลี่', desc: 'สร้างจากดาว 215 ดวง' },
-  { id: 'koala', stars: 230, type: 'buddy', emoji: '🐨', title: 'เพื่อนใหม่: โคอาลา', desc: 'ขี้อ้อนที่สุด' },
+  { id: 'squirrel', stars: 230, type: 'buddy', emoji: '🐿️', title: 'เพื่อนใหม่: กระรอก', desc: 'หางฟูๆ ชอบเก็บลูกโอ๊ก' }, // เดิมเป็นโคอาลา แต่ลิลลี่ไม่ชอบหมี (โคอาลา = หมีโคอาลา)
   { id: 'shooting-star', stars: 245, type: 'trophy', emoji: '🌠', title: 'ดาวตกแห่งความฝัน', desc: 'ขอพรได้เลย', cup: true },
   { id: 'world-cup', stars: 260, type: 'trophy', emoji: '🌍', title: 'ถ้วยโลกของลิลลี่', desc: 'เก่งที่สุดในโลกจริงๆ!', cup: true },
 ];

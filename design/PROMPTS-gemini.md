@@ -70,15 +70,15 @@ Character: a cute butterfly with a small round lavender body, a sweet face with 
 Character: a small lavender-purple baby octopus with a big round head, big glossy eyes and rosy cheeks, eight short curly arms with pale pink suckers, wearing a tiny white sailor hat with a blue band, two arms raised as if waving hello.
 ```
 
-## 8. โคอาลา — เซฟเป็น `koala.png`
+## 8. กระรอก — เซฟเป็น `squirrel.png`
 
 ```text
-Character: a fluffy grey koala with big round ears with cream fluff inside, a large soft black nose, sleepy-happy eyes, wearing a small yellow bow at the neck, hugging a sprig of green eucalyptus leaves.
+Character: a small chestnut-brown squirrel with a cream belly, a big fluffy curled tail, bright dark eyes and tiny tufted ears, wearing a small yellow bow at the neck, holding one acorn with both front paws.
 ```
 
 ---
 
 ## หมายเหตุสำหรับตอนใส่เข้าเกม
 
-ชื่อไฟล์ = id ของรางวัลใน `js/rewards.js` (`cat`, `penguin`, `fox`, `unicorn`, `dolphin`, `butterfly`, `octopus`, `koala`)
+ชื่อไฟล์ = id ของรางวัลใน `js/rewards.js` (`cat`, `penguin`, `fox`, `unicorn`, `dolphin`, `butterfly`, `octopus`, `squirrel`)
 ตอนใส่จะเพิ่มลงตาราง `labels`/`emojiAssets` ใน `js/assets.js` ให้ `animalHTML()` หยิบรูปแทน emoji ได้เหมือน 3 ตัวแรก
