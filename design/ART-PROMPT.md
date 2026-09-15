@@ -4,6 +4,11 @@ Generated with the built-in imagegen tool on 2026-09-15.
 
 Project output: `assets/lilly-friends.png` (2172 x 724 pixels).
 
+Production transparent cutouts generated from this reference:
+- `assets/friends/seal.png`
+- `assets/friends/turtle.png`
+- `assets/friends/rabbit.png`
+
 This is one original three-character lineup illustration. The prototype uses CSS background positioning for each third; the source bitmap is preserved as generated.
 
 ```text

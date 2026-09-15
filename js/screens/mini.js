@@ -14,7 +14,7 @@ import { mount as fishing } from '../mini/fishing.js';
 import { mount as harvest } from '../mini/harvest.js';
 import { animalHTML, iconHTML, renderIcons } from '../assets.js';
 import { menuHeader, bindMenu } from './menu.js';
-import { nextLevelId, nextUnplayedId } from '../state.js';
+import { nextLevelId, nextUnplayedId, getMini, setMini } from '../state.js';
 import { getLevel } from '../levels.js';
 import { REWARDS } from '../rewards.js';
 
@@ -84,9 +84,12 @@ export function showMini(root, { id, fromLevelId }) {
   function finish() {
     if (ended) return;
     ended = true;
+    const date = new Date().toDateString();
+    const activity = getMini('dailyActivity') || {};
+    setMini('dailyActivity', { date, breaks: (activity.date === date ? activity.breaks || 0 : 0) + 1 });
     dispose();
     el.querySelector('.mini-session-bar').remove();
-    el.querySelector('#stage').innerHTML = `<div class="break-complete">${animalHTML('rabbit')}<h1>พักเต็มอิ่มแล้ว</h1><p>เรื่องใหม่รอเราอยู่: ${getLevel(target).title}</p><div class="learning-actions"><button class="btn green" id="return-lesson">ไปเรียนต่อ ${iconHTML('arrow-right')}</button><button class="btn secondary" id="finish-today">วันนี้พอแค่นี้</button></div></div>`;
+    el.querySelector('#stage').innerHTML = `<div class="break-complete">${animalHTML(getMini('preferences')?.buddy || 'rabbit', 'happy')}<h1>พักเต็มอิ่มแล้ว</h1><p>เรื่องใหม่รอเราอยู่: ${getLevel(target).title}</p><div class="learning-actions"><button class="btn green" id="return-lesson">ไปเรียนต่อ ${iconHTML('arrow-right')}</button><button class="btn secondary" id="finish-today">วันนี้พอแค่นี้</button></div></div>`;
     el.querySelector('#return-lesson').onclick = () => go('game', { levelId: target });
     el.querySelector('#finish-today').onclick = () => go('home');
     renderIcons();

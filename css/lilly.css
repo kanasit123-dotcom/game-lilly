@@ -21,25 +21,22 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 .icon-btn { width: 48px; height: 48px; box-shadow: none; border: 1px solid var(--card-edge); }
 .outlined { color: var(--ink); text-shadow: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
-.lilly-animal { display: inline-block; width: 100%; aspect-ratio: 1; background: url('../assets/lilly-friends.png') no-repeat; background-size: 300% 100%; vertical-align: middle; mix-blend-mode: multiply; }
-.lilly-animal.seal { background-position: 0 50%; clip-path: inset(0 2% 0 0); }
-.lilly-animal.turtle { background-position: 50% 50%; clip-path: inset(0 0 0 3%); }
-.lilly-animal.rabbit { background-position: 100% 50%; }
+.lilly-animal { display: inline-block; width: 100%; aspect-ratio: 1; object-fit: contain; vertical-align: middle; user-select: none; pointer-events: none; filter: drop-shadow(0 5px 7px rgba(40,63,61,.12)); }
 .buddy .lilly-animal { width: 76px; }
 .buddy { filter: none; }
-.reward-emoji > span { width: 85%; }
-.reward-emoji.cup > span { width: 65%; }
+.reward-emoji > .lilly-animal { width: 85%; }
+.reward-emoji.cup > .lilly-animal { width: 65%; }
 .pic-card { border: 1px solid var(--card-edge); padding: 6px; cursor: pointer; }
 .pic-card .lilly-animal { width: 100%; }
 .mem-back .lilly-animal { width: 95%; }
 .pic-btn .lilly-animal { width: 100%; }
 .dress-buddy { width: 100%; height: 100%; display: grid; place-items: center; }
-.dress-buddy .lilly-animal { width: min(78%, 300px); }
+.dress-buddy .lilly-animal { width: min(72%, 270px); height: 94%; }
 .mem-front { background: #e0efe5; color: #23725c; }
 .mem-grid { grid-template-columns: repeat(var(--mem-cols, 4), minmax(0, 1fr)); }
 .word-card, .pic-card .answer-tag { font-size: 20px; }
 .word-card { padding: 14px 18px; }
-.lilly-scroll { overflow-y: auto; overflow-x: hidden; display: block; padding-bottom: 24px; animation: none; }
+.lilly-scroll { overflow-y: auto; overflow-x: hidden; display: block; padding-bottom: 24px; animation: screen-in .28s ease-out; }
 .lilly-header { max-width: 1120px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 20px 20px; border-bottom: 1px solid var(--card-edge); }
 .lilly-brand { display: flex; align-items: center; text-align: left; gap: 12px; border: 0; background: transparent; font-size: 23px; white-space: nowrap; cursor: pointer; }
 .lilly-brand small { display: block; font-size: 10px; color: var(--ink-soft); }
@@ -59,8 +56,20 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 .lilly-friends { border: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; max-width: 620px; padding: 0; margin: 22px auto; }
 .lilly-friends label { cursor: pointer; border-bottom: 2px solid transparent; padding-bottom: 10px; text-align: center; min-width: 0; }
 .lilly-friends label:has(:checked) { border-bottom-color: var(--green); }
+.lilly-friends label .lilly-animal { transition: transform .22s ease, filter .22s ease; }
+.lilly-friends label:hover .lilly-animal { transform: translateY(-4px); }
+.lilly-friends label:has(:checked) .lilly-animal { animation: buddy-selected .5s cubic-bezier(.2,.9,.3,1.4); filter: drop-shadow(0 8px 10px rgba(32,121,100,.22)); }
+@keyframes buddy-selected { 45% { transform: translateY(-8px) rotate(2deg) scale(1.04); } }
 .lilly-friends label > span:last-child { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 17px; }
 .lilly-friends input { width: 18px; height: 18px; accent-color: var(--green); margin: 0; }
+.lilly-journey { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border-top: 1px solid var(--card-edge); margin-top: 8px; }
+.lilly-journey > div { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; padding: 16px 12px; color: var(--ink-soft); border-right: 1px solid var(--card-edge); }
+.lilly-journey > div:last-child { border-right: 0; }
+.lilly-journey svg { width: 25px; height: 25px; }
+.lilly-journey span { min-width: 0; font-size: 14px; line-height: 1.5; }
+.lilly-journey b { display: block; color: var(--ink); font-size: 19px; font-weight: 400; }
+.lilly-journey .done { color: var(--green); }
+.lilly-journey .done svg { fill: #dff1e7; }
 .lilly-daily { display: flex; align-items: center; gap: 20px; border-top: 1px solid var(--card-edge); border-bottom: 1px solid var(--card-edge); padding: 24px 0; }
 .daily-index { flex-shrink: 0; width: 64px; height: 64px; border-radius: 50%; background: #fce8ed; color: #ba5372; font-size: 40px; display: grid; place-items: center; }
 .lilly-daily > div { flex: 1; }
@@ -153,6 +162,8 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 .shape-token.triangle { clip-path: polygon(50% 0,100% 100%,0 100%); background: #c5a048; }
 .playroom-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin-top: 28px; }
 .playroom-item { background: white; border: 1px solid var(--card-edge); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; cursor: pointer; }
+.playroom-item:not(:disabled) { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.playroom-item:not(:disabled):hover { transform: translateY(-4px); border-color: #79aa95; box-shadow: 0 7px 0 #d8e8e0; }
 .playroom-item .lilly-animal { width: 125px; }
 .playroom-item b { font-size: 21px; font-weight: 400; }
 .playroom-item small { font-size: 14px; color: var(--ink-soft); }
@@ -163,6 +174,24 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 .mini-session-bar .lilly-text { font-size: 16px; white-space: nowrap; }
 .mini-content { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px; position: relative; }
 .mini-content h2 { font-size: 28px; font-weight: 400; text-align: center; margin: 0; }
+.mini-content .mini-hint[role=status] { min-height: 30px; }
+.art .r:focus-visible { outline: none; stroke: #297ba5; stroke-width: 5; }
+.mini-content .btn.secondary:disabled { color: #92a39d; background: #eef3f0; }
+.slot-btn { width: auto; min-width: 82px; height: 44px; padding: 7px 12px; border-width: 2px; font-size: 15px; line-height: 1.3; }
+.slot-btn.on { color: #604472; }
+.dress-stage { flex: 0 0 clamp(220px,32vh,320px); aspect-ratio: auto; background: #fffaf2; border: 1px solid #f0dfca; }
+.dress-buddies, .dress-items { width: min(100%,720px); flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; overscroll-behavior-inline: contain; padding: 4px 4px 8px; scrollbar-width: thin; }
+.dress-buddies .pic-btn, .dress-items .swatch { flex: 0 0 auto; }
+.dress-buddies .pic-btn { width: 58px; height: 58px; }
+.dress-slots { gap: 6px; }
+.dress-stage:after { content: ''; position: absolute; left: 8%; right: 8%; bottom: 9%; height: 2px; background: #eadbc8; z-index: 0; }
+.dress-buddy { z-index: 1; }
+.dress-buddy .lilly-animal { animation: dress-idle 3s ease-in-out infinite; }
+.worn { z-index: 3; }
+.worn:focus-visible { outline: 3px solid #297ba5; outline-offset: 4px; border-radius: 50%; }
+@keyframes dress-idle { 50% { transform: translateY(-5px); } }
+.lilly-animal.happy { animation: character-cheer .75s cubic-bezier(.2,.9,.3,1.35) 2; }
+@keyframes character-cheer { 45% { transform: translateY(-12px) rotate(3deg) scale(1.04); } }
 .harvest-garden { width: min(100%,700px); min-height: 210px; background: #ecf6e9; border-bottom: 45px solid #d4e8c7; border-radius: 8px; display: flex; align-items: flex-end; justify-content: center; padding: 30px 15px 0; }
 .harvest-plant { min-width: 0; flex: 1; border: 0; background: none; padding: 12px 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 15px; }
 .harvest-plant .lesson-carrot { width: 40px; height: 90px; }
@@ -171,6 +200,21 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 .harvest-plant.picked .plant-number { background: var(--green); color: white; }
 .harvest-status { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: min(100%,700px); font-size: 23px; }
 .harvest-status .lilly-animal { width: 120px; }
+.garden { position: relative; padding: 10px; border-radius: 8px; background: #edf7eb; border: 1px solid #d4e7d7; }
+.garden-toolbar { width: min(100%,520px); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.garden-toolbar .mini-hint { margin-left: auto; white-space: nowrap; }
+.plot { isolation: isolate; }
+.plot:before { content: ''; position: absolute; inset: 38% 0 0; background: repeating-linear-gradient(170deg, transparent 0 13px, rgba(255,255,255,.12) 14px 16px); z-index: -1; }
+.plot.s4 { box-shadow: 0 6px 0 #6d4c41, 0 0 0 3px #f2cf69, 0 10px 18px rgba(0,0,0,.12); }
+.basket { border: 1px solid var(--card-edge); }
+.fish-count { color: var(--ink); }
+.fish-feedback { min-height: 1.5em; text-align: center; color: var(--blue-dark); font-weight: 700; }
+.pond { border: 1px solid #91cce9; }
+.pond:before { content: ''; position: absolute; inset: 12px 0 auto; height: 24px; background: repeating-radial-gradient(ellipse at 50% 100%, transparent 0 16px, rgba(255,255,255,.45) 17px 19px, transparent 20px 35px); opacity: .7; pointer-events: none; }
+.fish { transition: filter .2s ease; }
+.fish:hover { filter: drop-shadow(0 5px 5px rgba(0,70,120,.25)) brightness(1.06); }
+.bucket span { animation: catch-bucket .35s cubic-bezier(.2,.9,.3,1.5); }
+@keyframes catch-bucket { from { opacity: 0; transform: translateY(-10px) scale(.7); } }
 .break-complete { text-align: center; max-width: 700px; }
 .break-complete > .lilly-animal { width: 180px; }
 .break-complete h1 { font-size: 34px; font-weight: 400; }
@@ -258,5 +302,9 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 }
 @media(prefers-reduced-motion:reduce) {
   *, *:before, *:after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
-  .fish, .balloon { animation-duration: 12s !important; }
+  .fish, .balloon { animation: none !important; }
 }
+.reduce-motion *, .reduce-motion *:before, .reduce-motion *:after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+.reduce-motion .fish, .reduce-motion .balloon { animation: none !important; }
+.fish.motion-off { transform: scaleX(var(--flip,1)); }
+.balloon.motion-off { transform: none; }

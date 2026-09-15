@@ -5,7 +5,7 @@ export const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({ '&'
 export const assetId = value => labels[value] ? value : emojiAssets[value] || null;
 export function animalHTML(value, extra = '') {
   const id = assetId(value);
-  return id ? `<span class="lilly-animal ${id} ${extra}" role="img" aria-label="${labels[id]}"></span>` : escapeHTML(value);
+  return id ? `<img class="lilly-animal ${id} ${extra}" src="./assets/friends/${id}.png" alt="${labels[id]}" draggable="false">` : escapeHTML(value);
 }
 
 // Legacy word sets also contain authored vowel markup; preserve that fallback.

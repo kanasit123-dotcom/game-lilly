@@ -184,17 +184,20 @@ export function mount(stage, cfg = {}) {
   let saved = getMini('coloring') || {};
   let pic = pics.find((p) => p.id === saved.current) || pics[0];
   let color = PALETTE[0];
+  const undoStacks = new Map();
 
   stage.innerHTML = `
     <div class="mini-top">
       ${pics.map((p) => `<button class="pic-btn" data-id="${p.id}" title="${p.name}" aria-label="เลือกรูป${p.name}">${p.icon}</button>`).join('')}
     </div>
-    <div class="art-wrap"><svg class="art" viewBox="0 0 200 160" id="art"></svg></div>
+    <p class="mini-hint" id="color-hint">เลือกสี แล้วแตะส่วนของรูปเพื่อระบาย</p>
+    <div class="art-wrap"><svg class="art" viewBox="0 0 200 160" id="art" role="group" aria-label="รูป${pic.name} สำหรับระบายสี"></svg></div>
     <div class="palette" id="palette">
       ${PALETTE.map((c, i) => `<button class="swatch" data-c="${c}" style="background:${c}" aria-label="เลือกสี${COLOR_NAMES[i]}"></button>`).join('')}
       <button class="swatch eraser" data-c="${ERASER}" title="ยางลบ" aria-label="เลือกยางลบ">🧽</button>
     </div>
     <div class="mini-actions">
+      <button class="btn secondary" id="undo" disabled aria-label="ย้อนกลับการระบายสี">↶ ย้อนกลับ</button>
       <button class="btn blue" id="clear">เริ่มใหม่ 🔄</button>
       <button class="btn green" id="done">เสร็จแล้ว ✨</button>
     </div>`;
@@ -206,14 +209,39 @@ export function mount(stage, cfg = {}) {
     setMini('coloring', saved);
   }
 
+  function snapshot() {
+    return { ...(saved[pic.id] || {}) };
+  }
+
+  function remember() {
+    const stack = undoStacks.get(pic.id) || [];
+    stack.push(snapshot());
+    if (stack.length > 20) stack.shift();
+    undoStacks.set(pic.id, stack);
+    updateUndo();
+  }
+
+  function updateUndo() {
+    const button = stage.querySelector('#undo');
+    if (!button) return;
+    const count = (undoStacks.get(pic.id) || []).length;
+    button.disabled = count === 0;
+    button.setAttribute('aria-label', count ? `ย้อนกลับการระบายสี ${count} ครั้ง` : 'ยังไม่มีการระบายสีให้ย้อนกลับ');
+  }
+
   function render() {
     $art.innerHTML = pic.svg;
+    $art.setAttribute('aria-label', `รูป${pic.name} สำหรับระบายสี`);
     const fills = saved[pic.id] || {};
     $art.querySelectorAll('.r').forEach((el, i) => {
       el.dataset.i = i;
       el.setAttribute('fill', fills[i] || '#fff');
-      el.onclick = () => {
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', `ระบายส่วนที่ ${i + 1} ของรูป${pic.name}`);
+      const paint = () => {
         sfx.tap();
+        remember();
         fills[i] = color;
         saved[pic.id] = fills;
         el.setAttribute('fill', color);
@@ -222,9 +250,20 @@ export function mount(stage, cfg = {}) {
         el.classList.add('pop');
         persist();
       };
+      el.onclick = paint;
+      el.onkeydown = event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        paint();
+      };
     });
     $art.querySelectorAll('.d').forEach((el) => el.setAttribute('fill', '#5a4a63'));
-    stage.querySelectorAll('.pic-btn').forEach((b) => b.classList.toggle('on', b.dataset.id === pic.id));
+    stage.querySelectorAll('.pic-btn').forEach((b) => {
+      const selected = b.dataset.id === pic.id;
+      b.classList.toggle('on', selected);
+      b.setAttribute('aria-pressed', String(selected));
+    });
+    updateUndo();
   }
 
   stage.querySelectorAll('.pic-btn').forEach((b) => {
@@ -241,14 +280,31 @@ export function mount(stage, cfg = {}) {
     s.onclick = () => {
       sfx.tap();
       color = s.dataset.c;
-      stage.querySelectorAll('.swatch').forEach((x) => x.classList.toggle('on', x === s));
+      stage.querySelectorAll('.swatch').forEach((x) => {
+        const selected = x === s;
+        x.classList.toggle('on', selected);
+        x.setAttribute('aria-pressed', String(selected));
+      });
     };
   });
   stage.querySelector('.swatch').classList.add('on');
+  stage.querySelector('.swatch').setAttribute('aria-pressed', 'true');
 
   stage.querySelector('#clear').onclick = () => {
     sfx.retry();
+    if (Object.keys(saved[pic.id] || {}).length) remember();
     delete saved[pic.id];
+    persist();
+    render();
+  };
+
+  stage.querySelector('#undo').onclick = () => {
+    const stack = undoStacks.get(pic.id) || [];
+    const previous = stack.pop();
+    if (!previous) return;
+    if (Object.keys(previous).length) saved[pic.id] = previous;
+    else delete saved[pic.id];
+    sfx.tap();
     persist();
     render();
   };

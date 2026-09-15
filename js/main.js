@@ -7,8 +7,10 @@ import { showSummary } from './screens/summary.js';
 import { showRewards } from './screens/rewards.js';
 import { showMini, showPlayroom } from './screens/mini.js';
 import { unlockAudio } from './audio.js';
+import { getMini } from './state.js';
 
 setRoot(document.getElementById('app'));
+document.documentElement.classList.toggle('reduce-motion', getMini('preferences')?.motion === false);
 
 register('home', showHome);
 register('map', showMap);

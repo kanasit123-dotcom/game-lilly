@@ -2,13 +2,13 @@ const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
+const { pathToFileURL } = require('node:url');
 
 (async () => {
   const base = process.env.LILLY_TEST_URL || 'http://127.0.0.1:5173';
-  const legacySource = execFileSync('git', ['show', 'HEAD:js/levels.js'], { encoding: 'utf8' });
-  const legacy = await import(`data:text/javascript;base64,${Buffer.from(legacySource).toString('base64')}`);
-  const legacyIds = legacy.LEVELS.map(l => l.id);
+  const localLevels = await import(pathToFileURL(path.join(__dirname, '..', 'js', 'levels.js')).href);
+  const legacyIds = localLevels.LEVELS.filter(level => !level.fresh).map(level => level.id);
+  assert.equal(legacyIds.length, 92, 'legacy level count remains stable');
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   const output = path.join(__dirname, 'screenshots');
   fs.mkdirSync(output, { recursive: true });
@@ -117,6 +117,51 @@ const { execFileSync } = require('node:child_process');
     }
     console.log(`PASS ${legacyIds.length} original levels mount; leaving games does not record progress.`);
 
+    await route('mini', { id: 'coloring' });
+    const region = page.locator('.art .r').first();
+    const originalFill = await region.getAttribute('fill');
+    await region.focus();
+    await region.press('Enter');
+    assert.equal(await page.locator('#undo').isEnabled(), true);
+    await page.locator('#undo').click();
+    assert.equal(await page.locator('.art .r').first().getAttribute('fill'), originalFill);
+    await page.locator('#finish-break').click();
+    await page.locator('#finish-today').click();
+
+    await route('mini', { id: 'dressup' });
+    await page.locator('[data-slot="head"]').click();
+    assert.equal(await page.locator('.worn').count(), 1);
+    await page.locator('#finish-break').click();
+    await page.locator('#finish-today').click();
+
+    await route('mini', { id: 'garden' });
+    for (let plot = 0; plot < 3; plot++) {
+      for (let step = 0; step < 5; step++) await page.locator('.plot').nth(plot).click();
+    }
+    await page.locator('#return-lesson').waitFor();
+    await page.locator('#finish-today').click();
+
+    await route('mini', { id: 'fishing' });
+    for (let fish = 0; fish < 5; fish++) {
+      const targetFish = page.locator('.fish[aria-label^="จับ"]:not(.caught)').first();
+      await targetFish.waitFor();
+      await targetFish.dispatchEvent('pointerdown');
+    }
+    await page.locator('#return-lesson').waitFor();
+    await page.locator('#finish-today').click();
+
+    await route('summary');
+    await page.locator('#motion-setting').uncheck();
+    assert.equal(await page.locator('html').evaluate(el => el.classList.contains('reduce-motion')), true);
+    await route('mini', { id: 'balloons' });
+    await page.locator('.balloon').first().waitFor();
+    assert.equal(await page.locator('.balloon').first().evaluate(el => getComputedStyle(el).animationName), 'none');
+    await route('summary');
+    await page.locator('#motion-setting').check();
+    assert.equal(await page.locator('html').evaluate(el => el.classList.contains('reduce-motion')), false);
+    await route('home');
+    assert.match(await page.locator('.lilly-journey').innerText(), /พักเล่น\s+[1-9]\d* รอบ/);
+
     for (const id of ['harvest', 'coloring', 'coloring2', 'coloring3', 'coloring4', 'garden', 'xylo', 'balloons', 'bakery', 'aquarium', 'dressup', 'draw', 'drums', 'fishing']) {
       await route('mini', { id });
       await page.locator('.mini-content').waitFor();
@@ -151,6 +196,16 @@ const { execFileSync } = require('node:child_process');
       await route('mini', { id: 'dressup' });
       assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `dressup fits at ${width}`);
       if (width === 390) await page.screenshot({ path: path.join(output, 'dressup-mobile.png') });
+      await route('mini', { id: 'garden' });
+      assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `garden fits at ${width}`);
+      if (width === 390) await page.screenshot({ path: path.join(output, 'garden-mobile.png') });
+      await route('mini', { id: 'fishing' });
+      await page.locator('.fish').first().waitFor();
+      assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `fishing fits at ${width}`);
+      if (width === 390) await page.screenshot({ path: path.join(output, 'fishing-mobile.png') });
+      await route('mini', { id: 'coloring' });
+      assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `coloring fits at ${width}`);
+      if (width === 390) await page.screenshot({ path: path.join(output, 'coloring-mobile.png') });
     }
     await route('home');
     await page.reload();
@@ -163,13 +218,15 @@ const { execFileSync } = require('node:child_process');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v13'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v14'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.lilly-friends').waitFor();
+    assert.equal(await page.locator('.lilly-animal').first().evaluate(el => el.tagName), 'IMG');
     await play('f-paternal');
     await page.locator('#practice').waitFor();
-    assert.equal(await page.evaluate(async () => { const img = new Image(); img.src = '/assets/lilly-friends.png'; await img.decode(); return img.naturalWidth > 0; }), true);
+    assert.equal(await page.evaluate(async () => Promise.all(['seal', 'turtle', 'rabbit'].map(async id => { const img = new Image(); img.src = `/assets/friends/${id}.png`; await img.decode(); return img.naturalWidth > 0; })).then(results => results.every(Boolean))), true);
+    assert.equal(await page.evaluate(async () => Promise.all(['seal', 'turtle', 'rabbit'].map(async id => { const img = new Image(); img.src = `/assets/friends/${id}.png`; await img.decode(); const canvas = document.createElement('canvas'); canvas.width = img.naturalWidth; canvas.height = img.naturalHeight; canvas.getContext('2d').drawImage(img, 0, 0); return canvas.getContext('2d').getImageData(0, 0, 1, 1).data[3] === 0; })).then(results => results.every(Boolean))), true);
     await context.setOffline(false);
     assert.deepEqual(errors, [], 'no uncaught browser errors');
     console.log('PASS responsive views, original saved data after reload, and offline app/new lessons/artwork.');

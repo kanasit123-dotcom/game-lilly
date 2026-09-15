@@ -88,6 +88,7 @@ export function showSummary(root) {
 
     <div class="summary-body">
       <label class="sound-setting"><span>เสียงคำอ่านและเสียงเกม</span><input id="sound-setting" type="checkbox" ${getMini('preferences')?.sound !== false ? 'checked' : ''}></label>
+      <label class="sound-setting"><span>ภาพเคลื่อนไหว</span><input id="motion-setting" type="checkbox" ${getMini('preferences')?.motion !== false ? 'checked' : ''}></label>
       <div class="stat-row">
         <div class="stat"><b>${st.played.length}<small>/${LEVELS.length}</small></b><span>ด่านที่เล่นแล้ว</span></div>
         <div class="stat"><b>${st.totalPlays}</b><span>ครั้งที่เล่นทั้งหมด</span></div>
@@ -149,6 +150,10 @@ export function showSummary(root) {
   el.querySelector('#sound-setting').onchange = e => {
     setMini('preferences', { ...getMini('preferences'), sound: e.target.checked });
     if (!e.target.checked) window.speechSynthesis?.cancel();
+  };
+  el.querySelector('#motion-setting').onchange = e => {
+    setMini('preferences', { ...getMini('preferences'), motion: e.target.checked });
+    document.documentElement.classList.toggle('reduce-motion', !e.target.checked);
   };
 
   el.querySelectorAll('.lv-chip').forEach((c) => {

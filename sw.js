@@ -1,4 +1,4 @@
-const CACHE = 'lilly-world-v13';
+const CACHE = 'lilly-world-v14';
 
 const SHELL = [
   './',
@@ -6,7 +6,9 @@ const SHELL = [
   'manifest.webmanifest',
   'css/style.css',
   'css/lilly.css',
-  'assets/lilly-friends.png',
+  'assets/friends/seal.png',
+  'assets/friends/turtle.png',
+  'assets/friends/rabbit.png',
   'vendor/lucide.min.js',
   'js/assets.js',
   'js/lessons.js',
