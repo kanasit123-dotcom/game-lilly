@@ -1,15 +1,26 @@
 import { go } from '../router.js';
 import { sfx, speak } from '../audio.js';
 import { totalStars, getMini, setMini } from '../state.js';
-import { nextReward } from '../rewards.js';
-import { animalHTML } from '../assets.js';
+import { nextReward, REWARDS, isUnlocked } from '../rewards.js';
+import { animalHTML, assetId } from '../assets.js';
 import { getLevel } from '../levels.js';
 import { getMission, stickerCount, getStickers } from '../mission.js';
 
 /* หน้าแรกสำหรับเด็ก 5 ขวบ: ตัวหนังสือน้อยที่สุด ปุ่มใหญ่ 3 ปุ่ม แตะแล้วไปเลย
    เพื่อนซี้ 3 ตัวอยู่บนสุด แตะเลือกตัวที่จะไปด้วยกัน (พูดชื่อให้ฟัง) */
 
-const FRIENDS = [['seal', 'แมวน้ำ'], ['turtle', 'เต่า'], ['rabbit', 'กระต่าย']];
+const BASE_FRIENDS = [['seal', 'แมวน้ำ'], ['turtle', 'เต่า'], ['rabbit', 'กระต่าย']];
+
+/* เพื่อนซี้ที่เลือกได้: 3 ตัวแรก + เพื่อนจากตู้รางวัลที่ปลดล็อกแล้วและมีรูปวาดแล้ว */
+function friends() {
+  const list = BASE_FRIENDS.slice();
+  for (const r of REWARDS) {
+    const id = r.type === 'buddy' && isUnlocked(r) ? assetId(r.emoji) : null;
+    // รางวัล "กระต่ายน้อย" ใช้รูปเดียวกับกระต่ายตัวแรก ไม่ต้องโชว์ซ้ำ
+    if (id && !list.some(([f]) => f === id)) list.push([id, r.title.replace('เพื่อนใหม่: ', '')]);
+  }
+  return list;
+}
 
 export function showHome(root) {
   const stars = totalStars();
@@ -25,7 +36,7 @@ export function showHome(root) {
   el.innerHTML = `
     <h1 class="outlined">โลกของลิลลี่</h1>
     <div class="home-friends" role="group" aria-label="เลือกเพื่อนร่วมทาง">
-      ${FRIENDS.map(([id, name]) => `
+      ${friends().map(([id, name]) => `
         <button class="friend${id === buddy ? ' on' : ''}" data-buddy="${id}" aria-pressed="${id === buddy}">
           ${animalHTML(id)}<span>${name}</span>
         </button>`).join('')}

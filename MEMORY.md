@@ -21,7 +21,7 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v16`. Bump the version for the next deployed release when shell files change.
+- Service worker cache is currently `lilly-world-v18`. Bump the version for the next deployed release when shell files change.
 - All mini-games are finite. They finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level.
 
 ## Character Art
@@ -104,7 +104,7 @@ The previous visual redesign (header nav, dashboard stats, text-only level list,
 - Child screens (home, map, playroom, rewards, result, calendar, every game) stay picture-first: big tap targets (≥ 56 px), one obvious primary action, no statistics, tables, paragraphs, tabs, radio/checkbox controls or text-only lists. Those belong on the parent page (`summary`) only.
 - Keep the DOM hooks the app and `tests/game.cjs` rely on: `.home-friends`, `[data-buddy]`, `#play`, `.mission-level`, `#calendar`, `.map-wrap`/`.node`/`.chip`, `.playroom-item[data-mini]`, `#back`, `#replay`, `#finish-break`, `#return-lesson`, `#finish-today`, `.result` with `#next/#again/#map/#break`, `#practice`, `.learning-answer`, `.reading`, `#st-cal`, `.cal-day.got`.
 - Keep every spoken cue: screens speak on entry, lessons read prompt + options, the 🔊 button replays. Never remove `speakPrompt`/`setReplay` calls from engines.
-- Use `animalHTML()` for seal/turtle/rabbit; new character art goes in `assets/friends/` as transparent PNG with the same ids.
+- Use `animalHTML()` for seal/turtle/rabbit/cat; new character art goes in `assets/friends/` as transparent PNG with the same ids. Pipeline: prompts in `design/PROMPTS-gemini.md` → user generates in Gemini with the three originals as style reference → drop the white-background JPG/PNG in `assets/incoming/` → `python design/cutout.py <name>` (flood-fill cutout, 800 px, 256-colour PNG ≈ 100 KB) → add id to `labels`/`emojiAssets` in `js/assets.js` and the file to `sw.js`. Home friend picker shows unlocked buddies that have art automatically.
 - Avoid emoji newer than iOS 15 (🩷 🫧 🪿 …) — older iPads render them as boxes.
 - `css/lilly.css` is the theme layer; game geometry lives in `css/style.css`. Prefer editing lilly.css.
 - Bump `CACHE` in `sw.js` and run `tests/game.cjs` before pushing.

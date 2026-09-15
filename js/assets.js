@@ -1,5 +1,7 @@
-const labels = { seal: 'แมวน้ำ', turtle: 'เต่า', rabbit: 'กระต่าย' };
-const emojiAssets = { '🦭': 'seal', '🐢': 'turtle', '🐰': 'rabbit', '🐇': 'rabbit' };
+/* ตัวละครที่มีรูปวาดจริง (assets/friends/<id>.png พื้นโปร่งใส 800px สร้างด้วย design/cutout.py)
+   เพิ่มตัวใหม่: ใส่ id + ชื่อไทยใน labels และ emoji ที่ใช้แทนใน emojiAssets แล้วเพิ่มไฟล์ใน sw.js */
+const labels = { seal: 'แมวน้ำ', turtle: 'เต่า', rabbit: 'กระต่าย', cat: 'แมว' };
+const emojiAssets = { '🦭': 'seal', '🐢': 'turtle', '🐰': 'rabbit', '🐇': 'rabbit', '🐱': 'cat' };
 
 export const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const assetId = value => labels[value] ? value : emojiAssets[value] || null;

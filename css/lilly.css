@@ -51,8 +51,10 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 /* ----- หน้าแรก: เพื่อน 3 ตัว + ปุ่มใหญ่ 3 ปุ่ม ----- */
 .home { overflow-y: auto; justify-content: safe center; gap: 10px; padding-bottom: 12px; }
 .home h1 { font-size: clamp(2.2rem, 7vw, 3.6rem); animation: none; }
-.home-friends { display: flex; gap: clamp(6px, 2vw, 22px); justify-content: center; width: min(100%, 620px); margin: 4px 0 10px; }
-.friend { flex: 1 1 0; min-width: 0; max-width: 190px; border: 3px solid transparent; border-radius: var(--r-lg); background: transparent; padding: 8px 4px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 1.15rem; color: var(--ink-soft); transition: transform .15s, background .15s, border-color .15s; }
+/* เพื่อนมากกว่า 3 ตัว (ปลดล็อกจากตู้รางวัล) เลื่อนดูข้างๆ ได้ */
+.home-friends { display: flex; gap: clamp(6px, 2vw, 22px); justify-content: safe center; width: min(100%, 620px); margin: 4px 0 10px; overflow-x: auto; scrollbar-width: none; padding: 4px; }
+.home-friends::-webkit-scrollbar { display: none; }
+.friend { flex: 0 0 30%; min-width: 96px; max-width: 190px; border: 3px solid transparent; border-radius: var(--r-lg); background: transparent; padding: 8px 4px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 1.15rem; color: var(--ink-soft); transition: transform .15s, background .15s, border-color .15s; }
 .friend .lilly-animal { width: 100%; max-width: 150px; transition: transform .2s; }
 .friend:active { transform: scale(.96); }
 .friend.on { background: #fff; border-color: var(--green); color: var(--green); box-shadow: 0 5px 0 var(--card-edge); }
