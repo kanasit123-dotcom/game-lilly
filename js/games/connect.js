@@ -1,5 +1,5 @@
 import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, speakPrompt } from '../audio.js';
 
 /* เกมโยงเส้นจับคู่ แบบใบงานอนุบาล: ลากนิ้วจากซ้ายไปขวา (หรือแตะ-แตะ ถ้าลากยาก) */
 
@@ -134,6 +134,7 @@ export function play(stage, config, hooks = {}) {
       const rightOrder = shuffledOrder(roundPairs.length);
 
       $prompt.textContent = promptText;
+      if (roundIdx === 0) speakPrompt(promptText);
       $svg.innerHTML = '';
       $left.innerHTML = roundPairs.map((p, i) => itemHTML(i, p.a)).join('');
       $right.innerHTML = rightOrder.map((i) => itemHTML(i, roundPairs[i].b)).join('');

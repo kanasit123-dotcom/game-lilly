@@ -1,8 +1,16 @@
 // Each lesson teaches one idea before practice; IDs are permanent save keys.
 const q = (prompt, answer, others, extra = {}) => ({ prompt, answer, options: [answer, ...others], ...extra });
 const card = (label, description, extra = {}) => ({ label, description, ...extra });
+// รูปประจำด่านบนแผนที่: ต่างกันทุกด่าน เด็กที่ยังอ่านไม่ออกจะได้จำด่านจากรูป
+const ICONS = {
+  'f-home': '👨‍👩‍👧', 'f-siblings': '👧', 'f-paternal': '👴', 'f-maternal': '👵', 'f-older': '🧑', 'f-younger': '👩', 'f-english-home': '🏡', 'f-english-relatives': '🎎',
+  'l-th-aa': '🐦', 'l-th-ii': '🎨', 'l-th-uu': '🦀', 'l-th-vowels': '👂', 'l-th-final-n': '🍽️', 'l-th-final-m': '🥛',
+  'l-en-friends': '🦭', 'l-en-match': '🐢', 'l-en-memory': '🐰', 'l-en-case': '🔠', 'l-en-start': '🅰️', 'l-en-actions': '🙌',
+  'l-m-count': '🥕', 'l-m-compare': '⚖️', 'l-m-add5': '➕', 'l-m-sub5': '➖', 'l-m-add10': '🔟', 'l-m-sub10': '🍬', 'l-m-tens': '🧱', 'l-m-units': '🔢',
+  'l-life-feelings': '😊', 'l-life-routine': '🪥', 'l-life-pattern': '🔺', 'l-life-nature': '🌻',
+};
 const lesson = (id, subject, title, intro, cards, questions, extra = {}) => ({
-  id, subject, title, icon: subject === 'family' ? '🏡' : subject === 'math' ? '🌱' : subject === 'thai' ? '📖' : subject === 'en' ? '🦭' : '🌼',
+  id, subject, title, icon: ICONS[id] || '🌼',
   type: 'lesson', fresh: true, config: { intro, cards, questions, ...extra }
 });
 const grandCards = [card('ปู่', 'พ่อของพ่อ'), card('ย่า', 'แม่ของพ่อ'), card('ตา', 'พ่อของแม่'), card('ยาย', 'แม่ของแม่')];

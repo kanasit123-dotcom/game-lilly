@@ -1,8 +1,9 @@
 import { go } from '../router.js';
 import { totalStars } from '../state.js';
 import { REWARDS, isUnlocked, nextReward } from '../rewards.js';
-import { sfx } from '../audio.js';
+import { sfx, speak } from '../audio.js';
 import { animalHTML } from '../assets.js';
+import { topBar, bindTopBar } from './menu.js';
 
 /* ตู้รางวัล: โชว์ทุกรางวัล อันที่ยังไม่ได้เป็นเงาพร้อมบอกว่าอีกกี่ดาว */
 
@@ -12,7 +13,7 @@ function cardHTML(r) {
   const open = isUnlocked(r);
   const need = r.stars - totalStars();
   return `
-    <div class="reward-tile${open ? ' open' : ' locked'}" data-id="${r.id}" data-type="${r.type}">
+    <div class="reward-tile${open ? ' open' : ' locked'}" data-id="${r.id}" data-type="${r.type}" data-need="${need}">
       <div class="reward-emoji small${r.cup ? ' cup' : ''}">${r.cup ? '🏆' : ''}<span>${animalHTML(r.emoji)}</span></div>
       <div class="tile-name">${open ? r.title : '???'}</div>
       <div class="tile-meta">${open
@@ -30,12 +31,7 @@ export function showRewards(root) {
   const el = document.createElement('div');
   el.className = 'screen summary';
   el.innerHTML = `
-    <div class="map-head">
-      <button class="icon-btn" id="home">🏠</button>
-      <h2 class="outlined">ตู้รางวัล</h2>
-      <div class="spacer"></div>
-      <div class="star-counter">⭐ ${stars}</div>
-    </div>
+    ${topBar('ตู้รางวัล')}
     <div class="summary-body">
       <div class="card reward-progress">
         <div>ได้รางวัลแล้ว <b>${got}</b> จาก ${REWARDS.length}</div>
@@ -48,12 +44,16 @@ export function showRewards(root) {
     </div>`;
   root.appendChild(el);
 
-  el.querySelector('#home').onclick = () => { sfx.tap(); go('home'); };
+  bindTopBar(el);
 
   el.querySelectorAll('.reward-tile.open[data-type="mini"]').forEach((t) => {
     t.onclick = () => { sfx.tap(); go('mini', { id: t.dataset.id }); };
   });
   el.querySelectorAll('.reward-tile.locked').forEach((t) => {
-    t.onclick = () => { sfx.retry(); t.classList.remove('nope'); void t.offsetWidth; t.classList.add('nope'); };
+    t.onclick = () => {
+      sfx.retry(); t.classList.remove('nope'); void t.offsetWidth; t.classList.add('nope');
+      speak(`อีก ${t.dataset.need} ดาว จะได้อันนี้`);
+    };
   });
+  speak(upcoming ? `ตู้รางวัล อีก ${upcoming.stars - stars} ดาว จะได้ ${upcoming.title}` : 'ได้ครบทุกรางวัลแล้ว สุดยอด');
 }

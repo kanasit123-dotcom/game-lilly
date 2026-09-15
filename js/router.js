@@ -1,3 +1,5 @@
+import { setReplay } from './audio.js';
+
 const routes = new Map();
 let root = null;
 let cleanup = null;
@@ -13,6 +15,7 @@ export function go(name, params = {}) {
   cleanup = null;
   previous?.();
   window.speechSynthesis?.cancel();
+  setReplay(null);
   root.innerHTML = '';
   cleanup = render(root, params) || null;
   window.lucide?.createIcons();

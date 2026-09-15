@@ -1,5 +1,5 @@
 import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML, blocksMarkup } from '../utils.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, speakPrompt } from '../audio.js';
 import { THAI_VOWEL_WORDS, THAI_VOWEL_WORDS2, THAI_FINAL_WORDS, THAI_FINAL_WORDS2, THAI_FINAL_POOL, THAI_FINAL_POOL2, THAI_READ, THAI_VOWELS, THAI_VOWEL_FILL, vowelIndexes, toCells, tileText } from './thai.js';
 
 /* เครื่องเกมแบบ "ดูโจทย์ แล้วแตะคำตอบ" ใช้ร่วมกันหลายด่าน
@@ -712,7 +712,7 @@ export function play(stage, config, hooks = {}) {
         .map((c) => `<button class="choice ${q.choiceClass || ''} ${c.cls || ''}" data-v="${c.v}">${c.html}</button>`)
         .join('');
       $action.querySelectorAll('.choice').forEach((b) => { b.onclick = () => answer(b, q); });
-      speak(q.say, q.sayLang || 'th-TH');
+      speakPrompt(q.say, q.sayLang || 'th-TH');
     }
 
     async function answer(btn, q) {

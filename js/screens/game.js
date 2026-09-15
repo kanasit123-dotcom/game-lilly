@@ -1,7 +1,7 @@
 import { go } from '../router.js';
 import { getLevel } from '../levels.js';
 import { recordPlay, starsFor } from '../state.js';
-import { sfx } from '../audio.js';
+import { sfx, replay } from '../audio.js';
 import { play as playWordmatch } from '../games/wordmatch.js';
 import { play as playColumn } from '../games/column.js';
 import { play as playQuiz } from '../games/quiz.js';
@@ -11,7 +11,6 @@ import { play as playSpell } from '../games/spell.js';
 import { play as playConnect } from '../games/connect.js';
 import { play as playOrder } from '../games/order.js';
 import { play as playLesson } from '../games/lesson.js';
-import { iconHTML } from '../assets.js';
 
 const GAMES = {
   lesson: playLesson,
@@ -34,10 +33,11 @@ export function showGame(root, { levelId }) {
   el.className = 'screen game-screen';
   el.innerHTML = `
     <div class="game-bar">
-      <button class="icon-btn" id="back" title="เลือกบทเรียน" aria-label="เลือกบทเรียน">${iconHTML('arrow-left')}</button>
+      <button class="icon-btn" id="back" aria-label="กลับไปแผนที่">←</button>
       <div class="dots" id="dots"></div>
       <div class="spacer"></div>
       <div class="star-counter">${level.icon} ${level.title}</div>
+      <button class="icon-btn speak-btn" id="replay" aria-label="ฟังโจทย์อีกครั้ง">🔊</button>
     </div>
     <div class="game-stage" id="stage"></div>`;
   root.appendChild(el);
@@ -50,6 +50,14 @@ export function showGame(root, { levelId }) {
     left = true;
     sfx.tap();
     go('map');
+  };
+
+  // ปุ่มฟังซ้ำ: เด็กยังอ่านไม่ออก ถ้าเสียงโจทย์หลุดหรือฟังไม่ทัน กดฟังใหม่ได้ตลอด
+  const $replay = el.querySelector('#replay');
+  $replay.onclick = async () => {
+    $replay.classList.add('talking');
+    await replay();
+    $replay.classList.remove('talking');
   };
 
   function renderDots(done, total) {

@@ -1,5 +1,5 @@
 import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, speakPrompt } from '../audio.js';
 import { toCells, tileText } from './thai.js';
 
 /* สะกดคำ: ดูรูป ฟังเสียง แล้วแตะตัวอักษรเรียงทีละตัวลงช่อง
@@ -119,7 +119,7 @@ export function play(stage, config, hooks = {}) {
         .join('');
       $tiles.querySelectorAll('.spell-tile').forEach((t) => { t.onclick = () => tap(t); });
 
-      speak(w.word, set.lang);
+      speakPrompt(w.word, set.lang);
     }
 
     async function tap(tile) {

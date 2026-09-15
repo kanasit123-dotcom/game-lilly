@@ -1,5 +1,5 @@
 import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, speakPrompt } from '../audio.js';
 import { WORD_SETS } from './words.js';
 import { pictureHTML, escapeHTML } from '../assets.js';
 
@@ -51,6 +51,7 @@ export function play(stage, config, hooks = {}) {
       const pairs = deck.slice(roundIdx * PER_ROUND, roundIdx * PER_ROUND + PER_ROUND);
 
       $prompt.textContent = hint;
+      if (roundIdx === 0) speakPrompt(hint);
       $pics.innerHTML = shuffle(pairs)
         .map((p) => `<button class="pic-card" data-word="${escapeHTML(p.word)}">${pictureHTML(p)}</button>`)
         .join('');

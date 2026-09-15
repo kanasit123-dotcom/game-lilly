@@ -4,12 +4,12 @@ Updated: 2026-09-15
 Branch: `main`
 Remote: `https://github.com/kanasit123-dotcom/game-lilly.git`
 Live site: `https://kanasit123-dotcom.github.io/game-lilly/`
-Latest completed commit before this memory: `4d9b1d3`
+Latest completed commit before this memory: see `git log`
 
 ## User Intent
 
 - This is a learning game for Lilly, aimed roughly at kindergarten 2-3.
-- Do not add more lesson levels in the next task. The next focus is improving the main menu/navigation UI.
+- Do not add more lesson levels. Wait for feedback from real play on the iPad first.
 - Lilly especially likes seals, turtles, and rabbits.
 - Do not use bears, pigs, hippos, or dogs in production content or rewards.
 - Other animals and insects are acceptable.
@@ -21,8 +21,8 @@ Latest completed commit before this memory: `4d9b1d3`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v14`. Bump the version for the next deployed release when shell files change.
-- All mini-games are finite. They finish by goal or after a maximum 90-second break and return to learning.
+- Service worker cache is currently `lilly-world-v15`. Bump the version for the next deployed release when shell files change.
+- All mini-games are finite. They finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level.
 
 ## Character Art
 
@@ -36,32 +36,24 @@ Render them through `animalHTML()` in `js/assets.js`. Do not return to emoji for
 
 The transparent cutouts were created with the built-in ImageGen tool from the original lineup. Prompt intent: isolate one character at a time, preserve identity/colors/outfit/picture-book style, use genuine transparent alpha, and include no text, scenery, border, or other characters.
 
-## Menu Work Next
+## Child-facing UI (rewritten 2026-09-15, after the header/dashboard version was found too hard for a 5-year-old)
 
-Primary files:
+Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 
-- `js/screens/menu.js`: shared header markup, route buttons, category metadata.
-- `css/lilly.css`: `.lilly-header`, `.lilly-brand`, navigation, responsive behavior.
-- `js/screens/home.js`: home content immediately below the menu.
-- `js/main.js` and `js/router.js`: route registration and cleanup behavior.
+- `js/screens/home.js`: three friend portraits (tap = pick buddy, spoken), one big "เล่นเลย" button to the map, two picture tiles (พักเล่น / ตู้รางวัล), small parent link. No stats, no text lists.
+- `js/screens/map.js`: winding path with big level nodes (icon, number, stars) and subject chips with icons. `WORLDS` in `levels.js` adds signposts; the 32 newer lessons sit under "บ้านของเรา" (index 92). Speaks "เลือกด่านที่อยากเล่นได้เลย" on entry.
+- `js/screens/menu.js`: only `topBar(title)` + `bindTopBar(el)` (🏠 back button, title, star count). No header nav.
+- `js/screens/mini.js`: playroom = big emoji tiles, unlocked first; locked tiles show 🔒 + stars needed and speak the requirement. `BREAK_SECONDS = 180` is the per-round limit (was 90). End screen offers next level / another game / home.
+- `js/screens/result.js`: star animation, spoken praise, reward popups, big "ด่านต่อไป", then เล่นอีกรอบ / แผนที่ / พักเล่น.
+- `js/screens/game.js`: every game has a big 🔊 button that replays the current question via `replay()` from `audio.js`.
 
-Current routes that must keep working:
+## Audio contract (`js/audio.js`)
 
-- `home`: วันนี้
-- `map`: บทเรียน
-- `playroom`: พักเล่น
-- `rewards`: รางวัล
-- `summary`: สำหรับผู้ปกครอง/settings
-
-Recommended direction:
-
-- Keep the restrained desktop header.
-- On phones, consider a stable bottom navigation with four child-facing destinations and keep the parent/settings entry separate at the top.
-- Preserve `data-route`, `aria-current="page"`, `menuHeader(active)`, and `bindMenu(el)` so screens do not need separate navigation logic.
-- Use the bundled Lucide icons through `iconHTML()`. Do not add a new icon dependency.
-- Avoid large marketing-style headers, nested cards, pill-heavy controls, or instructional text explaining the UI.
-- Keep tap targets at least about 44 px and ensure Thai labels fit at 320, 390, 768, and 1280 px.
-- Account for mobile safe areas if adding bottom navigation, and add enough page bottom padding so content is never hidden behind it.
+- `speak(text, lang)` returns a Promise that resolves when speech ends. It defers the actual `speak()` 60 ms after `cancel()` (iOS/Chrome drop the utterance otherwise), calls `resume()` first, and still speaks with `u.lang` when no matching voice object is found yet.
+- `speakPrompt(text, lang)` = speak + remember for the 🔊 button. `setReplay(fn)` lets an engine replay a whole sequence. `replay()` is what the button calls. The router clears it on every route change.
+- `langOf(text)` picks en-US when Latin letters are present, otherwise th-TH.
+- `js/games/lesson.js` reads intro + every teaching card, then each question prompt + every option in order with a yellow `.reading` highlight; tapping a card/option re-reads it; a correct answer auto-advances after the explanation is spoken (no "next" button).
+- Sound can be switched off on the parent page (`preferences.sound`). If "no sound" is reported, check that toggle first.
 
 ## Recent Mini-game Polish
 
@@ -71,7 +63,7 @@ Recommended direction:
 - Fishing has a 5-catch goal, clear feedback, and friends that cannot be caught.
 - Balloons and fishing remain playable with motion disabled by showing static targets.
 - Parent settings include sound and motion toggles.
-- Home shows today's lesson count, break count, and earned stars.
+- Home shows the three friends, one play button, playroom/rewards tiles and the star total; daily counts live only in localStorage (`dailyActivity`).
 
 ## Verification
 
@@ -90,7 +82,7 @@ Local preview currently uses:
 http://127.0.0.1:5173/
 ```
 
-Before finishing menu work:
+Before finishing any UI work:
 
 1. Run `node --check` on all JavaScript files.
 2. Run `tests/game.cjs`.
@@ -105,4 +97,5 @@ Before finishing menu work:
 - Do not rename existing level IDs or routes.
 - Do not remove finite mini-game completion or route cleanup.
 - Do not commit `tests/screenshots/` or `design/review/`; both are intentionally ignored.
-- Work with existing code and styles rather than introducing a framework or build system for a menu-only change.
+- Work with existing code and styles rather than introducing a framework or build system.
+- Keep every child-facing screen picture-first with spoken guidance; no stats, tables or text lists for the child (those belong on the parent page only).

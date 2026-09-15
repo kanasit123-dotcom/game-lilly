@@ -1,5 +1,5 @@
 import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, speakPrompt } from '../audio.js';
 
 /* เรียงลำดับ: เด็กแตะการ์ดทีละใบตามลำดับที่ถูก การ์ดที่แตะถูกจะไปเรียงในช่องคำตอบ
    cfg: { kind: 'numbers' | 'size' | 'story', count: 5 } */
@@ -147,7 +147,7 @@ export function play(stage, config, hooks = {}) {
       $prompt.textContent = round.prompt;
       renderSlots();
       renderTiles();
-      speak(round.prompt);
+      speakPrompt(round.prompt);
     }
 
     async function tap(tile) {

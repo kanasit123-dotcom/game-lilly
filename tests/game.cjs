@@ -27,7 +27,7 @@ const { pathToFileURL } = require('node:url');
       }));
     }, legacyIds);
     await page.goto(base);
-    await page.locator('.lilly-friends').waitFor();
+    await page.locator('.home-friends').waitFor();
     await page.evaluate(() => document.fonts.ready);
     const levels = await page.evaluate(async () => (await import('/js/levels.js')).LEVELS);
     assert.equal(levels.length, legacyIds.length + 32);
@@ -37,7 +37,8 @@ const { pathToFileURL } = require('node:url');
     let saved = await readState();
     assert.equal(saved.stars['q-count'], 2);
     assert.deepEqual(saved.mini.sentinel, { saved: true });
-    await page.getByRole('radio', { name: 'กระต่าย', exact: true }).check();
+    await page.locator('[data-buddy="rabbit"]').click();
+    assert.equal((await readState()).mini.preferences.buddy, 'rabbit');
     await page.screenshot({ path: path.join(output, 'home-desktop.png'), fullPage: true });
     const route = (name, params = {}) => page.evaluate(async ({ name, params }) => (await import('/js/router.js')).go(name, params), { name, params });
     const play = id => route('game', { levelId: id });
@@ -74,13 +75,14 @@ const { pathToFileURL } = require('node:url');
           assert.equal(new Set(item.options).size, item.options.length, `unique options ${level.id}`);
           if (i === 0) {
             await page.getByRole('button', { name: item.options.find(o => o !== item.answer), exact: true }).click();
-            assert.equal(await page.locator('#next-question').isDisabled(), true);
+            assert.equal(await page.locator('.learning-answer.retry').count(), 1, 'wrong pick stays disabled, question does not advance');
           }
           await page.getByRole('button', { name: item.answer, exact: true }).click();
-          await page.locator('#next-question').click();
+          // เฉลยอ่านจบแล้วไปข้อต่อไปเอง ไม่มีปุ่มให้กด
+          if (i + 1 < level.config.questions.length) await page.locator('.lesson-step', { hasText: `ข้อ ${i + 2} /` }).waitFor();
         }
       }
-      await page.locator('.lilly-result').waitFor();
+      await page.locator('.result').waitFor();
       saved = await readState();
       const record = saved.plays.at(-1);
       assert.equal(record.id, level.id);
@@ -90,6 +92,7 @@ const { pathToFileURL } = require('node:url');
     console.log(`PASS ${fresh.length} new lessons completed; scores and first-attempt counts verified.`);
 
     await page.locator('#break').click();
+    await page.locator('.playroom-item[data-mini="harvest"]').click();
     for (let i = 0; i < 5; i++) await page.locator('.harvest-plant').nth(i).click();
     await page.locator('#return-lesson').waitFor();
     assert.equal(await page.locator('.harvest-plant').count(), 0);
@@ -98,7 +101,7 @@ const { pathToFileURL } = require('node:url');
     await route('mini', { id: 'harvest', fromLevelId: 'f-paternal' });
     await page.locator('#finish-break').click();
     await page.locator('#return-lesson').click();
-    assert.match(await page.locator('.star-counter').innerText(), /ตากับยาย/);
+    assert.match(await page.locator('.game-bar .star-counter').innerText(), /ตากับยาย/);
     // A route change during memory's delayed match must not save or navigate later.
     await play('w-memory');
     const matchKey = await page.locator('.mem-card').first().getAttribute('data-key');
@@ -108,7 +111,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#back').click();
     await page.waitForTimeout(2100);
     assert.equal((await readState()).plays.length, playsBeforeExit);
-    assert.equal(await page.locator('.lesson-library').count(), 1);
+    assert.equal(await page.locator('.map-wrap').count(), 1, 'back button returns to the map');
 
     for (const level of levels.filter(l => !l.fresh)) {
       await play(level.id);
@@ -127,6 +130,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(await page.locator('.art .r').first().getAttribute('fill'), originalFill);
     await page.locator('#finish-break').click();
     await page.locator('#finish-today').click();
+    await page.locator('.home-friends').waitFor();
 
     await route('mini', { id: 'dressup' });
     await page.locator('[data-slot="head"]').click();
@@ -160,7 +164,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#motion-setting').check();
     assert.equal(await page.locator('html').evaluate(el => el.classList.contains('reduce-motion')), false);
     await route('home');
-    assert.match(await page.locator('.lilly-journey').innerText(), /พักเล่น\s+[1-9]\d* รอบ/);
+    assert.ok(((await readState()).mini.dailyActivity?.breaks || 0) >= 1, 'break rounds are counted');
 
     for (const id of ['harvest', 'coloring', 'coloring2', 'coloring3', 'coloring4', 'garden', 'xylo', 'balloons', 'bakery', 'aquarium', 'dressup', 'draw', 'drums', 'fishing']) {
       await route('mini', { id });
@@ -171,10 +175,12 @@ const { pathToFileURL } = require('node:url');
     // Advance the browser's clock to verify the host imposes a finite round.
     await page.clock.install();
     await route('mini', { id: 'xylo' });
-    await page.clock.runFor(90500);
+    await page.clock.runFor(170000);
+    assert.equal(await page.locator('#return-lesson').count(), 0, 'still playing before the break limit');
+    await page.clock.runFor(11000);
     await page.locator('#return-lesson').waitFor();
     await page.clock.resume();
-    console.log('PASS all 14 mini-game menu entries, manual finish, five-carrot finish, source lesson return, and 90-second session end.');
+    console.log('PASS all 14 mini-game menu entries, manual finish, five-carrot finish, source lesson return, and 180-second session end.');
 
     for (const width of [1280, 768, 390, 320]) {
       await page.setViewportSize({ width, height: width <= 390 ? 844 : 900 });
@@ -218,10 +224,10 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v14'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v15'));
     await context.setOffline(true);
     await page.reload();
-    await page.locator('.lilly-friends').waitFor();
+    await page.locator('.home-friends').waitFor();
     assert.equal(await page.locator('.lilly-animal').first().evaluate(el => el.tagName), 'IMG');
     await play('f-paternal');
     await page.locator('#practice').waitFor();

@@ -16,19 +16,21 @@ if ('speechSynthesis' in window) {
   speechSynthesis.addEventListener('voiceschanged', refreshVoices);
 }
 
-/** ต้องเรียกจาก event ที่ผู้ใช้แตะครั้งแรก (ข้อจำกัดของ iOS) */
+/** ต้องเรียกจาก event ที่ผู้ใช้แตะ (ข้อจำกัดของ iOS) เรียกซ้ำได้ทุกครั้งที่แตะ
+    เพราะ iOS จะพัก AudioContext เมื่อสลับแอปหรือล็อกจอ กลับมาแล้วเสียงเอฟเฟกต์เงียบจนกว่าจะ resume */
 export function unlockAudio() {
-  if (unlocked) return;
-  unlocked = true;
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (AC) ctx = new AC();
-  if (ctx?.state === 'suspended') ctx.resume();
-  if ('speechSynthesis' in window) {
-    const u = new SpeechSynthesisUtterance(' ');
-    u.volume = 0;
-    speechSynthesis.speak(u);
-    refreshVoices();
+  if (!unlocked) {
+    unlocked = true;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) ctx = new AC();
+    if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      speechSynthesis.speak(u);
+      refreshVoices();
+    }
   }
+  if (ctx?.state === 'suspended') ctx.resume();
 }
 
 function tone(freq, at, dur, { type = 'sine', gain = 0.16 } = {}) {
@@ -83,31 +85,58 @@ export const sfx = {
 
 function findVoice(lang) {
   const p = lang.slice(0, 2).toLowerCase();
-  return voices.find((v) => v.lang.toLowerCase().startsWith(p)) || null;
+  const same = voices.filter((v) => v.lang.toLowerCase().replace('_', '-').startsWith(p));
+  // เสียงที่ติดมากับเครื่อง (localService) มักเสถียรกว่าเสียงออนไลน์ และไม่ต้องรอโหลด
+  return same.find((v) => v.localService) || same[0] || null;
 }
 
+let seq = 0;
+
 /* คืน Promise ที่จบเมื่อพูดเสร็จ (หรือทันทีถ้าเครื่องไม่มีเสียง) เกมที่อยากให้ฟังจนจบ
-   ค่อยไปข้อต่อไป ให้ await ได้ มีเวลาสำรองเผื่อเบราว์เซอร์ไม่ยิง event end (iOS เป็นบางครั้ง) */
+   ค่อยไปข้อต่อไป ให้ await ได้ มีเวลาสำรองเผื่อเบราว์เซอร์ไม่ยิง event end (iOS เป็นบางครั้ง)
+
+   บั๊กที่เจอบนเครื่องจริงและกันไว้ที่นี่:
+   - iOS/Chrome: เรียก speak() ติดกับ cancel() ทันที ประโยคใหม่หายเงียบ → หน่วงนิดหนึ่งก่อนพูด
+   - Chrome ค้างสถานะ paused หลังพูดไปสักพัก → resume() ก่อนทุกครั้ง
+   - รายชื่อเสียงยังโหลดไม่เสร็จตอนแตะครั้งแรก → ไม่หา voice เจอก็ยังพูดโดยตั้ง lang ให้เครื่องเลือกเอง */
 export function speak(text, lang = 'th-TH') {
-  if (!soundEnabled() || !('speechSynthesis' in window)) return Promise.resolve();
+  if (!text || !soundEnabled() || !('speechSynthesis' in window)) return Promise.resolve();
   if (!voices.length) refreshVoices();
-  const voice = findVoice(lang);
-  if (!voice) return Promise.resolve(); // เครื่องไม่มีเสียงภาษานี้ ก็ไม่ต้องพูด
+  const my = ++seq;
   speechSynthesis.cancel();
   return new Promise((resolve) => {
-    const u = new SpeechSynthesisUtterance(text);
-    u.voice = voice;
-    u.lang = voice.lang;
+    const u = new SpeechSynthesisUtterance(String(text));
+    const voice = findVoice(lang);
+    if (voice) u.voice = voice;
+    u.lang = voice?.lang || lang;
     u.rate = lang.startsWith('en') ? 0.75 : 0.95;
     u.pitch = 1.15;
     let done = false;
+    let guard = null;
     const finish = () => { if (!done) { done = true; clearTimeout(guard); resolve(); } };
-    const guard = setTimeout(finish, 1500 + text.length * 130);
     u.onend = finish;
     u.onerror = finish;
-    speechSynthesis.speak(u);
+    setTimeout(() => {
+      if (my !== seq) { finish(); return; } // มีประโยคใหม่แทรกมาก่อนได้พูด
+      guard = setTimeout(finish, 1500 + String(text).length * 130);
+      try { speechSynthesis.resume(); speechSynthesis.speak(u); } catch { finish(); }
+    }, 60);
   });
 }
+
+/* ---- ประโยคโจทย์ที่กดฟังซ้ำได้ ----
+   เกมเรียก speakPrompt() ตอนขึ้นโจทย์ใหม่ ปุ่ม 🔊 บนแถบเกมเรียก replay() ได้ทุกเมื่อ
+   ถ้าเกมอยากอ่านหลายอย่างต่อกัน (โจทย์ + ตัวเลือก) ให้ setReplay(fn) เองได้ */
+let replayFn = null;
+export function speakPrompt(text, lang = 'th-TH') {
+  replayFn = () => speak(text, lang);
+  return speak(text, lang);
+}
+export function setReplay(fn) { replayFn = fn; }
+export function replay() { return replayFn ? replayFn() : Promise.resolve(); }
+
+/* ภาษาที่ควรใช้อ่านข้อความนี้: มีตัวอักษรอังกฤษ → อ่านอังกฤษ นอกนั้น (ไทย ตัวเลข) → ไทย */
+export const langOf = (text) => (/[A-Za-z]/.test(String(text)) ? 'en-US' : 'th-TH');
 
 /* ---- เสียงเครื่องเคาะสำหรับมินิเกมกลอง สร้างจาก noise + oscillator ---- */
 

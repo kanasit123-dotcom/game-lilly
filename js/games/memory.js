@@ -1,5 +1,5 @@
 import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, speakPrompt } from '../audio.js';
 import { WORD_SETS } from './words.js';
 import { pictureHTML, escapeHTML } from '../assets.js';
 
@@ -40,6 +40,7 @@ export function play(stage, config, hooks = {}) {
       );
 
       $prompt.textContent = 'พลิกการ์ดหาคู่ รูปกับคำที่เข้ากัน';
+      if (roundIdx === 0) speakPrompt('พลิกการ์ด หาคู่รูปกับคำที่เข้ากัน');
       $grid.innerHTML = cards
         .map(
           (c) => `

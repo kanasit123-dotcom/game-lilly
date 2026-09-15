@@ -1,5 +1,5 @@
 import { randInt, wait, confetti, sayBubble, cheerBuddy, buddyHTML, pick, blocksMarkup } from '../utils.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, speakPrompt } from '../audio.js';
 
 /* ตั้งบวก/ตั้งลบแนวตั้ง เดินทีละขั้นตามวิธีที่สอนในโรงเรียน เด็กกดแป้นตัวเลขใส่เอง
    cfg: { op: '+' | '-', digitsB: 1|2, regroup, roundTens, count }
@@ -347,7 +347,7 @@ export function play(stage, config, hooks = {}) {
         $action.innerHTML = KEYPAD_HTML;
         renderEntry();
         $action.querySelectorAll('.key').forEach((b) => { b.onclick = () => onKey(b.dataset.k, st); });
-        speak(st.text.replace(/[?:]/g, ' '));
+        speakPrompt(st.text.replace(/[?:]/g, ' '));
         return;
       }
 

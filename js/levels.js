@@ -304,6 +304,7 @@ export const WORLDS = [
   { from: 45, icon: '🏔️', name: 'ภูเขาหิมะ' },
   { from: 60, icon: '🚀', name: 'อวกาศ' },
   { from: 76, icon: '🌈', name: 'เมืองสายรุ้ง' },
+  { from: 92, icon: '🏡', name: 'บ้านของเรา' },
 ];
 
 export const getLevel = (id) => LEVELS.find((l) => l.id === id);

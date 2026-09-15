@@ -1,5 +1,5 @@
 import { go } from '../router.js';
-import { sfx } from '../audio.js';
+import { sfx, speak } from '../audio.js';
 import { miniUnlocked } from '../rewards.js';
 import { mount as coloring } from '../mini/coloring.js';
 import { mount as garden } from '../mini/garden.js';
@@ -12,58 +12,86 @@ import { mount as draw } from '../mini/draw.js';
 import { mount as drums } from '../mini/drums.js';
 import { mount as fishing } from '../mini/fishing.js';
 import { mount as harvest } from '../mini/harvest.js';
-import { animalHTML, iconHTML, renderIcons } from '../assets.js';
-import { menuHeader, bindMenu } from './menu.js';
+import { animalHTML } from '../assets.js';
+import { topBar, bindTopBar } from './menu.js';
 import { nextLevelId, nextUnplayedId, getMini, setMini } from '../state.js';
 import { getLevel } from '../levels.js';
 import { REWARDS } from '../rewards.js';
 
 /* หน้าโฮสต์มินิเกม ไม่มีคะแนน ไม่มีดาว เล่นเพื่อสนุกอย่างเดียว
-   id ต้องตรงกับ id รางวัลใน rewards.js */
+   id ต้องตรงกับ id รางวัลใน rewards.js
+   เล่นได้รอบละ BREAK_SECONDS วินาที (หรือจนถึงเป้าของเกมนั้น) แล้วชวนกลับไปเล่นด่านต่อ */
+
+export const BREAK_SECONDS = 180;
 
 const MINIS = {
-  harvest: { title: 'สวนแครอตของเรา', mount: harvest },
-  coloring: { title: '🎨 ระบายสี: ใต้ทะเล', mount: coloring, cfg: { pack: 'sea' } },
-  coloring2: { title: '🏠 ระบายสี: บ้านแสนสุข', mount: coloring, cfg: { pack: 'home' } },
-  coloring3: { title: '🦋 ระบายสี: สวนสนุก', mount: coloring, cfg: { pack: 'fun' } },
-  coloring4: { title: '🎂 ระบายสี: วันเกิด', mount: coloring, cfg: { pack: 'party' } },
-  xylo: { title: '🎵 ระนาดหรรษา', mount: xylo },
-  garden: { title: '🌱 สวนผักของลิลลี่', mount: garden },
-  balloons: { title: '🎈 ป๊อปลูกโป่ง', mount: balloons },
-  bakery: { title: '🧁 ร้านขนมของลิลลี่', mount: bakery },
-  aquarium: { title: '🐠 ตู้ปลาของลิลลี่', mount: aquarium },
-  dressup: { title: '👒 แต่งตัวเพื่อนซี้', mount: dressup },
-  draw: { title: '🖍️ กระดานวาดรูป', mount: draw },
-  drums: { title: '🥁 กลองหรรษา', mount: drums },
-  fishing: { title: '🎣 ตกปลา', mount: fishing },
+  harvest: { title: 'สวนแครอต', emoji: '🥕', mount: harvest },
+  coloring: { title: 'ระบายสี ใต้ทะเล', emoji: '🎨', mount: coloring, cfg: { pack: 'sea' } },
+  coloring2: { title: 'ระบายสี บ้านแสนสุข', emoji: '🏠', mount: coloring, cfg: { pack: 'home' } },
+  coloring3: { title: 'ระบายสี สวนสนุก', emoji: '🦋', mount: coloring, cfg: { pack: 'fun' } },
+  coloring4: { title: 'ระบายสี วันเกิด', emoji: '🎂', mount: coloring, cfg: { pack: 'party' } },
+  xylo: { title: 'ระนาดหรรษา', emoji: '🎵', mount: xylo },
+  garden: { title: 'สวนผัก', emoji: '🌱', mount: garden },
+  balloons: { title: 'ป๊อปลูกโป่ง', emoji: '🎈', mount: balloons },
+  bakery: { title: 'ร้านขนม', emoji: '🧁', mount: bakery },
+  aquarium: { title: 'ตู้ปลา', emoji: '🐠', mount: aquarium },
+  dressup: { title: 'แต่งตัวเพื่อนซี้', emoji: '👒', mount: dressup },
+  draw: { title: 'กระดานวาดรูป', emoji: '🖍️', mount: draw },
+  drums: { title: 'กลองหรรษา', emoji: '🥁', mount: drums },
+  fishing: { title: 'ตกปลา', emoji: '🎣', mount: fishing },
 };
 
+/* สวนพักเล่น: ปุ่มรูปใหญ่ๆ อันละเกม แตะแล้วเล่นเลย อันที่ยังไม่ปลดล็อกเป็นสีเทามีแม่กุญแจ */
 export function showPlayroom(root) {
   const el = document.createElement('div');
-  el.className = 'screen lilly-scroll';
-  el.innerHTML = `${menuHeader('playroom')}<div class="lilly-content"><div class="lilly-eyebrow">พักสักนิด แล้วเรียนต่อ</div><h1>สวนพักเล่นของลิลลี่</h1><p class="lilly-subtitle">เลือกเล่นหนึ่งรอบ แล้วไปเรียนรู้เรื่องใหม่กัน</p><div class="playroom-grid">${Object.entries(MINIS).map(([id, mini]) => {
-    const unlocked = miniUnlocked(id);
-    const reward = REWARDS.find(r => r.id === id);
-    return `<button class="playroom-item" data-mini="${id}" ${unlocked ? '' : 'disabled'}>${animalHTML(id === 'harvest' || id === 'garden' ? 'turtle' : id.includes('coloring') ? 'rabbit' : 'seal')}<b>${mini.title}</b><small>${unlocked ? (id === 'harvest' ? 'เก็บแครอต 5 หัว' : 'หนึ่งรอบไม่เกิน 90 วินาที') : `ปลดล็อกที่ ${reward.stars} ดาว`}</small></button>`;
-  }).join('')}</div></div>`;
+  el.className = 'screen summary';
+  el.innerHTML = `
+    ${topBar('พักเล่น')}
+    <div class="summary-body">
+      <div class="playroom-grid">
+        ${Object.entries(MINIS).map(([id, mini]) => ({ id, mini, unlocked: miniUnlocked(id), reward: REWARDS.find((r) => r.id === id) }))
+          // เกมที่เล่นได้อยู่บนสุด ที่ล็อกอยู่เรียงตามดาวที่ต้องใช้ เด็กจะได้เห็นว่าอันไหนใกล้ได้
+          .sort((a, b) => (b.unlocked - a.unlocked) || ((a.reward?.stars || 0) - (b.reward?.stars || 0)))
+          .map(({ id, mini, unlocked, reward }) => `
+            <button class="playroom-item${unlocked ? '' : ' locked'}" data-mini="${id}" aria-label="${mini.title}${unlocked ? '' : ' (ยังไม่ปลดล็อก)'}">
+              <span class="tile-icon">${unlocked ? mini.emoji : '🔒'}</span>
+              <b>${mini.title}</b>
+              ${unlocked ? '' : `<small>⭐ ${reward.stars}</small>`}
+            </button>`).join('')}
+      </div>
+    </div>`;
   root.appendChild(el);
-  bindMenu(el);
-  el.querySelectorAll('[data-mini]:not(:disabled)').forEach(button => { button.onclick = () => go('mini', { id: button.dataset.mini }); });
+  bindTopBar(el);
+  el.querySelectorAll('[data-mini]').forEach((button) => {
+    button.onclick = () => {
+      if (button.classList.contains('locked')) {
+        sfx.retry();
+        button.classList.remove('nope'); void button.offsetWidth; button.classList.add('nope');
+        speak(`เก็บดาวให้ครบ ${REWARDS.find((r) => r.id === button.dataset.mini).stars} ดวงก่อนนะ`);
+        return;
+      }
+      sfx.tap();
+      go('mini', { id: button.dataset.mini });
+    };
+  });
+  speak('เลือกเกมที่อยากเล่น');
 }
 
 export function showMini(root, { id, fromLevelId }) {
   const mini = MINIS[id];
   if (!mini || !miniUnlocked(id)) { queueMicrotask(() => go('playroom')); return; }
+  const limit = BREAK_SECONDS * 1000;
 
   const el = document.createElement('div');
   el.className = 'screen game-screen';
   el.innerHTML = `
     <div class="game-bar">
-      <button class="icon-btn" id="back" title="เลือกเกมพักเล่น" aria-label="เลือกเกมพักเล่น">${iconHTML('arrow-left')}</button>
+      <button class="icon-btn" id="back" aria-label="กลับไปเลือกเกม">←</button>
+      <div class="break-clock" title="เวลาพักเล่น"><span>⏳</span><progress id="break-progress" max="${limit}" value="0" aria-label="เวลาพักเล่นที่ผ่านไป"></progress></div>
       <div class="spacer"></div>
-      <div class="star-counter">${mini.title}</div>
+      <div class="star-counter">${mini.emoji} ${mini.title}</div>
+      <button class="icon-btn" id="finish-break" aria-label="เล่นเสร็จแล้ว">✅</button>
     </div>
-    <div class="mini-session-bar"><span>ช่วงพักของลิลลี่</span><progress id="break-progress" max="90000" value="0" aria-label="ช่วงพักที่ผ่านไป"></progress><button class="lilly-text" id="finish-break">พักพอแล้ว</button></div>
     <div class="game-stage mini-stage" id="stage"><div class="mini-content"></div></div>`;
   root.appendChild(el);
 
@@ -88,23 +116,37 @@ export function showMini(root, { id, fromLevelId }) {
     const activity = getMini('dailyActivity') || {};
     setMini('dailyActivity', { date, breaks: (activity.date === date ? activity.breaks || 0 : 0) + 1 });
     dispose();
-    el.querySelector('.mini-session-bar').remove();
-    el.querySelector('#stage').innerHTML = `<div class="break-complete">${animalHTML(getMini('preferences')?.buddy || 'rabbit', 'happy')}<h1>พักเต็มอิ่มแล้ว</h1><p>เรื่องใหม่รอเราอยู่: ${getLevel(target).title}</p><div class="learning-actions"><button class="btn green" id="return-lesson">ไปเรียนต่อ ${iconHTML('arrow-right')}</button><button class="btn secondary" id="finish-today">วันนี้พอแค่นี้</button></div></div>`;
-    el.querySelector('#return-lesson').onclick = () => go('game', { levelId: target });
-    el.querySelector('#finish-today').onclick = () => go('home');
-    renderIcons();
+    el.querySelector('#finish-break').remove();
+    el.querySelector('.break-clock').remove();
+    el.querySelector('#stage').innerHTML = `
+      <div class="break-complete">
+        ${animalHTML(getMini('preferences')?.buddy || 'turtle', 'happy')}
+        <h1 class="outlined">สนุกจังเลย!</h1>
+        <p>ไปเล่นด่านต่อกันนะ: ${getLevel(target).icon} ${getLevel(target).title}</p>
+        <div class="result-actions">
+          <button class="btn big green" id="return-lesson">เล่นด่านต่อ ▶</button>
+          <button class="btn yellow" id="more-play">🎈 เล่นเกมอื่น</button>
+          <button class="btn blue" id="finish-today">🏠 หน้าแรก</button>
+        </div>
+      </div>`;
+    el.querySelector('#return-lesson').onclick = () => { sfx.tap(); go('game', { levelId: target }); };
+    el.querySelector('#more-play').onclick = () => { sfx.tap(); go('playroom'); };
+    el.querySelector('#finish-today').onclick = () => { sfx.tap(); go('home'); };
+    sfx.win();
+    speak('สนุกจังเลย ไปเล่นด่านต่อกันนะ');
   }
   function resetClock() { last = performance.now(); }
   el.querySelector('#back').onclick = () => { sfx.tap(); go('playroom'); };
-  el.querySelector('#finish-break').onclick = finish;
+  el.querySelector('#finish-break').onclick = () => { sfx.tap(); finish(); };
   disposeMini = mini.mount(child, { ...mini.cfg, onComplete: finish });
   document.addEventListener('visibilitychange', resetClock);
   timer = setInterval(() => {
     const now = performance.now();
     if (!document.hidden) elapsed += now - last;
     last = now;
-    el.querySelector('#break-progress').value = Math.min(elapsed, 90000);
-    if (elapsed >= 90000) finish();
+    const bar = el.querySelector('#break-progress');
+    if (bar) bar.value = Math.min(elapsed, limit);
+    if (elapsed >= limit) finish();
   }, 250);
   return dispose;
 }

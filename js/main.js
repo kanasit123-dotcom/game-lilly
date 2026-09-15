@@ -23,8 +23,8 @@ register('playroom', showPlayroom);
 
 go('home');
 
-// iOS ปลดล็อกเสียงได้เฉพาะตอนผู้ใช้แตะจริงเท่านั้น
-document.addEventListener('pointerdown', unlockAudio, { once: true });
+// iOS ปลดล็อกเสียงได้เฉพาะตอนผู้ใช้แตะจริงเท่านั้น (และต้องปลุกใหม่หลังสลับแอป)
+document.addEventListener('pointerdown', unlockAudio);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

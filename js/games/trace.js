@@ -1,5 +1,5 @@
 import { pick, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, speakPrompt } from '../audio.js';
 import { THAI_CONSONANTS } from './thai.js';
 
 /* เขียนตัวอักษรตามรอย: ตัวอักษรสีจางเป็นแบบ เด็กลากนิ้วทับ
@@ -246,7 +246,7 @@ export function play(stage, config, hooks = {}) {
       part++;
       if (part < item.parts.length) {
         showItem();
-        speak(current().say, item.lang);
+        speakPrompt(current().say, item.lang);
         return;
       }
 
@@ -260,12 +260,12 @@ export function play(stage, config, hooks = {}) {
       } else {
         hooks.onProgress?.(idx, items.length);
         showItem();
-        speak(current().say, items[idx].lang);
+        speakPrompt(current().say, items[idx].lang);
       }
     }
 
     hooks.onProgress?.(0, items.length);
     showItem();
-    speak(current().say, items[0].lang);
+    speakPrompt(current().say, items[0].lang);
   });
 }

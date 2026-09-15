@@ -1,8 +1,13 @@
 import { animalHTML, escapeHTML, iconHTML, renderIcons } from '../assets.js';
-import { speak, sfx } from '../audio.js';
-import { shuffle, blocksMarkup, buddyHTML } from '../utils.js';
+import { speak, setReplay, langOf, sfx } from '../audio.js';
+import { shuffle, blocksMarkup, buddyHTML, confetti, cheerBuddy, sayBubble, pick, wait } from '../utils.js';
 import { play as memory } from './memory.js';
 import { play as wordmatch } from './wordmatch.js';
+
+/* บทเรียน: หน้าสอน (การ์ด) แล้วค่อยลองทำ (เลือกตอบ)
+   เด็กยังอ่านไม่ออก ทุกอย่างจึงต้องอ่านให้ฟังเอง — เข้าหน้าไหนก็อ่านโจทย์ทันที
+   แล้วอ่านตัวเลือกไล่ทีละอันพร้อมไฮไลต์ แตะการ์ด/ตัวเลือกไหนก็ได้ยินอันนั้นซ้ำ
+   ปุ่ม 🔊 บนแถบเกมอ่านทั้งชุดใหม่ */
 
 const members = {
   grandpa: ['ปู่', 'พ่อของพ่อ'], grandma: ['ย่า', 'แม่ของพ่อ'],
@@ -35,26 +40,51 @@ export function visualHTML(visual) {
   return '';
 }
 
+const cardSpeech = c => c.speech || (c.lang ? c.label : `${c.label} ${c.description}`);
+
 export function play(stage, config, hooks = {}) {
   return new Promise(resolve => {
     let index = 0, firstTry = 0, attempted = false, answered = false, settled = false;
+    let readToken = 0; // เพิ่มทุกครั้งที่เริ่มอ่านชุดใหม่ ชุดเก่าที่ยังอ่านค้างจะหยุดเอง
     const active = () => !settled && !hooks.signal?.aborted;
     const finish = result => { if (!settled) { settled = true; resolve(result); } };
-    hooks.signal?.addEventListener('abort', () => finish(null), { once: true });
+    hooks.signal?.addEventListener('abort', () => { readToken++; finish(null); }, { once: true });
     const total = config.practice ? 3 : config.questions.length;
     hooks.onProgress?.(0, total);
     stage.classList.add('learning-stage');
+
+    /* อ่านหลายอย่างต่อกัน ไฮไลต์อันที่กำลังอ่าน [{ text, lang, el }] */
+    async function readAll(parts) {
+      const token = ++readToken;
+      stage.querySelectorAll('.reading').forEach(el => el.classList.remove('reading'));
+      for (const part of parts) {
+        if (token !== readToken || !active()) return;
+        part.el?.classList.add('reading');
+        await speak(part.text, part.lang);
+        part.el?.classList.remove('reading');
+        if (token !== readToken) return;
+        await wait(250);
+      }
+    }
+    const stopReading = () => { readToken++; stage.querySelectorAll('.reading').forEach(el => el.classList.remove('reading')); };
 
     function teach() {
       stage.innerHTML = `<section class="learning-intro"><div class="lesson-step">เรียนรู้ด้วยกัน</div><h1>${escapeHTML(config.intro)}</h1>
         ${config.tree ? familyTree() : ''}
         <div class="teaching-cards">${config.cards.map((c, i) => `<button class="teaching-card" data-teach="${i}">${c.asset ? animalHTML(c.asset) : ''}<b>${escapeHTML(c.label)}</b><span>${escapeHTML(c.description)}</span>${iconHTML('volume-2')}</button>`).join('')}</div>
-        <div class="learning-actions"><button class="btn secondary" id="read-intro">${iconHTML('volume-2')}ฟังอีกครั้ง</button><button class="btn green" id="practice">ลองทำกันเลย ${iconHTML('arrow-right')}</button></div></section>`;
-      stage.querySelector('#read-intro').onclick = () => speak(config.intro);
-      stage.querySelectorAll('[data-teach]').forEach(button => {
+        <div class="learning-actions"><button class="btn secondary" id="read-intro">${iconHTML('volume-2')}ฟังอีกครั้ง</button><button class="btn green big" id="practice">ลองทำกันเลย ${iconHTML('arrow-right')}</button></div></section>`;
+      const cards = [...stage.querySelectorAll('[data-teach]')];
+      const readIntro = () => readAll([
+        { text: config.intro, lang: 'th-TH' },
+        ...config.cards.map((c, i) => ({ text: cardSpeech(c), lang: c.lang || 'th-TH', el: cards[i] })),
+      ]);
+      setReplay(readIntro);
+      stage.querySelector('#read-intro').onclick = readIntro;
+      cards.forEach((button, i) => {
         button.onclick = () => {
-          const c = config.cards[Number(button.dataset.teach)];
-          speak(c.speech || (c.lang ? c.label : `${c.label} ${c.description}`), c.lang || 'th-TH');
+          sfx.tap();
+          const c = config.cards[i];
+          readAll([{ text: cardSpeech(c), lang: c.lang || 'th-TH', el: button }]);
         };
       });
       stage.querySelectorAll('[data-person]').forEach(button => {
@@ -63,11 +93,12 @@ export function play(stage, config, hooks = {}) {
           stage.querySelectorAll('[data-person]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
           const text = `${member[1]} เรียกว่า ${member[0]}`;
           stage.querySelector('.family-explanation').textContent = text;
-          speak(text);
+          readAll([{ text, lang: 'th-TH', el: button }]);
         };
       });
       stage.querySelector('#practice').onclick = () => {
-        window.speechSynthesis?.cancel();
+        sfx.tap();
+        stopReading();
         if (config.practice) {
           stage.classList.remove('learning-stage');
           const engine = config.practice === 'memory' ? memory : wordmatch;
@@ -75,6 +106,7 @@ export function play(stage, config, hooks = {}) {
         } else question();
       };
       renderIcons();
+      readIntro();
     }
 
     function question() {
@@ -82,39 +114,51 @@ export function play(stage, config, hooks = {}) {
       attempted = answered = false;
       const item = config.questions[index];
       const options = shuffle(item.options);
-      stage.innerHTML = `<section class="learning-question"><div class="lesson-question-head"><span class="lesson-step">ลองทำ · ข้อ ${index + 1} / ${total}</span><button class="icon-btn" id="read-question" title="ฟังโจทย์" aria-label="ฟังโจทย์">${iconHTML('volume-2')}</button></div>
+      stage.innerHTML = `<section class="learning-question"><div class="lesson-step">ข้อ ${index + 1} / ${total}</div>
         <h1>${escapeHTML(item.prompt)}</h1>${visualHTML(item.visual)}
         <div class="learning-options">${options.map((option, i) => `<button class="learning-answer" data-option="${i}">${escapeHTML(option)}</button>`).join('')}</div>
-        <p class="learning-feedback" role="status">ค่อย ๆ คิดได้นะ</p><div class="learning-actions"><button class="btn green" id="next-question" disabled>${index + 1 === total ? 'ทำครบแล้ว' : 'ข้อต่อไป'} ${iconHTML('arrow-right')}</button></div></section>${buddyHTML()}`;
-      stage.querySelector('#read-question').onclick = () => speak(item.speech || item.prompt, item.lang || 'th-TH');
-      stage.querySelectorAll('[data-option]').forEach(button => {
-        button.onclick = () => {
+        <p class="learning-feedback" role="status">ฟังแล้วแตะคำตอบนะ</p></section>${buddyHTML()}`;
+      const buttons = [...stage.querySelectorAll('[data-option]')];
+      const readQuestion = () => readAll([
+        { text: item.speech || item.prompt, lang: item.lang || 'th-TH' },
+        ...options.map((o, i) => ({ text: o, lang: langOf(o), el: buttons[i] })),
+      ]);
+      setReplay(readQuestion);
+      buttons.forEach((button, i) => {
+        button.onclick = async () => {
           if (!active() || answered) return;
-          if (options[Number(button.dataset.option)] !== item.answer) {
+          stopReading();
+          const option = options[i];
+          if (option !== item.answer) {
             attempted = true;
             button.classList.add('retry');
             button.disabled = true;
-            stage.querySelector('.learning-feedback').textContent = 'ลองอีกครั้งนะ เราค่อย ๆ คิดด้วยกัน';
+            stage.querySelector('.learning-feedback').textContent = 'ยังไม่ใช่ ลองใหม่อีกทีนะ';
             sfx.retry();
+            sayBubble(stage, pick(['ยังไม่ใช่นะ ลองอีกที!', 'ค่อยๆ ฟังใหม่ 💪', 'เกือบแล้ว!']));
+            await readAll([{ text: option, lang: langOf(option) }, { text: 'ยังไม่ใช่ ลองใหม่นะ', lang: 'th-TH' }]);
             return;
           }
           answered = true;
           if (!attempted) firstTry++;
-          stage.querySelectorAll('[data-option]').forEach(b => { b.disabled = true; });
+          buttons.forEach(b => { b.disabled = true; });
           button.classList.add('correct');
-          stage.querySelector('.learning-feedback').textContent = `ใช่เลย! ${item.explanation || item.answer}`;
-          stage.querySelector('#next-question').disabled = false;
+          const explanation = item.explanation || item.answer;
+          stage.querySelector('.learning-feedback').textContent = `ใช่เลย! ${explanation}`;
           hooks.onProgress?.(index + 1, total);
           sfx.correct();
-          speak(item.explanation || item.answer, item.answerLang || 'th-TH');
+          cheerBuddy(stage);
+          confetti(stage, 20);
+          sayBubble(stage, pick(['เก่งมาก!', 'ถูกต้อง!', 'สุดยอด 🌟']));
+          // อ่านเฉลยให้จบก่อน ค่อยไปข้อต่อไป ไม่ต้องกดอะไรเพิ่ม
+          await Promise.all([wait(1500), speak(explanation, item.answerLang || langOf(explanation))]);
+          if (!active()) return;
+          index++;
+          if (index === total) finish({ firstTry, total }); else question();
         };
       });
-      stage.querySelector('#next-question').onclick = () => {
-        if (!answered || !active()) return;
-        index++;
-        if (index === total) finish({ firstTry, total }); else question();
-      };
       renderIcons();
+      readQuestion();
     }
     teach();
   });
