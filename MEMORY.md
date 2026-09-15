@@ -97,6 +97,25 @@ Before finishing any UI work:
 5. Confirm the disliked animals do not appear in production HTML/CSS/JS.
 6. Commit and push to `origin/main`, then verify the remote commit hash and GitHub Pages service worker version.
 
+## For the next graphics / design pass (read before touching any screen)
+
+The previous visual redesign (header nav, dashboard stats, text-only level list, radio buttons) looked polished but a 5-year-old could not use it, so it was replaced. Improve the look freely — palette, illustrations, backgrounds, icons, animations, typography — but keep these rules:
+
+- Child screens (home, map, playroom, rewards, result, calendar, every game) stay picture-first: big tap targets (≥ 56 px), one obvious primary action, no statistics, tables, paragraphs, tabs, radio/checkbox controls or text-only lists. Those belong on the parent page (`summary`) only.
+- Keep the DOM hooks the app and `tests/game.cjs` rely on: `.home-friends`, `[data-buddy]`, `#play`, `.mission-level`, `#calendar`, `.map-wrap`/`.node`/`.chip`, `.playroom-item[data-mini]`, `#back`, `#replay`, `#finish-break`, `#return-lesson`, `#finish-today`, `.result` with `#next/#again/#map/#break`, `#practice`, `.learning-answer`, `.reading`, `#st-cal`, `.cal-day.got`.
+- Keep every spoken cue: screens speak on entry, lessons read prompt + options, the 🔊 button replays. Never remove `speakPrompt`/`setReplay` calls from engines.
+- Use `animalHTML()` for seal/turtle/rabbit; new character art goes in `assets/friends/` as transparent PNG with the same ids.
+- Avoid emoji newer than iOS 15 (🩷 🫧 🪿 …) — older iPads render them as boxes.
+- `css/lilly.css` is the theme layer; game geometry lives in `css/style.css`. Prefer editing lilly.css.
+- Bump `CACHE` in `sw.js` and run `tests/game.cjs` before pushing.
+
+## Known follow-ups (not started)
+
+1. Parent page is reachable with a single tap; the sound checkbox there silences the whole game. Make entering `summary` a 2-second hold like the reset button.
+2. Replace 🩷 (`js/games/quiz.js` colors) and 🫧 (`js/mini/aquarium.js`) with widely supported emoji.
+3. Backup/restore progress with a short code so iPad and phone can share stars and stickers.
+4. Voice recording in reading levels (listen → repeat → play back own voice).
+
 ## Important Constraints
 
 - Do not reset or replace the localStorage schema.
