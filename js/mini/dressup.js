@@ -2,6 +2,7 @@ import { confetti, sayBubble } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 import { getMini, setMini } from '../state.js';
 import { getBuddies } from '../rewards.js';
+import { animalHTML } from '../assets.js';
 
 /* แต่งตัวเพื่อนซี้: เลือกเพื่อน แล้วแตะเครื่องประดับ → แตะตำแหน่งบนตัวเพื่อนเพื่อวาง
    ชุดของแต่ละตัวบันทึกแยกกัน */
@@ -16,11 +17,11 @@ export function mount(stage) {
 
   stage.innerHTML = `
     <div class="mini-top">
-      ${buddies.map((b) => `<button class="pic-btn" data-b="${b}">${b}</button>`).join('')}
+      ${buddies.map((b) => `<button class="pic-btn" data-b="${b}" aria-label="เลือกเพื่อนซี้">${animalHTML(b)}</button>`).join('')}
     </div>
     <div class="dress-stage" id="dress"><span class="dress-buddy" id="dbuddy"></span></div>
     <div class="palette">
-      ${ITEMS.map((e) => `<button class="swatch topping" data-e="${e}">${e}</button>`).join('')}
+      ${ITEMS.map((e) => `<button class="swatch topping" data-e="${e}" aria-label="เลือกเครื่องประดับ ${e}">${e}</button>`).join('')}
     </div>
     <div class="mini-actions">
       <button class="btn blue" id="clear">ถอดหมด 🔄</button>
@@ -32,7 +33,7 @@ export function mount(stage) {
   const save = () => { data.current = buddy; setMini('dressup', data); };
 
   function render() {
-    $buddy.textContent = buddy;
+    $buddy.innerHTML = animalHTML(buddy);
     $dress.querySelectorAll('.worn').forEach((w) => w.remove());
     (data.fits[buddy] || []).forEach((w, i) => {
       const el = document.createElement('span');

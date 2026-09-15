@@ -5,7 +5,7 @@ import { showGame } from './screens/game.js';
 import { showResult } from './screens/result.js';
 import { showSummary } from './screens/summary.js';
 import { showRewards } from './screens/rewards.js';
-import { showMini } from './screens/mini.js';
+import { showMini, showPlayroom } from './screens/mini.js';
 import { unlockAudio } from './audio.js';
 
 setRoot(document.getElementById('app'));
@@ -17,14 +17,12 @@ register('result', showResult);
 register('summary', showSummary);
 register('rewards', showRewards);
 register('mini', showMini);
+register('playroom', showPlayroom);
 
 go('home');
 
 // iOS ปลดล็อกเสียงได้เฉพาะตอนผู้ใช้แตะจริงเท่านั้น
 document.addEventListener('pointerdown', unlockAudio, { once: true });
-
-// กันซูมด้วยการแตะสองครั้งบน iPad
-document.addEventListener('dblclick', (e) => e.preventDefault());
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

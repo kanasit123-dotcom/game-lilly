@@ -2,12 +2,16 @@
    subject: math | thai | en | brain (เชาวน์) ใช้กรองบนแผนที่
    ทุกด่านเปิดให้เล่นได้หมด ตำแหน่งบนแผนที่คำนวณเองใน screens/map.js */
 
+import { NEW_LEVELS } from './lessons.js';
+
 export const SUBJECTS = [
   { id: 'all', label: 'ทั้งหมด', icon: '🌈' },
   { id: 'math', label: 'คณิต', icon: '🔢' },
   { id: 'thai', label: 'ไทย', icon: '🐔' },
   { id: 'en', label: 'อังกฤษ', icon: '🔤' },
   { id: 'brain', label: 'เชาวน์', icon: '🧠' },
+  { id: 'family', label: 'ครอบครัว', icon: '🏡' },
+  { id: 'life', label: 'โลกใกล้ตัว', icon: '🌼' },
 ];
 
 export const LEVELS = [
@@ -205,7 +209,7 @@ export const LEVELS = [
   { id: 'q-quickadd', subject: 'math', type: 'quiz', icon: '⚡', title: 'บวกเร็ว',
     config: { kind: 'quickAdd', max: 10, count: 6 } },
 
-  { id: 't-vowel2', subject: 'thai', type: 'quiz', icon: '🐶', title: 'คำตามสระ ชุด 2',
+  { id: 't-vowel2', subject: 'thai', type: 'quiz', icon: '📖', title: 'คำตามสระ ชุด 2',
     config: { kind: 'thaiVowel', set: 2, count: 6 } },
 
   { id: 'w-veg', subject: 'en', type: 'wordmatch', icon: '🥕', title: 'ผักผลไม้',
@@ -253,7 +257,7 @@ export const LEVELS = [
   { id: 't-vowel-match2', subject: 'thai', type: 'wordmatch', icon: '🐍', title: 'รู้จักสระ ชุด 2',
     config: { set: 'thaiVowels2', rounds: 3 } },
 
-  { id: 'w-animals2', subject: 'en', type: 'wordmatch', icon: '🐼', title: 'สัตว์ ชุด 2',
+  { id: 'w-animals2', subject: 'en', type: 'wordmatch', icon: '🐰', title: 'สัตว์ ชุด 2',
     config: { set: 'animals2', rounds: 3 } },
 
   { id: 'w-memory2', subject: 'brain', type: 'memory', icon: '🍰', title: 'เกมความจำ ชุด 2',
@@ -288,6 +292,7 @@ export const LEVELS = [
 
   { id: 'e-read', subject: 'en', type: 'quiz', icon: '🧐', title: 'อ่านคำอังกฤษ',
     config: { kind: 'enRead', count: 6 } },
+  ...NEW_LEVELS,
 ];
 
 /* โลกบนแผนที่: แค่ป้ายบอกช่วง ให้เด็กรู้สึกว่าเดินทางไปเรื่อยๆ (ทุกด่านยังเล่นได้หมด)

@@ -1,6 +1,6 @@
 import { go } from '../router.js';
 import { LEVELS, SUBJECTS } from '../levels.js';
-import { getStars, getPlays, totalStars, resetAll } from '../state.js';
+import { getStars, getPlays, totalStars, resetAll, getMini, setMini } from '../state.js';
 import { sfx } from '../audio.js';
 
 /* หน้าสำหรับผู้ปกครอง: ดูว่าลูกเล่นอะไรไปแล้ว เก่งตรงไหน ควรฝึกตรงไหน
@@ -87,6 +87,7 @@ export function showSummary(root) {
     </div>
 
     <div class="summary-body">
+      <label class="sound-setting"><span>เสียงคำอ่านและเสียงเกม</span><input id="sound-setting" type="checkbox" ${getMini('preferences')?.sound !== false ? 'checked' : ''}></label>
       <div class="stat-row">
         <div class="stat"><b>${st.played.length}<small>/${LEVELS.length}</small></b><span>ด่านที่เล่นแล้ว</span></div>
         <div class="stat"><b>${st.totalPlays}</b><span>ครั้งที่เล่นทั้งหมด</span></div>
@@ -145,6 +146,10 @@ export function showSummary(root) {
   root.appendChild(el);
 
   el.querySelector('#home').onclick = () => { sfx.tap(); go('home'); };
+  el.querySelector('#sound-setting').onchange = e => {
+    setMini('preferences', { ...getMini('preferences'), sound: e.target.checked });
+    if (!e.target.checked) window.speechSynthesis?.cancel();
+  };
 
   el.querySelectorAll('.lv-chip').forEach((c) => {
     c.onclick = () => { sfx.tap(); go('game', { levelId: c.dataset.id }); };
@@ -165,4 +170,5 @@ export function showSummary(root) {
   reset.addEventListener('pointerup', cancel);
   reset.addEventListener('pointerleave', cancel);
   reset.addEventListener('pointercancel', cancel);
+  return cancel;
 }

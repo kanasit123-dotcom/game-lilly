@@ -1,4 +1,6 @@
 import { getBuddies } from './rewards.js';
+import { getMini } from './state.js';
+import { animalHTML } from './assets.js';
 
 export const randInt = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
@@ -52,9 +54,9 @@ export function blocksMarkup(tens, units, readyCount = 0) {
 }
 
 /* เพื่อนซี้สุ่มใหม่ทุกด่าน จากตัวที่ปลดล็อกแล้ว (ดู rewards.js) */
-export const randomBuddy = () => pick(getBuddies());
+export const randomBuddy = () => getMini('preferences')?.buddy || pick(getBuddies());
 
-export const buddyHTML = () => `<div class="buddy">${randomBuddy()}</div>`;
+export const buddyHTML = () => `<div class="buddy">${animalHTML(randomBuddy())}</div>`;
 
 export function cheerBuddy(host) {
   const buddy = host.querySelector('.buddy');

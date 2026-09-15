@@ -12,7 +12,7 @@ export const REWARDS = [
   { id: 'garden', stars: 16, type: 'mini', emoji: '🌱', title: 'สวนผักของลิลลี่', desc: 'ปลูกผัก รดน้ำ เก็บเกี่ยว' },
   { id: 'seal-cup', stars: 20, type: 'trophy', emoji: '🦭', title: 'ถ้วยแมวน้ำ', desc: 'ถ้วยรางวัลสุดน่ารัก', cup: true },
   { id: 'balloons', stars: 25, type: 'mini', emoji: '🎈', title: 'ป๊อปลูกโป่ง', desc: 'แตะลูกโป่งให้แตก สนุกๆ' },
-  { id: 'bear', stars: 30, type: 'buddy', emoji: '🐻', title: 'เพื่อนใหม่: น้องหมี', desc: 'มาเป็นเพื่อนซี้ในเกม' },
+  { id: 'bear', stars: 30, type: 'buddy', emoji: '🐰', title: 'เพื่อนใหม่: กระต่ายน้อย', desc: 'มาเป็นเพื่อนซี้ในเกม' },
   { id: 'coloring2', stars: 36, type: 'mini', emoji: '🏠', title: 'ระบายสี: บ้านแสนสุข', desc: 'บ้าน ดอกไม้ รถ' },
   { id: 'bakery', stars: 42, type: 'mini', emoji: '🧁', title: 'ร้านขนมของลิลลี่', desc: 'แต่งหน้าขนมเอง' },
   { id: 'turtle-cup', stars: 49, type: 'trophy', emoji: '🐢', title: 'ถ้วยเต่าทอง', desc: 'ค่อยๆ ไป แต่ไปถึงแน่', cup: true },
@@ -44,14 +44,14 @@ export const REWARDS = [
 // ลิลลี่ชอบเต่ากับแมวน้ำเป็นพิเศษ สองตัวนี้อยู่ตั้งแต่แรก ที่เหลือต้องเก็บดาวปลดล็อก
 const BASE_BUDDIES = ['🐢', '🦭', '🐰'];
 
-export const isUnlocked = (r) => totalStars() >= r.stars;
+export const isUnlocked = (r) => Boolean(r) && totalStars() >= r.stars;
 
 export const getBuddies = () =>
   BASE_BUDDIES.concat(REWARDS.filter((r) => r.type === 'buddy' && isUnlocked(r)).map((r) => r.emoji));
 
 export const nextReward = () => REWARDS.find((r) => !isUnlocked(r)) || null;
 
-export const miniUnlocked = (id) => isUnlocked(REWARDS.find((r) => r.id === id));
+export const miniUnlocked = (id) => id === 'harvest' || isUnlocked(REWARDS.find((r) => r.id === id));
 
 /* รางวัลที่เพิ่งได้แต่ยังไม่เคยเด้งโชว์ — เรียกหลังเล่นจบ แล้วทำเครื่องหมายว่าโชว์แล้ว */
 export function claimNewRewards() {

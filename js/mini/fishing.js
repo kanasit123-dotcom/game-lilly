@@ -8,7 +8,7 @@ const FISH = ['🐟', '🐠', '🐡', '🦐', '🦑', '🐙'];
 const SPECIAL = ['🐢', '🦭'];
 const GREET = { '🐢': 'สวัสดีจ้า 🐢', '🦭': 'แมวน้ำมาทักทาย 🦭' };
 
-export function mount(stage) {
+export function mount(stage, cfg = {}) {
   let caught = 0;
   let timer = null;
   const bucket = []; // emoji ที่จับล่าสุด เก็บไว้ไม่เกิน 8 ตัว
@@ -80,6 +80,7 @@ export function mount(stage) {
       renderBucket();
       setTimeout(() => el.remove(), 500);
       if (caught % 5 === 0) { confetti(stage, 26); speak(`จับได้ ${caught} ตัวแล้ว เก่งมาก`); }
+      if (caught >= 5) cfg.onComplete?.();
     });
 
     // e.target !== el กันไว้ เพราะ animationend ของ .fish-emoji (ตอน boing) ก็ผุดขึ้นมาถึงปุ่มนี้ด้วย
@@ -103,4 +104,5 @@ export function mount(stage) {
   timer = setInterval(spawn, 1100);
   spawn();
   speak('แตะปลาที่ว่ายผ่านมา จับใส่ถัง');
+  return () => clearInterval(timer);
 }

@@ -7,7 +7,7 @@ import { sfx, speak } from '../audio.js';
 const COLORS = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#9775fa', '#f783ac', '#63e6be'];
 const FACES = ['', '', '', '🐢', '🦭', '⭐', '🌸', '🐟'];
 
-export function mount(stage) {
+export function mount(stage, cfg = {}) {
   let popped = 0;
   let timer = null;
 
@@ -36,6 +36,7 @@ export function mount(stage) {
       $score.textContent = popped;
       if (popped % 10 === 0) { sfx.win(); confetti(stage, 30); speak(`แตกไป ${popped} ลูกแล้ว เก่งมาก`); }
       setTimeout(() => b.remove(), 350);
+      if (popped >= 10) cfg.onComplete?.();
     });
     b.addEventListener('animationend', () => b.remove());
     $sky.appendChild(b);
@@ -44,4 +45,5 @@ export function mount(stage) {
   timer = setInterval(spawn, 900);
   spawn();
   speak('แตะลูกโป่งให้แตก');
+  return () => clearInterval(timer);
 }

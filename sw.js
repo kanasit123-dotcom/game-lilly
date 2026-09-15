@@ -1,10 +1,18 @@
-const CACHE = 'lilly-world-v12';
+const CACHE = 'lilly-world-v13';
 
 const SHELL = [
   './',
   'index.html',
   'manifest.webmanifest',
   'css/style.css',
+  'css/lilly.css',
+  'assets/lilly-friends.png',
+  'vendor/lucide.min.js',
+  'js/assets.js',
+  'js/lessons.js',
+  'js/games/lesson.js',
+  'js/screens/menu.js',
+  'js/mini/harvest.js',
   'js/main.js',
   'js/router.js',
   'js/utils.js',
@@ -47,7 +55,7 @@ const SHELL = [
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE)
-      .then((c) => Promise.allSettled(SHELL.map((u) => c.add(u))))
+      .then((c) => c.addAll(SHELL))
       .then(() => self.skipWaiting())
   );
 });
@@ -55,7 +63,7 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('lilly-world-') && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -83,7 +91,7 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
       fetch(fresh)
         .then((res) => keep(req, res))
-        .catch(() => caches.match(req).then((hit) => hit || caches.match('index.html')))
+        .catch(() => caches.match(req).then((hit) => hit || (req.mode === 'navigate' ? caches.match('index.html') : Response.error())))
     );
     return;
   }

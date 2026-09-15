@@ -12,8 +12,8 @@ const COUNT_ITEMS = ['🐢', '🦭', '🍓', '🍎', '🐥', '🐠', '🌷', '�
 const COUNT_ITEMS2 = ['🐬', '🐙', '🦋', '🍭', '🍩', '🧁', '🌈', '🐝', '🦆', '🌻', '🍉', '🐧'];
 
 const LETTER_WORDS = [
-  { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'SUN', emoji: '☀️' },
-  { word: 'BUS', emoji: '🚌' }, { word: 'HAT', emoji: '🎩' }, { word: 'PIG', emoji: '🐷' },
+  { word: 'CAT', emoji: '🐱' }, { word: 'MAP', emoji: '🗺️' }, { word: 'SUN', emoji: '☀️' },
+  { word: 'BUS', emoji: '🚌' }, { word: 'HAT', emoji: '🎩' }, { word: 'PEN', emoji: '🖊️' },
   { word: 'CUP', emoji: '🥤' }, { word: 'BED', emoji: '🛏️' }, { word: 'KEY', emoji: '🔑' },
   { word: 'FISH', emoji: '🐟' }, { word: 'STAR', emoji: '⭐' }, { word: 'CAKE', emoji: '🍰' },
   { word: 'SEAL', emoji: '🦭' }, { word: 'CRAB', emoji: '🦀' }, { word: 'TURTLE', emoji: '🐢' },
@@ -23,7 +23,7 @@ const LETTER_WORDS2 = [
   { word: 'FROG', emoji: '🐸' }, { word: 'DUCK', emoji: '🦆' }, { word: 'BIRD', emoji: '🐦' },
   { word: 'MILK', emoji: '🥛' }, { word: 'BOOK', emoji: '📕' }, { word: 'MOON', emoji: '🌙' },
   { word: 'TREE', emoji: '🌳' }, { word: 'SHIP', emoji: '🚢' }, { word: 'LION', emoji: '🦁' },
-  { word: 'BEAR', emoji: '🐻' }, { word: 'CORN', emoji: '🌽' }, { word: 'RAIN', emoji: '🌧️' },
+  { word: 'BEE', emoji: '🐝' }, { word: 'CORN', emoji: '🌽' }, { word: 'RAIN', emoji: '🌧️' },
   { word: 'KITE', emoji: '🪁' }, { word: 'DRUM', emoji: '🥁' }, { word: 'RING', emoji: '💍' },
   { word: 'BALL', emoji: '⚽' }, { word: 'APPLE', emoji: '🍎' }, { word: 'HORSE', emoji: '🐴' },
 ];
@@ -40,7 +40,7 @@ const SHAPES = [
 ];
 
 const PATTERN_PAIRS = [
-  ['🔴', '🔵'], ['🍎', '🍌'], ['🐱', '🐶'], ['⭐', '🌙'], ['🟥', '🟨'], ['🐢', '🦭'], ['🌸', '🍀'],
+  ['🔴', '🔵'], ['🍎', '🍌'], ['🐱', '🐰'], ['⭐', '🌙'], ['🟥', '🟨'], ['🐢', '🦭'], ['🌸', '🍀'],
 ];
 const PATTERN_TRIPLES = [['🔴', '🔵', '🟢'], ['🍎', '🍌', '🍇'], ['🐢', '🦭', '🐟']];
 const PATTERN_PAIRS2 = [
@@ -49,7 +49,7 @@ const PATTERN_PAIRS2 = [
 const PATTERN_TRIPLES2 = [['🌸', '🌻', '🌷'], ['🍓', '🍋', '🍇'], ['🐬', '🐙', '🦀'], ['🔺', '🟡', '🟦']];
 
 const CATEGORY_GROUPS = [
-  ['🐱', '🐶', '🐭', '🐰', '🐻', '🐢', '🦭'],
+  ['🐱', '🐝', '🐭', '🐰', '🦋', '🐢', '🦭'],
   ['🍎', '🍌', '🍇', '🍓', '🍉', '🍊'],
   ['🚗', '🚌', '🚲', '✈️', '🚂', '⛵'],
   ['👕', '👖', '🧢', '👟', '🧦', '🧤'],
@@ -69,9 +69,9 @@ const CATEGORY_GROUPS2 = [
   ['🎸', '🥁', '🎹', '🎺', '🎻'],
 ];
 
-const SHADOW_POOL2 = ['🐰', '🐻', '🦁', '🐧', '🐬', '🐙', '🦆', '🐝', '🦋', '🌵', '🚲', '🚂', '🚁', '🎸', '🍄', '🍦', '⛄', '🎂', '👑', '🪁'];
+const SHADOW_POOL2 = ['🐰', '🐢', '🦁', '🐧', '🐬', '🐙', '🦆', '🐝', '🦋', '🌵', '🚲', '🚂', '🚁', '🎸', '🍄', '🍦', '⛄', '🎂', '👑', '🪁'];
 
-const SHADOW_POOL = ['🐱', '🐶', '🐘', '🦒', '🐢', '🦭', '🐟', '🦀', '🐸', '🦋', '🚗', '✈️', '⛵', '🌳', '🏠', '⭐', '🍎', '🍌', '🎈', '☂️'];
+const SHADOW_POOL = ['🐱', '🐰', '🐘', '🦒', '🐢', '🦭', '🐟', '🦀', '🐸', '🦋', '🚗', '✈️', '⛵', '🌳', '🏠', '⭐', '🍎', '🍌', '🎈', '☂️'];
 
 const THAI_DIGITS = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙', '๑๐'];
 
@@ -104,8 +104,8 @@ const STORY_ITEMS = [
 
 /* คำ CVC ที่สระตรงกลางหายไป ให้เลือก a e i o u */
 const EN_VOWEL_WORDS = [
-  { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'SUN', emoji: '☀️' },
-  { word: 'BUS', emoji: '🚌' }, { word: 'HAT', emoji: '🎩' }, { word: 'PIG', emoji: '🐷' },
+  { word: 'CAT', emoji: '🐱' }, { word: 'LOG', emoji: '🪵' }, { word: 'SUN', emoji: '☀️' },
+  { word: 'BUS', emoji: '🚌' }, { word: 'HAT', emoji: '🎩' }, { word: 'PIN', emoji: '📌' },
   { word: 'CUP', emoji: '🥤' }, { word: 'BED', emoji: '🛏️' }, { word: 'PEN', emoji: '🖊️' },
   { word: 'BAT', emoji: '🦇' }, { word: 'BUG', emoji: '🐛' }, { word: 'HEN', emoji: '🐔' },
   { word: 'FOX', emoji: '🦊' }, { word: 'BOX', emoji: '📦' }, { word: 'JAM', emoji: '🍯' },

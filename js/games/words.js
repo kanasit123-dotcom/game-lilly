@@ -1,6 +1,11 @@
 import { THAI_CONSONANTS } from './thai.js';
 
 export const WORD_SETS = {
+  lillyFriends: [
+    { word: 'SEAL', emoji: '🦭', asset: 'seal' },
+    { word: 'TURTLE', emoji: '🐢', asset: 'turtle' },
+    { word: 'RABBIT', emoji: '🐰', asset: 'rabbit' },
+  ],
   // พยัญชนะไทย แบ่ง 4 ชุด ชุดละ 9 ตัว การ์ดรูป = สิ่งของ การ์ดคำ = ตัวอักษร
   thaiCons1: THAI_CONSONANTS.slice(0, 9),
   thaiCons2: THAI_CONSONANTS.slice(9, 18),
@@ -8,7 +13,7 @@ export const WORD_SETS = {
   thaiCons4: THAI_CONSONANTS.slice(27, 36),
 
   animals: [
-    { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'PIG', emoji: '🐷' },
+    { word: 'CAT', emoji: '🐱' }, { word: 'RABBIT', emoji: '🐰' }, { word: 'BUTTERFLY', emoji: '🦋' },
     { word: 'COW', emoji: '🐮' }, { word: 'DUCK', emoji: '🦆' }, { word: 'FISH', emoji: '🐟' },
     { word: 'BEE', emoji: '🐝' }, { word: 'BIRD', emoji: '🐦' }, { word: 'FROG', emoji: '🐸' },
     { word: 'TURTLE', emoji: '🐢' }, { word: 'SEAL', emoji: '🦭' },
@@ -48,7 +53,7 @@ export const WORD_SETS = {
     { word: 'HORSE', emoji: '🐴' }, { word: 'SHEEP', emoji: '🐑' }, { word: 'GOAT', emoji: '🐐' },
     { word: 'RABBIT', emoji: '🐰' }, { word: 'MOUSE', emoji: '🐭' }, { word: 'MONKEY', emoji: '🐵' },
     { word: 'LION', emoji: '🦁' }, { word: 'TIGER', emoji: '🐯' }, { word: 'ELEPHANT', emoji: '🐘' },
-    { word: 'BEAR', emoji: '🐻' }, { word: 'PANDA', emoji: '🐼' }, { word: 'DOLPHIN', emoji: '🐬' },
+    { word: 'SEAL', emoji: '🦭' }, { word: 'TURTLE', emoji: '🐢' }, { word: 'DOLPHIN', emoji: '🐬' },
   ],
   home: [
     { word: 'BED', emoji: '🛏️' }, { word: 'DOOR', emoji: '🚪' }, { word: 'CHAIR', emoji: '🪑' },
@@ -70,7 +75,7 @@ export const WORD_SETS = {
   // แต่ละสระมีคำเดียว จะได้ไม่มีสระซ้ำกันในรอบเดียว
   thaiVowels: [
     { word: '◌า', emoji: '🐟<b>ปลา</b>', say: 'สระอา', done: 'ปลา สระอา' },
-    { word: '◌ี', emoji: '🐻<b>หมี</b>', say: 'สระอี', done: 'หมี สระอี' },
+    { word: '◌ี', emoji: '🎨<b>สี</b>', say: 'สระอี', done: 'สี สระอี' },
     { word: '◌ู', emoji: '🦀<b>ปู</b>', say: 'สระอู', done: 'ปู สระอู' },
     { word: '◌ิ', emoji: '🐵<b>ลิง</b>', say: 'สระอิ', done: 'ลิง สระอิ' },
     { word: '◌ึ', emoji: '🐝<b>ผึ้ง</b>', say: 'สระอึ', done: 'ผึ้ง สระอึ' },

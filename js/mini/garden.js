@@ -16,7 +16,8 @@ const SEEDS = [
 const PLOTS = 6;
 const READY = 4;
 
-export function mount(stage) {
+export function mount(stage, cfg = {}) {
+  let harvested = 0;
   const data = getMini('garden') || { plots: Array.from({ length: PLOTS }, () => ({ kind: null, stage: 0 })), basket: {} };
   let seed = SEEDS[0];
 
@@ -24,7 +25,7 @@ export function mount(stage) {
     <div class="basket" id="basket"></div>
     <div class="garden" id="garden"></div>
     <div class="seed-tray" id="tray">
-      ${SEEDS.map((s) => `<button class="seed-btn" data-id="${s.id}" title="${s.name}">${s.emoji}</button>`).join('')}
+      ${SEEDS.map((s) => `<button class="seed-btn" data-id="${s.id}" title="${s.name}" aria-label="เลือกเมล็ด${s.name}">${s.emoji}</button>`).join('')}
     </div>
     <div class="mini-hint" id="hint">เลือกเมล็ด แล้วแตะแปลงว่างเพื่อปลูก 🌱</div>`;
 
@@ -100,9 +101,11 @@ export function mount(stage) {
     confetti(stage, 18);
     sayBubble(stage, `เก็บ${s.name}ได้แล้ว! ${s.emoji}`);
     speak(`เก็บ${s.name}ได้แล้ว`);
-    $hint.textContent = 'เก่งมาก! ปลูกต่อได้เลย 🌱';
+    harvested++;
+    $hint.textContent = `เก็บผักแล้ว ${harvested} / 3 ต้น`;
     save();
     render();
+    if (harvested >= 3) cfg.onComplete?.();
   }
 
   stage.querySelectorAll('.seed-btn').forEach((b) => {

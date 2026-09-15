@@ -1,6 +1,9 @@
 /* เสียงทั้งหมดสร้างจาก Web Audio ไม่ต้องโหลดไฟล์เสียง
    เสียงพูดใช้ SpeechSynthesis ของเครื่อง (ถ้าไม่มีเสียงภาษานั้นจะข้ามไปเงียบๆ) */
 
+import { getMini } from './state.js';
+
+const soundEnabled = () => getMini('preferences')?.sound !== false;
 let ctx = null;
 let unlocked = false;
 let voices = [];
@@ -29,7 +32,7 @@ export function unlockAudio() {
 }
 
 function tone(freq, at, dur, { type = 'sine', gain = 0.16 } = {}) {
-  if (!ctx) return;
+  if (!ctx || !soundEnabled()) return;
   const t0 = ctx.currentTime + at;
   const osc = ctx.createOscillator();
   const amp = ctx.createGain();
@@ -86,7 +89,7 @@ function findVoice(lang) {
 /* คืน Promise ที่จบเมื่อพูดเสร็จ (หรือทันทีถ้าเครื่องไม่มีเสียง) เกมที่อยากให้ฟังจนจบ
    ค่อยไปข้อต่อไป ให้ await ได้ มีเวลาสำรองเผื่อเบราว์เซอร์ไม่ยิง event end (iOS เป็นบางครั้ง) */
 export function speak(text, lang = 'th-TH') {
-  if (!('speechSynthesis' in window)) return Promise.resolve();
+  if (!soundEnabled() || !('speechSynthesis' in window)) return Promise.resolve();
   if (!voices.length) refreshVoices();
   const voice = findVoice(lang);
   if (!voice) return Promise.resolve(); // เครื่องไม่มีเสียงภาษานี้ ก็ไม่ต้องพูด
@@ -122,6 +125,7 @@ function noise() {
 }
 
 function burst(dur, { filter = 'highpass', freq = 1000, gain = 0.3, at = 0 } = {}) {
+  if (!soundEnabled()) return;
   const src = noise();
   if (!src) return;
   const t0 = ctx.currentTime + at;
@@ -138,7 +142,7 @@ function burst(dur, { filter = 'highpass', freq = 1000, gain = 0.3, at = 0 } = {
 
 export const perc = {
   kick() {
-    if (!ctx) return;
+    if (!ctx || !soundEnabled()) return;
     const t0 = ctx.currentTime;
     const osc = ctx.createOscillator();
     const amp = ctx.createGain();

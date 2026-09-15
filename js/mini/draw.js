@@ -6,20 +6,21 @@ import { getMini, setMini } from '../state.js';
    ยางลบวาดทับด้วยสีขาวเส้นหนา บันทึกเป็นรูป (jpeg) ทุกครั้งที่วาดเสร็จ กลับมาเปิดใหม่ก็วาดต่อได้ */
 
 const COLORS = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#9775fa', '#f783ac', '#4a3b52'];
+const COLOR_NAMES = ['แดง', 'ส้ม', 'เหลือง', 'เขียว', 'ฟ้า', 'ม่วง', 'ชมพู', 'ม่วงเข้ม'];
 const DEFAULT_COLOR = '#f783ac';
 const STAMPS = ['🐢', '🦭', '🐱', '⭐', '🌸', '🌈', '🦋', '🍓'];
 
 export function mount(stage, cfg = {}) {
   stage.innerHTML = `
     <div class="mini-top palette" id="palette">
-      ${COLORS.map((c) => `<button class="swatch${c === DEFAULT_COLOR ? ' on' : ''}" data-c="${c}" style="background:${c}"></button>`).join('')}
-      <button class="swatch eraser" data-c="#ffffff" title="ยางลบ">🧽</button>
+      ${COLORS.map((c, i) => `<button class="swatch${c === DEFAULT_COLOR ? ' on' : ''}" data-c="${c}" style="background:${c}" aria-label="เลือกสี${COLOR_NAMES[i]}"></button>`).join('')}
+      <button class="swatch eraser" data-c="#ffffff" title="ยางลบ" aria-label="เลือกยางลบ">🧽</button>
       <span class="palette-gap"></span>
-      <button class="swatch brush-size" data-size="s">•</button>
-      <button class="swatch brush-size on" data-size="l">●</button>
+      <button class="swatch brush-size" data-size="s" aria-label="พู่กันเส้นเล็ก">•</button>
+      <button class="swatch brush-size on" data-size="l" aria-label="พู่กันเส้นใหญ่">●</button>
     </div>
     <div class="mini-top stamps" id="stamps">
-      ${STAMPS.map((e) => `<button class="pic-btn" data-stamp="${e}">${e}</button>`).join('')}
+      ${STAMPS.map((e) => `<button class="pic-btn" data-stamp="${e}" aria-label="เลือกตราประทับ ${e}">${e}</button>`).join('')}
     </div>
     <div class="draw-wrap" id="wrap"><canvas id="pad"></canvas></div>
     <div class="mini-actions"><button class="btn blue" id="clear">ล้างกระดาน 🧽</button></div>`;
@@ -177,4 +178,5 @@ export function mount(stage, cfg = {}) {
   layout(saved?.img || null);
 
   speak('วาดรูปได้เลย เลือกสีแล้วลากนิ้ว');
+  return () => { endStroke(); window.removeEventListener('resize', onResize); };
 }

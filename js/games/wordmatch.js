@@ -1,13 +1,14 @@
 import { pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 import { WORD_SETS } from './words.js';
+import { pictureHTML, escapeHTML } from '../assets.js';
 
 const PER_ROUND = 3;
 
 export function play(stage, config, hooks = {}) {
   return new Promise((resolve) => {
     const deck = shuffle(WORD_SETS[config.set] || WORD_SETS.animals);
-    const rounds = Math.min(config.rounds, Math.floor(deck.length / PER_ROUND));
+    const rounds = Math.min(config.rounds || 1, Math.floor(deck.length / PER_ROUND));
     const totalPairs = rounds * PER_ROUND;
 
     let roundIdx = 0;
@@ -20,7 +21,7 @@ export function play(stage, config, hooks = {}) {
     const wrongWords = new Set();
 
     const isThai = config.set.startsWith('thai');
-    const isVowel = config.set === 'thaiVowels';
+    const isVowel = config.set.startsWith('thaiVowels');
     const isLetters = config.set.startsWith('letters');
     const hint = isVowel
       ? 'ลากสระไปวางบนคำที่ใช้สระนั้น'
@@ -51,7 +52,7 @@ export function play(stage, config, hooks = {}) {
 
       $prompt.textContent = hint;
       $pics.innerHTML = shuffle(pairs)
-        .map((p) => `<div class="pic-card" data-word="${p.word}">${p.emoji}</div>`)
+        .map((p) => `<button class="pic-card" data-word="${escapeHTML(p.word)}">${pictureHTML(p)}</button>`)
         .join('');
       $words.innerHTML = shuffle(pairs)
         .map((p) => `<button class="word-card" data-word="${p.word}" data-say="${p.say || p.word}" data-done="${p.done || p.say || p.word}">${p.word}</button>`)
@@ -62,13 +63,14 @@ export function play(stage, config, hooks = {}) {
       });
       $words.querySelectorAll('.word-card').forEach((card) => {
         card.addEventListener('pointerdown', (e) => onPointerDown(e, card));
+        card.addEventListener('click', e => { if (e.detail === 0 && !locked && !card.classList.contains('used')) selectCard(card); });
       });
     }
 
     /* ---- ลากวาง (ใช้ transform ไม่ให้การ์ดใบอื่นขยับตาม) ---- */
 
     function onPointerDown(e, card) {
-      if (locked || card.classList.contains('used') || drag) return;
+      if (hooks.signal?.aborted || locked || card.classList.contains('used') || drag) return;
       e.preventDefault();
       drag = { card, x0: e.clientX, y0: e.clientY, moved: 0 };
       card.classList.add('dragging');
@@ -102,6 +104,7 @@ export function play(stage, config, hooks = {}) {
       card.style.transform = '';
       $pics.querySelectorAll('.pic-card').forEach((p) => p.classList.remove('hover-target'));
 
+      if (e.type === 'pointercancel') return;
       if (moved < 10) { selectCard(card); return; }
       if (hit) tryMatch(card, hit);
     }
@@ -125,7 +128,7 @@ export function play(stage, config, hooks = {}) {
     }
 
     async function tryMatch(card, pic) {
-      if (locked || pic.classList.contains('solved') || card.classList.contains('used')) return;
+      if (hooks.signal?.aborted || locked || pic.classList.contains('solved') || card.classList.contains('used')) return;
       const word = card.dataset.word;
 
       if (word !== pic.dataset.word) {
@@ -160,12 +163,20 @@ export function play(stage, config, hooks = {}) {
       confetti(stage, 24);
       $prompt.textContent = 'ครบทุกคู่แล้ว เยี่ยมมาก! 🎉';
       await wait(1600);
+      if (hooks.signal?.aborted) return;
 
       roundIdx++;
       if (roundIdx >= rounds) resolve({ firstTry, total: totalPairs });
       else renderRound();
     }
 
+    hooks.signal?.addEventListener('abort', () => {
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onPointerUp);
+      drag = null;
+      locked = true;
+    }, { once: true });
     hooks.onProgress?.(0, totalPairs);
     renderRound();
   });

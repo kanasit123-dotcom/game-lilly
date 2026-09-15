@@ -6,3 +6,7 @@ desktop.ini
 
 # macOS (เผื่อเปิดจากเครื่องอื่น)
 .DS_Store
+
+# Local visual test output
+design/review/
+tests/screenshots/

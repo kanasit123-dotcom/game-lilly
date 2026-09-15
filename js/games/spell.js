@@ -10,8 +10,8 @@ const SETS = {
   en1: {
     lang: 'en-US',
     words: [
-      { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'SUN', emoji: '☀️' },
-      { word: 'PIG', emoji: '🐷' }, { word: 'BUS', emoji: '🚌' }, { word: 'HAT', emoji: '🎩' },
+      { word: 'CAT', emoji: '🐱' }, { word: 'BEE', emoji: '🐝' }, { word: 'SUN', emoji: '☀️' },
+      { word: 'ANT', emoji: '🐜' }, { word: 'BUS', emoji: '🚌' }, { word: 'HAT', emoji: '🎩' },
       { word: 'CUP', emoji: '🥤' }, { word: 'BED', emoji: '🛏️' }, { word: 'FISH', emoji: '🐟' },
       { word: 'STAR', emoji: '⭐' }, { word: 'SEAL', emoji: '🦭' }, { word: 'CRAB', emoji: '🦀' },
     ],
@@ -22,8 +22,8 @@ const SETS = {
       { word: 'ปลา', emoji: '🐟' }, { word: 'แมว', emoji: '🐱' }, { word: 'นก', emoji: '🐦' },
       { word: 'กบ', emoji: '🐸' }, { word: 'ตา', emoji: '👁️' }, { word: 'มด', emoji: '🐜' },
       { word: 'โบ', emoji: '🎀' }, { word: 'งู', emoji: '🐍' }, { word: 'ปู', emoji: '🦀' },
-      { word: 'ขา', emoji: '🦵' }, { word: 'ไก่', emoji: '🐔' }, { word: 'หมู', emoji: '🐷' },
-      { word: 'หมี', emoji: '🐻' }, { word: 'ผึ้ง', emoji: '🐝' }, { word: 'เต่า', emoji: '🐢' },
+      { word: 'ขา', emoji: '🦵' }, { word: 'ไก่', emoji: '🐔' }, { word: 'สี', emoji: '🎨' },
+      { word: 'หนู', emoji: '🐭' }, { word: 'ผึ้ง', emoji: '🐝' }, { word: 'เต่า', emoji: '🐢' },
     ],
   },
   en2: {
@@ -42,7 +42,7 @@ const SETS = {
       { word: 'เสือ', emoji: '🐯' }, { word: 'เรือ', emoji: '⛵' }, { word: 'กุ้ง', emoji: '🦐' },
       { word: 'มือ', emoji: '✋' }, { word: 'ไข่', emoji: '🥚' }, { word: 'ใบ', emoji: '🍃' },
       { word: 'ดาว', emoji: '⭐' }, { word: 'บ้าน', emoji: '🏠' }, { word: 'รถ', emoji: '🚗' },
-      { word: 'ช้าง', emoji: '🐘' }, { word: 'ลิง', emoji: '🐵' }, { word: 'หมา', emoji: '🐶' },
+      { word: 'ช้าง', emoji: '🐘' }, { word: 'ลิง', emoji: '🐵' }, { word: 'ป่า', emoji: '🌲' },
       { word: 'ข้าว', emoji: '🍚' }, { word: 'ส้ม', emoji: '🍊' }, { word: 'ฟัน', emoji: '🦷' },
       { word: 'ถุง', emoji: '👝' }, { word: 'หอย', emoji: '🐚' }, { word: 'นม', emoji: '🥛' },
     ],

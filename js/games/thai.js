@@ -85,10 +85,10 @@ export const THAI_FINAL_WORDS = [
 
 export const THAI_FINAL_POOL = ['ก', 'ง', 'น', 'ม', 'ว', 'บ', 'ด', 'ถ'];
 
-/* ชุด 2: คำยาวขึ้น ตัวลวงเป็นคำจริงที่สะกดคล้ายกัน (เช่น หมา หมี หมู) ให้ได้ฝึกอ่านจริงๆ */
+/* ชุด 2: คำยาวขึ้น ตัวลวงเป็นคำจริงที่สะกดคล้ายกัน ให้ได้ฝึกอ่านจริงๆ */
 export const THAI_VOWEL_WORDS2 = [
-  { word: 'หมา', emoji: '🐶', wrong: ['หมี', 'หมู'] },
-  { word: 'หมี', emoji: '🐻', wrong: ['หมา', 'หมู'] },
+  { word: 'ปลา', emoji: '🐟', wrong: ['ปลี', 'ปลู'] },
+  { word: 'สี', emoji: '🎨', wrong: ['สา', 'สู'] },
   { word: 'เสือ', emoji: '🐯', wrong: ['เสา', 'สือ'] },
   { word: 'เรือ', emoji: '⛵', wrong: ['เรา', 'รือ'] },
   { word: 'มือ', emoji: '✋', wrong: ['มา', 'มี'] },
@@ -187,10 +187,10 @@ export const THAI_VOWEL_FILL = {
     { word: 'ปลา', emoji: '🐟', vowel: 'า' }, { word: 'ตา', emoji: '👁️', vowel: 'า' },
     { word: 'ขา', emoji: '🦵', vowel: 'า' }, { word: 'ม้า', emoji: '🐴', vowel: 'า' },
     { word: 'ชา', emoji: '🍵', vowel: 'า' }, { word: 'นา', emoji: '🌾', vowel: 'า' },
-    { word: 'หมี', emoji: '🐻', vowel: 'ี' }, { word: 'สี', emoji: '🎨', vowel: 'ี' },
+    { word: 'ดี', emoji: '✅', vowel: 'ี' }, { word: 'สี', emoji: '🎨', vowel: 'ี' },
     { word: 'ผี', emoji: '👻', vowel: 'ี' },
     { word: 'ปู', emoji: '🦀', vowel: 'ู' }, { word: 'งู', emoji: '🐍', vowel: 'ู' },
-    { word: 'หนู', emoji: '🐭', vowel: 'ู' }, { word: 'หมู', emoji: '🐷', vowel: 'ู' },
+    { word: 'หนู', emoji: '🐭', vowel: 'ู' }, { word: 'ดู', emoji: '👀', vowel: 'ู' },
     { word: 'ตู้', emoji: '🗄️', vowel: 'ู' },
     { word: 'ลิง', emoji: '🐵', vowel: 'ิ' }, { word: 'หิน', emoji: '🪨', vowel: 'ิ' },
     { word: 'ลิ้น', emoji: '👅', vowel: 'ิ' },

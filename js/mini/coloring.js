@@ -176,6 +176,7 @@ export const PACKS = {
 };
 
 const PALETTE = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#9775fa', '#f783ac', '#a9e34b', '#63e6be', '#8d6e63', '#495057'];
+const COLOR_NAMES = ['แดง', 'ส้ม', 'เหลือง', 'เขียว', 'ฟ้า', 'ม่วง', 'ชมพู', 'เขียวอ่อน', 'เขียวมิ้นต์', 'น้ำตาล', 'เทาเข้ม'];
 const ERASER = '#ffffff';
 
 export function mount(stage, cfg = {}) {
@@ -186,12 +187,12 @@ export function mount(stage, cfg = {}) {
 
   stage.innerHTML = `
     <div class="mini-top">
-      ${pics.map((p) => `<button class="pic-btn" data-id="${p.id}" title="${p.name}">${p.icon}</button>`).join('')}
+      ${pics.map((p) => `<button class="pic-btn" data-id="${p.id}" title="${p.name}" aria-label="เลือกรูป${p.name}">${p.icon}</button>`).join('')}
     </div>
     <div class="art-wrap"><svg class="art" viewBox="0 0 200 160" id="art"></svg></div>
     <div class="palette" id="palette">
-      ${PALETTE.map((c) => `<button class="swatch" data-c="${c}" style="background:${c}"></button>`).join('')}
-      <button class="swatch eraser" data-c="${ERASER}" title="ยางลบ">🧽</button>
+      ${PALETTE.map((c, i) => `<button class="swatch" data-c="${c}" style="background:${c}" aria-label="เลือกสี${COLOR_NAMES[i]}"></button>`).join('')}
+      <button class="swatch eraser" data-c="${ERASER}" title="ยางลบ" aria-label="เลือกยางลบ">🧽</button>
     </div>
     <div class="mini-actions">
       <button class="btn blue" id="clear">เริ่มใหม่ 🔄</button>

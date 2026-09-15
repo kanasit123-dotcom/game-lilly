@@ -2,6 +2,7 @@ import { go } from '../router.js';
 import { totalStars } from '../state.js';
 import { REWARDS, isUnlocked, nextReward } from '../rewards.js';
 import { sfx } from '../audio.js';
+import { animalHTML } from '../assets.js';
 
 /* ตู้รางวัล: โชว์ทุกรางวัล อันที่ยังไม่ได้เป็นเงาพร้อมบอกว่าอีกกี่ดาว */
 
@@ -12,7 +13,7 @@ function cardHTML(r) {
   const need = r.stars - totalStars();
   return `
     <div class="reward-tile${open ? ' open' : ' locked'}" data-id="${r.id}" data-type="${r.type}">
-      <div class="reward-emoji small${r.cup ? ' cup' : ''}">${r.cup ? '🏆' : ''}<span>${r.emoji}</span></div>
+      <div class="reward-emoji small${r.cup ? ' cup' : ''}">${r.cup ? '🏆' : ''}<span>${animalHTML(r.emoji)}</span></div>
       <div class="tile-name">${open ? r.title : '???'}</div>
       <div class="tile-meta">${open
         ? (r.type === 'mini' ? '<b class="play-tag">เล่นเลย ▶</b>' : TYPE_LABEL[r.type])

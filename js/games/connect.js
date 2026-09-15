@@ -14,7 +14,7 @@ const SET_PAIRS = [
   { a: { e: '🔑', name: 'กุญแจ' }, b: { e: '🔒', name: 'แม่กุญแจ' } },
   { a: { e: '🦷', name: 'ฟัน' }, b: { e: '🪥', name: 'แปรงสีฟัน' } },
   { a: { e: '🦶', name: 'เท้า' }, b: { e: '🧦', name: 'ถุงเท้า' } },
-  { a: { e: '🐶', name: 'หมา' }, b: { e: '🦴', name: 'กระดูก' } },
+  { a: { e: '🐦', name: 'นก' }, b: { e: '🪹', name: 'รัง' } },
   { a: { e: '🐵', name: 'ลิง' }, b: { e: '🍌', name: 'กล้วย' } },
   { a: { e: '🐰', name: 'กระต่าย' }, b: { e: '🥕', name: 'แครอท' } },
   { a: { e: '🐭', name: 'หนู' }, b: { e: '🧀', name: 'ชีส' } },
@@ -65,7 +65,7 @@ const SET_HOMES = [
   { a: { e: '🐢', name: 'เต่า' }, b: { e: '🏖️', name: 'ชายหาด' } },
   { a: { e: '🦭', name: 'แมวน้ำ' }, b: { e: '❄️', name: 'ขั้วโลก' } },
   { a: { e: '🐸', name: 'กบ' }, b: { e: '💧', name: 'สระน้ำ' } },
-  { a: { e: '🐶', name: 'หมา' }, b: { e: '🏠', name: 'บ้าน' } },
+  { a: { e: '🐰', name: 'กระต่าย' }, b: { e: '🌿', name: 'ทุ่งหญ้า' } },
   { a: { e: '🐭', name: 'หนู' }, b: { e: '🕳️', name: 'รู' } },
 ];
 
@@ -321,6 +321,7 @@ export function play(stage, config, hooks = {}) {
       confetti(stage, 24);
       $prompt.textContent = 'ครบทุกคู่แล้ว เยี่ยมมาก! 🎉';
       await wait(1600);
+      if (hooks.signal?.aborted) return;
 
       roundIdx++;
       if (roundIdx >= rounds) finish();
@@ -343,14 +344,33 @@ export function play(stage, config, hooks = {}) {
         line.setAttribute('y2', p2.y);
       });
     }
-    window.addEventListener('resize', onResize);
-
     /* กัน Safari เลื่อนหน้าตามนิ้วตอนลากเส้น */
-    $area.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
-    $area.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+    const blockTouch = (e) => e.preventDefault();
+
+    function cleanup() {
+      locked = true;
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onPointerUp);
+      window.removeEventListener('resize', onResize);
+      $area.removeEventListener('touchstart', blockTouch);
+      $area.removeEventListener('touchmove', blockTouch);
+      removeTempLine();
+      clearHover();
+      drag?.el?.classList.remove('selected');
+      selected?.el?.classList.remove('selected');
+      drag = null;
+      selected = null;
+    }
+
+    window.addEventListener('resize', onResize);
+    $area.addEventListener('touchstart', blockTouch, { passive: false });
+    $area.addEventListener('touchmove', blockTouch, { passive: false });
+    hooks.signal?.addEventListener('abort', cleanup, { once: true });
+    if (hooks.signal?.aborted) cleanup();
 
     function finish() {
-      window.removeEventListener('resize', onResize);
+      cleanup();
       resolve({ firstTry, total: totalPairs });
     }
 
