@@ -66,6 +66,46 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 .home-next { font-size: 1rem; }
 .parent-link { margin-top: 8px; }
 
+/* ----- ภารกิจวันนี้ (การ์ดบนหน้าแรก) ----- */
+.mission { width: min(100%, 520px); background: #fff; border-radius: var(--r-lg); padding: 10px 14px 12px; box-shadow: 0 5px 0 var(--card-edge), 0 8px 16px rgba(0,0,0,.06); }
+.mission-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 1.15rem; margin-bottom: 8px; }
+.mission-cal { border: 0; background: #fff8e1; border-radius: 999px; padding: 6px 14px; min-height: 40px; font-size: 1.05rem; cursor: pointer; box-shadow: 0 3px 0 #f0dfa4; display: inline-flex; align-items: center; gap: 4px; }
+.mission-cal b { font-family: var(--font-num); color: var(--yellow-dark); }
+.mission-levels { display: flex; gap: 10px; align-items: stretch; justify-content: center; }
+.mission-level { flex: 1; min-width: 0; min-height: 96px; position: relative; border: 3px solid var(--card-edge); border-radius: var(--r-md); background: #f7fbf8; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 4px; transition: transform .08s; }
+.mission-level:active { transform: scale(.96); }
+.mission-level .m-icon { font-size: 2.3rem; line-height: 1.15; }
+.mission-level small { font-size: .85rem; color: var(--ink-soft); line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mission-level.done { border-color: var(--green); background: #e5f4e9; }
+.mission-level.done .m-icon { opacity: .55; }
+.mission-level .m-check { position: absolute; top: 4px; right: 6px; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #fff; font-size: 1rem; display: grid; place-items: center; box-shadow: 0 2px 0 var(--green-dark); }
+.mission-sticker { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 6px; }
+.mission-sticker b { font-size: 2.6rem; line-height: 1.1; animation: hop 1.6s ease-in-out infinite; }
+.mission-sticker small { font-size: .85rem; color: var(--green); }
+.mission-row { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 1.05rem; color: var(--ink-soft); }
+.mission-row span { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #f0f4f2; font-size: 1.3rem; opacity: .45; }
+.mission-row span.on { background: #e5f4e9; opacity: 1; box-shadow: 0 0 0 2px var(--green); }
+.node-pin { position: absolute; top: -12px; right: -8px; font-size: 1.4rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,.2)); animation: hop 1.8s ease-in-out infinite; }
+.reward-emoji.sticker { background: radial-gradient(circle, #fff, #ffe9f2); box-shadow: 0 0 0 6px #fff, 0 0 0 10px var(--pink), 0 8px 20px rgba(217,100,138,.35); }
+
+/* ----- ปฏิทินสติกเกอร์ ----- */
+.cal-total { text-align: center; font-size: 1.3rem; }
+.cal-total b { font-family: var(--font-num); color: var(--yellow-dark); font-size: 1.6rem; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.cal-head .icon-btn { width: 48px; height: 48px; font-size: 1.1rem; }
+.cal-head .icon-btn:disabled { opacity: .3; }
+.cal-title { font-size: 1.3rem; text-align: center; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+.cal-grid > i { font-style: normal; color: var(--ink-soft); font-size: .9rem; padding: 4px 0; }
+.cal-cells { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-day { aspect-ratio: 1; border-radius: var(--r-sm); background: #f4f8f6; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-width: 0; }
+.cal-day small { font-family: var(--font-num); font-size: .85rem; color: var(--ink-soft); }
+.cal-day b { font-size: clamp(1.4rem, 4.5vw, 2rem); line-height: 1; }
+.cal-day.got small { position: absolute; top: 3px; left: 6px; font-size: .7rem; }
+.cal-day.got { background: #fff8e1; box-shadow: inset 0 0 0 2px #f4dd8d; }
+.cal-day.today { box-shadow: inset 0 0 0 3px var(--green); }
+.cal-day.future { opacity: .45; }
+
 /* ----- แผนที่: ชิปหมวดใหญ่ขึ้นให้นิ้วเด็ก ----- */
 .chip { font-size: 1.1rem; padding: 10px 20px; min-height: 48px; }
 .chip.on { background: var(--green); box-shadow: 0 3px 0 var(--green-dark); }
@@ -216,6 +256,13 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
   .home-friends { gap: 4px; }
   .friend { font-size: 1rem; padding: 6px 2px 4px; }
   .home-menu { gap: 10px; }
+  .friend .lilly-animal { max-width: 110px; }
+  .mission { padding: 8px 10px 10px; }
+  .mission-head { font-size: 1.05rem; }
+  .mission-level { min-height: 84px; }
+  .mission-level .m-icon { font-size: 2rem; }
+  .mission-level small { font-size: .75rem; }
+  .mission-sticker b { font-size: 2.2rem; }
   .home-tile { min-height: 86px; font-size: 1.1rem; }
   .tile-icon { font-size: 2.1rem; }
   .map-head { gap: 8px; padding: 2px 2px 8px; }

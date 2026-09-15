@@ -1,4 +1,4 @@
-const CACHE = 'lilly-world-v15';
+const CACHE = 'lilly-world-v16';
 
 const SHELL = [
   './',
@@ -14,6 +14,8 @@ const SHELL = [
   'js/lessons.js',
   'js/games/lesson.js',
   'js/screens/menu.js',
+  'js/screens/calendar.js',
+  'js/mission.js',
   'js/mini/harvest.js',
   'js/main.js',
   'js/router.js',

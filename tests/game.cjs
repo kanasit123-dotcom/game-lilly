@@ -42,6 +42,26 @@ const { pathToFileURL } = require('node:url');
     await page.screenshot({ path: path.join(output, 'home-desktop.png'), fullPage: true });
     const route = (name, params = {}) => page.evaluate(async ({ name, params }) => (await import('/js/router.js')).go(name, params), { name, params });
     const play = id => route('game', { levelId: id });
+
+    // ภารกิจวันนี้: 3 ด่านต่างหมวด เล่นครบได้สติกเกอร์ 1 ดวงในปฏิทิน
+    assert.equal(await page.locator('.mission-level').count(), 3);
+    const mission = (await readState()).mini.mission;
+    assert.equal(new Set(mission.ids).size, 3);
+    assert.equal(new Set(mission.ids.map(id => levels.find(l => l.id === id).subject)).size, 3, 'mission spans three subjects');
+    await page.locator('.mission-level').first().click();
+    await page.locator('#stage').waitFor();
+    for (const [i, id] of mission.ids.entries()) {
+      await route('result', { levelId: id, stars: 3, firstTry: 3, total: 3 });
+      if (i < 2) assert.match(await page.locator('#next').innerText(), /ภารกิจต่อไป/);
+    }
+    await page.locator('.reward-title', { hasText: 'ภารกิจวันนี้ครบแล้ว' }).waitFor();
+    await page.locator('#st-cal').click();
+    assert.equal(await page.locator('.cal-day.got').count(), 1);
+    assert.equal(Object.keys((await readState()).mini.stickers).length, 1);
+    await route('home');
+    assert.equal(await page.locator('.mission.complete .mission-sticker').count(), 1);
+    assert.equal(await page.locator('.mission-level.done').count(), 3);
+    console.log('PASS daily mission: three subjects, sticker awarded once, calendar and home reflect it.');
     const fresh = levels.filter(l => l.fresh);
     for (const level of fresh) {
       await play(level.id);
@@ -184,7 +204,7 @@ const { pathToFileURL } = require('node:url');
 
     for (const width of [1280, 768, 390, 320]) {
       await page.setViewportSize({ width, height: width <= 390 ? 844 : 900 });
-      for (const screen of ['home', 'map', 'playroom', 'summary', 'rewards']) {
+      for (const screen of ['home', 'map', 'playroom', 'summary', 'rewards', 'calendar']) {
         await route(screen);
         const overflow = await page.evaluate(() => ({ page: document.documentElement.scrollWidth > innerWidth, app: document.querySelector('#app').scrollWidth > document.querySelector('#app').clientWidth }));
         assert.deepEqual(overflow, { page: false, app: false }, `${screen} fits ${width}px`);
@@ -224,7 +244,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v15'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v16'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();

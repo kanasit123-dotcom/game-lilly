@@ -21,7 +21,7 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v15`. Bump the version for the next deployed release when shell files change.
+- Service worker cache is currently `lilly-world-v16`. Bump the version for the next deployed release when shell files change.
 - All mini-games are finite. They finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level.
 
 ## Character Art
@@ -46,6 +46,12 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 - `js/screens/mini.js`: playroom = big emoji tiles, unlocked first; locked tiles show 🔒 + stars needed and speak the requirement. `BREAK_SECONDS = 180` is the per-round limit (was 90). End screen offers next level / another game / home.
 - `js/screens/result.js`: star animation, spoken praise, reward popups, big "ด่านต่อไป", then เล่นอีกรอบ / แผนที่ / พักเล่น.
 - `js/screens/game.js`: every game has a big 🔊 button that replays the current question via `replay()` from `audio.js`.
+
+## Daily mission (`js/mission.js`, added 2026-09-15)
+
+- Each day picks 3 levels from 3 subjects (math + thai always, third from en/en/brain/family/life), preferring unplayed levels among the first 4 in difficulty order. Stored in `mini.mission {date, ids, done}`; regenerated when the date changes.
+- Completing all 3 awards one sticker (`mini.stickers[YYYY-MM-DD]`), shown as a popup on the result screen and on the `calendar` route (month grid, ◀ ▶ navigation). Home shows the mission card with ✓ marks; the map pins undone mission levels with 📌; the result screen's big button becomes "ภารกิจต่อไป" while a mission level was just played.
+- No penalty for skipping days; nothing is locked.
 
 ## Audio contract (`js/audio.js`)
 

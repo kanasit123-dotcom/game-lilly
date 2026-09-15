@@ -3,6 +3,7 @@ import { LEVELS, SUBJECTS, WORLDS } from '../levels.js';
 import { getStars, nextUnplayedId } from '../state.js';
 import { sfx, speak } from '../audio.js';
 import { topBar, bindTopBar } from './menu.js';
+import { getMission } from '../mission.js';
 
 /* แผนที่ด่าน: เส้นทางโค้งไปเรื่อยๆ ด่านเป็นปุ่มใหญ่มีรูป เลข และดาว
    เด็กแตะด่านไหนก็ได้ (ไม่ล็อก) ด่านที่ควรเล่นต่อจะเด้งและเลื่อนมาให้เห็นเอง */
@@ -30,13 +31,15 @@ function smoothPath(pts) {
   return d;
 }
 
-function nodeHTML(lv, i, pt, W, currentId) {
+function nodeHTML(lv, i, pt, W, currentId, mission) {
   const stars = getStars(lv.id);
+  const pinned = mission.ids.includes(lv.id) && !mission.done.includes(lv.id);
   const dots = [0, 1, 2].map((n) => `<span class="${n < stars ? '' : 'off'}">⭐</span>`).join('');
   return `
     <button class="node${lv.id === currentId ? ' current' : ''}" data-id="${lv.id}" aria-label="${lv.title}"
             style="left:${(pt.x / W) * 100}%; top:${(pt.y / H) * 100}%">
       <span class="node-num">${i + 1}</span>
+      ${pinned ? '<span class="node-pin" title="ภารกิจวันนี้">📌</span>' : ''}
       <span class="node-icon">${lv.icon}</span>
       <span class="node-stars">${dots}</span>
       <span class="node-label">${lv.title}</span>
@@ -49,6 +52,7 @@ function signHTML(w, pt, W) {
 }
 
 function stageHTML(levels, currentId, withSigns) {
+  const mission = getMission();
   const W = EDGE * 2 + GAP * Math.max(levels.length - 1, 0);
   const pts = levels.map((lv, i) => ({ x: EDGE + i * GAP, y: 330 - Math.sin(i * 0.85) * 155 }));
   const signs = withSigns ? WORLDS.filter((w) => w.from < levels.length).map((w) => signHTML(w, pts[w.from], W)) : [];
@@ -58,7 +62,7 @@ function stageHTML(levels, currentId, withSigns) {
         <path class="map-path" d="${smoothPath(pts)}"/>
       </svg>
       ${signs.join('')}
-      ${levels.map((lv, i) => nodeHTML(lv, i, pts[i], W, currentId)).join('')}
+      ${levels.map((lv, i) => nodeHTML(lv, i, pts[i], W, currentId, mission)).join('')}
     </div>`;
 }
 

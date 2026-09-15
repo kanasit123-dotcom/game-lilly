@@ -3,6 +3,8 @@ import { sfx, speak } from '../audio.js';
 import { totalStars, getMini, setMini } from '../state.js';
 import { nextReward } from '../rewards.js';
 import { animalHTML } from '../assets.js';
+import { getLevel } from '../levels.js';
+import { getMission, stickerCount, getStickers } from '../mission.js';
 
 /* หน้าแรกสำหรับเด็ก 5 ขวบ: ตัวหนังสือน้อยที่สุด ปุ่มใหญ่ 3 ปุ่ม แตะแล้วไปเลย
    เพื่อนซี้ 3 ตัวอยู่บนสุด แตะเลือกตัวที่จะไปด้วยกัน (พูดชื่อให้ฟัง) */
@@ -14,6 +16,9 @@ export function showHome(root) {
   const upcoming = nextReward();
   const prefs = getMini('preferences') || {};
   const buddy = prefs.buddy || 'seal';
+  const mission = getMission();
+  const allDone = mission.done.length >= mission.ids.length;
+  const todaySticker = getStickers()[mission.date];
 
   const el = document.createElement('div');
   el.className = 'screen home';
@@ -25,6 +30,21 @@ export function showHome(root) {
           ${animalHTML(id)}<span>${name}</span>
         </button>`).join('')}
     </div>
+    <section class="mission${allDone ? ' complete' : ''}" aria-label="ภารกิจวันนี้">
+      <div class="mission-head">
+        <span>📌 ภารกิจวันนี้</span>
+        <button class="mission-cal" id="calendar" aria-label="ดูปฏิทินสติกเกอร์">📅 <b>${stickerCount()}</b></button>
+      </div>
+      <div class="mission-levels">
+        ${mission.ids.map((id) => {
+          const lv = getLevel(id);
+          const done = mission.done.includes(id);
+          return `<button class="mission-level${done ? ' done' : ''}" data-level="${id}" aria-label="${lv.title}${done ? ' (ทำแล้ว)' : ''}">
+            <span class="m-icon">${lv.icon}</span>${done ? '<span class="m-check">✓</span>' : ''}<small>${lv.title}</small></button>`;
+        }).join('')}
+        ${allDone ? `<div class="mission-sticker"><b>${todaySticker || '🌟'}</b><small>ครบแล้ว!</small></div>` : ''}
+      </div>
+    </section>
     <button class="btn big green home-play" id="play">▶ เล่นเลย</button>
     <div class="home-menu">
       <button class="home-tile" id="playroom"><span class="tile-icon">🎈</span><span>พักเล่น</span></button>
@@ -40,6 +60,10 @@ export function showHome(root) {
   el.querySelector('#playroom').onclick = open('playroom');
   el.querySelector('#rewards').onclick = open('rewards');
   el.querySelector('#parents').onclick = open('summary');
+  el.querySelector('#calendar').onclick = open('calendar');
+  el.querySelectorAll('[data-level]').forEach((button) => {
+    button.onclick = () => { sfx.tap(); go('game', { levelId: button.dataset.level }); };
+  });
 
   el.querySelectorAll('[data-buddy]').forEach((button) => {
     button.onclick = () => {

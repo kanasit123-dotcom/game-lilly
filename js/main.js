@@ -6,6 +6,7 @@ import { showResult } from './screens/result.js';
 import { showSummary } from './screens/summary.js';
 import { showRewards } from './screens/rewards.js';
 import { showMini, showPlayroom } from './screens/mini.js';
+import { showCalendar } from './screens/calendar.js';
 import { unlockAudio } from './audio.js';
 import { getMini } from './state.js';
 
@@ -20,6 +21,7 @@ register('summary', showSummary);
 register('rewards', showRewards);
 register('mini', showMini);
 register('playroom', showPlayroom);
+register('calendar', showCalendar);
 
 go('home');
 
