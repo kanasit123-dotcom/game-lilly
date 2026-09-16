@@ -28,49 +28,49 @@ Use the three attached character images (baby seal, turtle, rabbit) as the exact
 
 ---
 
-## 1. น้องแมว — เซฟเป็น `cat.png`  ← เทสอันนี้ก่อน
+## 1. น้องแมว — เซฟเป็น `cat.jpg`  (ทำแล้ว)
 
 ```text
 Character: a chubby ginger-and-white kitten with a cream belly, big amber eyes and a tiny pink nose, wearing a small yellow collar with a little gold bell, holding a small red ball of yarn with both front paws, tail curled up happily.
 ```
 
-## 2. เพนกวิน — เซฟเป็น `penguin.png`
+## 2. เพนกวิน — เซฟเป็น `penguin.jpg`  (ทำแล้ว)
 
 ```text
 Character: a fluffy baby penguin, soft dark grey back and white tummy, orange feet and small orange beak, wearing a sky-blue knitted beanie with a white pom-pom, flippers slightly out as if about to hug.
 ```
 
-## 3. จิ้งจอก — เซฟเป็น `fox.png`
+## 3. จิ้งจอก — เซฟเป็น `fox.jpg`  (ทำแล้ว)
 
 ```text
 Character: a small orange fox with a white chest and white tail tip, big warm brown eyes, wearing a little green satchel bag across the shoulder, one paw raised in a friendly wave.
 ```
 
-## 4. ยูนิคอร์น — เซฟเป็น `unicorn.png`
+## 4. ยูนิคอร์น — เซฟเป็น `unicorn.jpg`  (ทำแล้ว)
 
 ```text
 Character: a small white unicorn foal with a short golden spiral horn and a soft pastel rainbow mane and tail (pink, peach, mint, lavender), big sparkly violet eyes, a tiny gold star hair clip in the mane, standing on four legs facing the viewer.
 ```
 
-## 5. โลมา — เซฟเป็น `dolphin.png`
+## 5. โลมา — เซฟเป็น `dolphin.jpg`  (ทำแล้ว)
 
 ```text
 Character: a cheerful light blue dolphin with a pale cream belly, big dark shiny eyes and a smiling beak, balancing upright on its tail like the seal reference, wearing a small coral pink flower tucked behind its head, one flipper waving.
 ```
 
-## 6. ผีเสื้อ — เซฟเป็น `butterfly.png`
+## 6. ผีเสื้อ — เซฟเป็น `butterfly.jpg`  (ทำแล้ว)
 
 ```text
 Character: a cute butterfly with a small round lavender body, a sweet face with big eyes and rosy cheeks, two thin antennae with tiny yellow tips, and large soft wings in pastel pink and lilac with simple mint-green dots, wings fully open and facing the viewer.
 ```
 
-## 7. หมึกยักษ์ — เซฟเป็น `octopus.png`
+## 7. หมึกยักษ์ — เซฟเป็น `octopus.jpg`  (ทำแล้ว)
 
 ```text
 Character: a small lavender-purple baby octopus with a big round head, big glossy eyes and rosy cheeks, eight short curly arms with pale pink suckers, wearing a tiny white sailor hat with a blue band, two arms raised as if waving hello.
 ```
 
-## 8. กระรอก — เซฟเป็น `squirrel.png`
+## 8. กระรอก — เซฟเป็น `squirrel.jpg`  (ทำแล้ว)
 
 ```text
 Character: a small chestnut-brown squirrel with a cream belly, a big fluffy curled tail, bright dark eyes and tiny tufted ears, wearing a small yellow bow at the neck, holding one acorn with both front paws.
@@ -82,3 +82,57 @@ Character: a small chestnut-brown squirrel with a cream belly, a big fluffy curl
 
 ชื่อไฟล์ = id ของรางวัลใน `js/rewards.js` (`cat`, `penguin`, `fox`, `unicorn`, `dolphin`, `butterfly`, `octopus`, `squirrel`)
 ตอนใส่จะเพิ่มลงตาราง `labels`/`emojiAssets` ใน `js/assets.js` ให้ `animalHTML()` หยิบรูปแทน emoji ได้เหมือน 3 ตัวแรก
+
+---
+
+# ชุดที่ 2: สติกเกอร์ภารกิจวันนี้ (10 รูป)
+
+สติกเกอร์ 15 แบบใน `js/mission.js` — 5 แบบเป็นสัตว์ (เต่า แมวน้ำ กระต่าย ผีเสื้อ โลมา) ใช้รูปเพื่อนซี้อยู่แล้ว
+เหลือ 10 แบบเป็นของ ทำเป็นตัวการ์ตูนมีหน้ายิ้มแบบสติกเกอร์ ชื่อไฟล์ขึ้นต้น `sticker-` สคริปต์จะเซฟลง `assets/stickers/` ให้เอง
+
+## บล็อกสไตล์กลางของสติกเกอร์ (วางนำหน้าทุก prompt)
+
+```text
+Use the three attached character images (baby seal, turtle, rabbit) as the exact style reference. Create ONE cute sticker illustration in the same art style: polished children's picture-book / softly shaded 2D game art, tactile fine colored-pencil detailing, crisp clean silhouette, gentle dimensional shading, not emoji, not plastic 3D, not photorealistic. The object has a sweet kawaii face: big bright eyes, tiny rosy cheeks and a small happy smile, same eye style as the references. Simple, chunky, rounded shape that reads clearly at small size. Centered, generous white margin. Square 1:1 image. Background uniformly pure flat white (#FFFFFF). No cast shadow, no text, no lettering, no border, no logo, no watermark, no background scenery, no other objects. Friendly and sweet, for children aged 4-6.
+```
+
+## S1. ดาว — `sticker-star.jpg`
+```text
+Sticker: a chubby golden-yellow five-pointed star with softly rounded points and a happy face, a few tiny sparkles floating around it.
+```
+## S2. รุ้ง — `sticker-rainbow.jpg`
+```text
+Sticker: a small arched rainbow in soft pastel bands (pink, peach, yellow, mint, sky blue, lavender) with a fluffy white cloud at each end, the left cloud has a happy face.
+```
+## S3. สตรอว์เบอร์รี — `sticker-strawberry.jpg`
+```text
+Sticker: a plump red strawberry with tiny pale seeds and a leafy green top, with a happy face.
+```
+## S4. ดอกซากุระ — `sticker-blossom.jpg`
+```text
+Sticker: a single soft pink cherry blossom flower with five rounded petals and a pale yellow center, with a happy face in the center.
+```
+## S5. ปลา — `sticker-fish.jpg`
+```text
+Sticker: a round little tropical fish, orange with a white stripe and soft blue fins, big bright eyes and a happy smile, two tiny bubbles beside it.
+```
+## S6. ลูกโป่ง — `sticker-balloon.jpg`
+```text
+Sticker: a shiny red heart-shaped balloon with a soft highlight and a short curly white string, with a happy face.
+```
+## S7. ไอศกรีม — `sticker-icecream.jpg`
+```text
+Sticker: a strawberry-pink soft-serve ice cream swirl in a golden waffle cone, with rainbow sprinkles and a happy face on the ice cream.
+```
+## S8. ทานตะวัน — `sticker-sunflower.jpg`
+```text
+Sticker: a cheerful sunflower with bright yellow petals, a warm brown center that has a happy face, and one green leaf on its short stem.
+```
+## S9. อมยิ้ม — `sticker-lollipop.jpg`
+```text
+Sticker: a round swirled lollipop in pink, mint and white on a short white stick, with a happy face in the middle of the swirl.
+```
+## S10. โบว์ — `sticker-bow.jpg`
+```text
+Sticker: a big soft coral-pink ribbon bow with rounded loops and two short trailing tails, with a tiny happy face on the center knot.
+```

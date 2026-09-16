@@ -53,7 +53,7 @@ export function showHome(root) {
           return `<button class="mission-level${done ? ' done' : ''}" data-level="${id}" aria-label="${lv.title}${done ? ' (ทำแล้ว)' : ''}">
             <span class="m-icon">${lv.icon}</span>${done ? '<span class="m-check">✓</span>' : ''}<small>${lv.title}</small></button>`;
         }).join('')}
-        ${allDone ? `<div class="mission-sticker"><b>${todaySticker || '🌟'}</b><small>ครบแล้ว!</small></div>` : ''}
+        ${allDone ? `<div class="mission-sticker"><b>${animalHTML(todaySticker || '🌟')}</b><small>ครบแล้ว!</small></div>` : ''}
       </div>
     </section>
     <button class="btn big green home-play" id="play">▶ เล่นเลย</button>

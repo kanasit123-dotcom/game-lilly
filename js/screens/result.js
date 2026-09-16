@@ -27,7 +27,7 @@ function showStickerPopup(host, sticker) {
       <div class="reward-card">
         <div class="reward-burst">🎉</div>
         <div class="reward-title">ภารกิจวันนี้ครบแล้ว!</div>
-        <div class="reward-emoji sticker"><span>${sticker}</span></div>
+        <div class="reward-emoji sticker"><span>${animalHTML(sticker)}</span></div>
         <div class="reward-name">ได้สติกเกอร์ 1 ดวง</div>
         <div class="reward-desc">แปะไว้ในปฏิทินแล้วนะ</div>
         <div class="reward-actions">

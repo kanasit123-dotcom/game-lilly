@@ -1,6 +1,7 @@
 import { sfx, speak } from '../audio.js';
 import { getStickers, stickerCount, dateKey } from '../mission.js';
 import { topBar, bindTopBar } from './menu.js';
+import { animalHTML } from '../assets.js';
 
 /* ปฏิทินสติกเกอร์: วันไหนทำภารกิจครบ 3 ด่าน จะมีสติกเกอร์แปะไว้
    เดือนละหน้า เลื่อนดูเดือนก่อนได้ (เผื่ออยากอวดว่าเดือนที่แล้วเก็บได้กี่ดวง) */
@@ -16,7 +17,7 @@ function monthHTML(year, month, stickers) {
     const key = dateKey(new Date(year, month, d));
     const sticker = stickers[key];
     const cls = ['cal-day', key === today ? 'today' : '', sticker ? 'got' : '', key > today ? 'future' : ''].join(' ');
-    cells += `<span class="${cls}"><small>${d}</small>${sticker ? `<b>${sticker}</b>` : ''}</span>`;
+    cells += `<span class="${cls}"><small>${d}</small>${sticker ? `<b>${animalHTML(sticker)}</b>` : ''}</span>`;
   }
   return cells;
 }

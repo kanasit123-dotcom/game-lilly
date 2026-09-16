@@ -3,6 +3,7 @@
 วิธีใช้ (จากโฟลเดอร์โปรเจกต์):
     python design/cutout.py                 # แปลงทุกไฟล์ใน assets/incoming/ -> assets/friends/<ชื่อ>.png
     python design/cutout.py cat             # แปลงเฉพาะ cat.jpg / cat.png
+    (ไฟล์ชื่อ sticker-xxx.jpg จะไปลง assets/stickers/xxx.png แทน)
     python design/cutout.py --shrink        # ย่อรูปที่โปร่งใสอยู่แล้วใน assets/friends/ ให้เล็กลง (ไม่ตัดพื้น)
 
 หลักการ: flood fill จากขอบรูปเข้ามา เก็บเฉพาะพื้นที่สีขาวที่ "ต่อกับขอบ" เป็นพื้นหลัง
@@ -18,6 +19,7 @@ from PIL import Image, ImageFilter
 ROOT = Path(__file__).resolve().parent.parent
 INCOMING = ROOT / 'assets' / 'incoming'
 FRIENDS = ROOT / 'assets' / 'friends'
+STICKERS = ROOT / 'assets' / 'stickers'
 SIZE = 800          # ในเกมโชว์ใหญ่สุด ~190px (จอ 2x = 380px) 800px เหลือเฟือ
 WHITE = 238         # ทุก channel >= ค่านี้ถือว่าเป็นพื้นขาว (JPEG มี noise นิดหน่อย)
 MARGIN = 0.04       # ขอบว่างรอบตัวละคร (สัดส่วนของด้าน)
@@ -92,7 +94,11 @@ def main(args):
         print('ไม่พบไฟล์ใน assets/incoming/')
         return
     for src in files:
-        cutout(src, FRIENDS / f'{src.stem}.png')
+        # sticker-star.jpg -> assets/stickers/star.png, อย่างอื่น -> assets/friends/<ชื่อ>.png
+        if src.stem.startswith('sticker-'):
+            cutout(src, STICKERS / f'{src.stem[8:]}.png')
+        else:
+            cutout(src, FRIENDS / f'{src.stem}.png')
 
 
 if __name__ == '__main__':

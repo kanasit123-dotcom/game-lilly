@@ -36,7 +36,7 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 .buddy { filter: none; }
 .buddy-big .lilly-animal { width: clamp(120px, 26vw, 190px); }
 /* รูปสัตว์แทน emoji ในตู้รางวัล: ขนาด 1em เท่ากับ emoji ที่มันมาแทนพอดี (ถ้วยรางวัลย่อเป็น .6em อยู่แล้ว) */
-.reward-emoji .lilly-animal { width: 1em; height: 1em; }
+.reward-emoji .lilly-animal, .cal-day .lilly-animal, .mission-sticker .lilly-animal { width: 1em; height: 1em; }
 .lilly-animal.happy { animation: character-cheer .75s cubic-bezier(.2,.9,.3,1.35) 2; }
 @keyframes character-cheer { 45% { transform: translateY(-12px) rotate(3deg) scale(1.04); } }
 .pic-card { border: 1px solid var(--card-edge); padding: 6px; cursor: pointer; }
