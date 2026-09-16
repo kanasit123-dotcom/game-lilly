@@ -255,8 +255,8 @@ export function mount(stage, cfg = {}) {
       y: margin,
       size: cssW - margin * 2,
       height,
-      topLine: margin + height * 0.36,
-      baseLine: margin + height * 0.64,
+      topLine: margin + height * 0.33,
+      baseLine: margin + height * 0.67,
     };
     clearInk();
   }
@@ -269,7 +269,7 @@ export function mount(stage, cfg = {}) {
   function prepStroke(target) {
     target.lineCap = 'round';
     target.lineJoin = 'round';
-    target.lineWidth = Math.max(12, cssW * 0.055);
+    target.lineWidth = Math.max(9, cssW * 0.044);
     target.strokeStyle = STROKE;
   }
 
