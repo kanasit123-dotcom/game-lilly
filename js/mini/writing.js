@@ -157,7 +157,8 @@ export function mount(stage, cfg = {}) {
   }
 
   function samplePosition(item) {
-    const target = main.size * (activeSet().kind === 'lower' ? 0.64 : 0.72);
+    const guideHeight = main.baseLine - main.topLine;
+    const target = Math.min(main.size * 0.72, guideHeight * (activeSet().kind === 'lower' ? 1.08 : 1.28));
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.font = fontFor(100);
@@ -170,67 +171,27 @@ export function mount(stage, cfg = {}) {
     return {
       font: fontFor(px),
       x: main.x + main.size / 2 - (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2,
-      y: main.y + main.size / 2 + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2,
+      y: main.baseLine + Math.max(0, m.actualBoundingBoxDescent * 0.25),
     };
   }
 
   function drawGuideLines() {
-    const kind = activeSet().kind;
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, cssW, cssH);
 
-    if (kind === 'thai') {
-      ctx.fillStyle = '#f7fbf8';
-      ctx.fillRect(main.x, 0, main.size, main.y);
-      ctx.fillRect(main.x, main.y + main.size, main.size, cssH - (main.y + main.size));
-    }
+    ctx.strokeStyle = '#11384a';
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(main.x, main.y, main.size, main.height);
 
-    ctx.strokeStyle = '#cfe0da';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(main.x, main.y, main.size, main.size);
-
-    ctx.strokeStyle = '#e5ece9';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([8, 8]);
-    ctx.beginPath();
-    ctx.moveTo(main.x, main.y + main.size * 0.5);
-    ctx.lineTo(main.x + main.size, main.y + main.size * 0.5);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    if (kind === 'thai') {
-      ctx.strokeStyle = '#d9cbea';
-      ctx.setLineDash([6, 7]);
-      ctx.beginPath();
-      ctx.moveTo(main.x, main.y);
-      ctx.lineTo(main.x + main.size, main.y);
-      ctx.moveTo(main.x, main.y + main.size);
-      ctx.lineTo(main.x + main.size, main.y + main.size);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      return;
-    }
-
-    const cap = main.y + main.size * 0.18;
-    const mid = main.y + main.size * 0.48;
-    const base = main.y + main.size * 0.72;
-    const desc = main.y + main.size * 0.9;
+    const inset = main.size * 0.13;
+    ctx.strokeStyle = '#0f6f9a';
     ctx.lineWidth = 2;
-    ctx.strokeStyle = '#d9cbea';
     ctx.beginPath();
-    ctx.moveTo(main.x, cap);
-    ctx.lineTo(main.x + main.size, cap);
-    ctx.moveTo(main.x, base);
-    ctx.lineTo(main.x + main.size, base);
+    ctx.moveTo(main.x + inset, main.topLine);
+    ctx.lineTo(main.x + main.size - inset, main.topLine);
+    ctx.moveTo(main.x + inset, main.baseLine);
+    ctx.lineTo(main.x + main.size - inset, main.baseLine);
     ctx.stroke();
-    ctx.setLineDash([5, 8]);
-    ctx.beginPath();
-    ctx.moveTo(main.x, mid);
-    ctx.lineTo(main.x + main.size, mid);
-    ctx.moveTo(main.x, desc);
-    ctx.lineTo(main.x + main.size, desc);
-    ctx.stroke();
-    ctx.setLineDash([]);
   }
 
   function drawSample() {
@@ -260,7 +221,7 @@ export function mount(stage, cfg = {}) {
   }
 
   function layout() {
-    const ratio = activeSet().kind === 'thai' ? 1.24 : 1.08;
+    const ratio = 1.08;
     const maxW = Math.min($wrap.clientWidth || 320, 520);
     const maxH = Math.max(210, $wrap.clientHeight || 320);
     cssW = Math.floor(Math.max(210, Math.min(maxW, maxH / ratio)));
@@ -273,10 +234,14 @@ export function mount(stage, cfg = {}) {
     ink.width = cssW;
     ink.height = cssH;
     const margin = cssW * 0.045;
+    const height = cssH - margin * 2;
     main = {
       x: margin,
-      y: activeSet().kind === 'thai' ? cssH * 0.1 : (cssH - (cssW - margin * 2)) / 2,
+      y: margin,
       size: cssW - margin * 2,
+      height,
+      topLine: margin + height * 0.36,
+      baseLine: margin + height * 0.64,
     };
     clearInk();
   }
