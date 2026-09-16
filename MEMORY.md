@@ -1,6 +1,6 @@
 # Lilly Game Handoff Memory
 
-Updated: 2026-09-15
+Updated: 2026-09-16
 Branch: `main`
 Remote: `https://github.com/kanasit123-dotcom/game-lilly.git`
 Live site: `https://kanasit123-dotcom.github.io/game-lilly/`
@@ -21,7 +21,7 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v18`. Bump the version for the next deployed release when shell files change.
+- Service worker cache is currently `lilly-world-v23`. Bump the version for the next deployed release when shell files change.
 - All mini-games are finite. They finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level.
 
 ## Character Art
@@ -70,6 +70,8 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 - Balloons and fishing remain playable with motion disabled by showing static targets.
 - Parent settings include sound and motion toggles.
 - Home shows the three friends, one play button, playroom/rewards tiles and the star total; daily counts live only in localStorage (`dailyActivity`).
+- Home's parent link now requires a 2-second hold before entering `summary`, matching the child-proof reset pattern.
+- The newer emoji `🩷` and `🫧` were removed from production code; pink now uses `💗` and aquarium bubbles use `💦`.
 
 ## Verification
 
@@ -111,10 +113,8 @@ The previous visual redesign (header nav, dashboard stats, text-only level list,
 
 ## Known follow-ups (not started)
 
-1. Parent page is reachable with a single tap; the sound checkbox there silences the whole game. Make entering `summary` a 2-second hold like the reset button.
-2. Replace 🩷 (`js/games/quiz.js` colors) and 🫧 (`js/mini/aquarium.js`) with widely supported emoji.
-3. Backup/restore progress with a short code so iPad and phone can share stars and stickers.
-4. Voice recording in reading levels (listen → repeat → play back own voice).
+1. Backup/restore progress with a short code so iPad and phone can share stars and stickers.
+2. Voice recording in reading levels (listen → repeat → play back own voice).
 
 ## Important Constraints
 

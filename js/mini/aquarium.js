@@ -6,7 +6,7 @@ import { getMini, setMini } from '../state.js';
    ตู้บันทึกไว้ กลับมาดูใหม่ปลายังอยู่ */
 
 const SWIMMERS = ['🐟', '🐠', '🐡', '🦈', '🐙', '🦑', '🐢', '🦭', '🐬', '🦀'];
-const DECOR = ['🌿', '🪨', '🐚', '⭐', '🫧'];
+const DECOR = ['🌿', '🪨', '🐚', '⭐', '💦'];
 const MAX = 18;
 
 export function mount(stage) {

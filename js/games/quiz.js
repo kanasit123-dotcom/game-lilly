@@ -90,7 +90,7 @@ const COLORS = [
   { en: 'GREEN', th: 'เขียว', emoji: '🟢' }, { en: 'YELLOW', th: 'เหลือง', emoji: '🟡' },
   { en: 'ORANGE', th: 'ส้ม', emoji: '🟠' }, { en: 'PURPLE', th: 'ม่วง', emoji: '🟣' },
   { en: 'BLACK', th: 'ดำ', emoji: '⚫' }, { en: 'WHITE', th: 'ขาว', emoji: '⚪' },
-  { en: 'BROWN', th: 'น้ำตาล', emoji: '🟤' }, { en: 'PINK', th: 'ชมพู', emoji: '🩷' },
+  { en: 'BROWN', th: 'น้ำตาล', emoji: '🟤' }, { en: 'PINK', th: 'ชมพู', emoji: '💗' },
 ];
 
 /* โจทย์ปัญหา: ของที่นับได้พร้อมลักษณนาม ให้ประโยคอ่านเป็นภาษาไทยถูกต้อง */

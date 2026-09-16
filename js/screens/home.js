@@ -63,14 +63,16 @@ export function showHome(root) {
     </div>
     <div class="home-stars">⭐ ดาวสะสม ${stars} ดวง</div>
     ${upcoming ? `<div class="home-next">อีก <b>${upcoming.stars - stars}</b> ⭐ จะได้ ${upcoming.emoji} ${upcoming.title}</div>` : ''}
-    <button class="parent-link" id="parents">👨‍👩‍👧 สำหรับผู้ปกครอง</button>`;
+    <button class="parent-link" id="parents">
+      <span class="hold-fill"></span>
+      <span class="hold-label">👨‍👩‍👧 กดค้างสำหรับผู้ปกครอง</span>
+    </button>`;
   root.appendChild(el);
 
   const open = (screen) => () => { sfx.tap(); go(screen); };
   el.querySelector('#play').onclick = open('map');
   el.querySelector('#playroom').onclick = open('playroom');
   el.querySelector('#rewards').onclick = open('rewards');
-  el.querySelector('#parents').onclick = open('summary');
   el.querySelector('#calendar').onclick = open('calendar');
   el.querySelectorAll('[data-level]').forEach((button) => {
     button.onclick = () => { sfx.tap(); go('game', { levelId: button.dataset.level }); };
@@ -91,4 +93,25 @@ export function showHome(root) {
       speak(`${button.querySelector('span').textContent} ไปด้วยกันนะ`);
     };
   });
+
+  const parents = el.querySelector('#parents');
+  let timer = null;
+  const cancelParents = () => {
+    clearTimeout(timer);
+    timer = null;
+    parents.classList.remove('holding');
+  };
+  parents.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    sfx.tap();
+    parents.classList.add('holding');
+    timer = setTimeout(() => {
+      sfx.bundle();
+      go('summary');
+    }, 2000);
+  });
+  parents.addEventListener('pointerup', cancelParents);
+  parents.addEventListener('pointerleave', cancelParents);
+  parents.addEventListener('pointercancel', cancelParents);
+  return cancelParents;
 }

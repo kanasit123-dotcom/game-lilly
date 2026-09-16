@@ -533,8 +533,10 @@ body {
 .shelf-item { display: inline-block; }
 
 .parent-link {
+  position: relative;
+  overflow: hidden;
   margin-top: 18px;
-  background: none;
+  background: rgba(255, 255, 255, .36);
   border: none;
   font-family: var(--font-th);
   font-size: 1rem;
@@ -542,8 +544,19 @@ body {
   cursor: pointer;
   padding: 8px 14px;
   border-radius: 999px;
+  touch-action: none;
+  user-select: none;
 }
 .parent-link:active { background: rgba(255, 255, 255, .5); }
+.parent-link .hold-fill {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  background: rgba(111, 203, 139, .32);
+  transition: width 0s;
+}
+.parent-link.holding .hold-fill { width: 100%; transition: width 2s linear; }
+.parent-link .hold-label { position: relative; }
 
 /* ===== หน้าสรุปสำหรับผู้ปกครอง ===== */
 .summary-body {
