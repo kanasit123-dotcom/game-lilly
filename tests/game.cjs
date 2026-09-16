@@ -244,7 +244,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v19'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v20'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();

@@ -2,7 +2,7 @@ import { go } from '../router.js';
 import { sfx, speak } from '../audio.js';
 import { totalStars, getMini, setMini } from '../state.js';
 import { nextReward, REWARDS, isUnlocked } from '../rewards.js';
-import { animalHTML, assetId } from '../assets.js';
+import { animalHTML, assetId, stickerHTML } from '../assets.js';
 import { getLevel } from '../levels.js';
 import { getMission, stickerCount, getStickers } from '../mission.js';
 
@@ -53,7 +53,7 @@ export function showHome(root) {
           return `<button class="mission-level${done ? ' done' : ''}" data-level="${id}" aria-label="${lv.title}${done ? ' (ทำแล้ว)' : ''}">
             <span class="m-icon">${lv.icon}</span>${done ? '<span class="m-check">✓</span>' : ''}<small>${lv.title}</small></button>`;
         }).join('')}
-        ${allDone ? `<div class="mission-sticker"><b>${animalHTML(todaySticker || '🌟')}</b><small>ครบแล้ว!</small></div>` : ''}
+        ${allDone ? `<div class="mission-sticker"><b>${stickerHTML(todaySticker || '🌟')}</b><small>ครบแล้ว!</small></div>` : ''}
       </div>
     </section>
     <button class="btn big green home-play" id="play">▶ เล่นเลย</button>

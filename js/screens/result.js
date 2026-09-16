@@ -4,7 +4,7 @@ import { getLevel } from '../levels.js';
 import { sfx, speak } from '../audio.js';
 import { confetti, wait, randomBuddy } from '../utils.js';
 import { claimNewRewards, nextReward } from '../rewards.js';
-import { animalHTML } from '../assets.js';
+import { animalHTML, stickerHTML } from '../assets.js';
 import { completeMissionLevel, getMission, nextMissionId } from '../mission.js';
 
 /* หน้าจบด่าน: ดาวเด้งทีละดวง ชมด้วยเสียง แล้วปุ่มใหญ่ "ด่านต่อไป"
@@ -27,7 +27,7 @@ function showStickerPopup(host, sticker) {
       <div class="reward-card">
         <div class="reward-burst">🎉</div>
         <div class="reward-title">ภารกิจวันนี้ครบแล้ว!</div>
-        <div class="reward-emoji sticker"><span>${animalHTML(sticker)}</span></div>
+        <div class="reward-emoji sticker"><span>${stickerHTML(sticker)}</span></div>
         <div class="reward-name">ได้สติกเกอร์ 1 ดวง</div>
         <div class="reward-desc">แปะไว้ในปฏิทินแล้วนะ</div>
         <div class="reward-actions">
