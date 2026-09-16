@@ -1,5 +1,5 @@
 import { wait } from '../utils.js';
-import { note, sfx, speak } from '../audio.js';
+import { note, sfx, speak, unlockAudio } from '../audio.js';
 
 /* ระนาดหรรษา: แตะแท่งสีให้เสียงโน้ต มีเพลงสั้นๆ ให้ดูแล้วเล่นตาม */
 
@@ -35,6 +35,7 @@ export function mount(stage) {
   const bars = [...stage.querySelectorAll('.xbar')];
 
   function hit(i) {
+    unlockAudio();
     const b = bars[i];
     note(BARS[i].f);
     b.classList.remove('hit');
@@ -55,6 +56,7 @@ export function mount(stage) {
       if (playing) return;
       playing = true;
       try {
+        unlockAudio();
         sfx.tap();
         const song = SONGS[Number(btn.dataset.song)];
         await speak('ฟังก่อนนะ แล้วลองเล่นตาม');

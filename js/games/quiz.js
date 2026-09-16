@@ -409,6 +409,7 @@ const KINDS = {
     const wantBig = Math.random() < 0.5;
     const sizes = shuffle(['s', 'm', 'l']);
     return {
+      key: `size:${item}:${wantBig ? 'big' : 'small'}`,
       prompt: wantBig ? 'แตะตัวที่ใหญ่ที่สุด' : 'แตะตัวที่เล็กที่สุด',
       visual: '',
       choices: sizes.map((sz) => ({ v: sz, html: item, cls: `size-${sz}` })),
@@ -576,6 +577,7 @@ const KINDS = {
       ? ['ข้างบน', 'ตรงกลาง', 'ข้างล่าง'][target]
       : ['ทางซ้าย', 'ตรงกลาง', 'ทางขวา'][target];
     return {
+      key: `position:${vertical ? 'v' : 'h'}:${target}:${items.join('')}`,
       prompt: `แตะตัวที่อยู่${label}`,
       visual: `<div class="shape-hint">${vertical ? '⬆️ บน · ล่าง ⬇️' : '⬅️ ซ้าย · ขวา ➡️'}</div>`,
       choices: items.map((it, i) => ({ v: i, html: it })),
@@ -680,6 +682,7 @@ const KINDS = {
 };
 
 const normalize = (c) => (typeof c === 'object' ? c : { v: c, html: c });
+const signatureOf = (q) => q.key || `${q.prompt}|${q.visual || ''}|${q.answer}`;
 
 export function play(stage, config, hooks = {}) {
   return new Promise((resolve) => {
@@ -688,6 +691,7 @@ export function play(stage, config, hooks = {}) {
     let idx = 0;
     let firstTry = 0;
     let missedThisOne = false;
+    const seen = new Set();
 
     stage.innerHTML = `
       <div class="prompt" id="prompt"></div>
@@ -699,8 +703,19 @@ export function play(stage, config, hooks = {}) {
     const $visual = stage.querySelector('#visual');
     const $action = stage.querySelector('#action');
 
+    function makeQuestion() {
+      let q = make(config);
+      let sig = signatureOf(q);
+      for (let tries = 0; seen.has(sig) && tries < 40; tries++) {
+        q = make(config);
+        sig = signatureOf(q);
+      }
+      seen.add(sig);
+      return q;
+    }
+
     function startQuestion() {
-      const q = make(config);
+      const q = makeQuestion();
       missedThisOne = false;
       hooks.onProgress?.(idx, total);
 

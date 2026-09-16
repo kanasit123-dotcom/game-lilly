@@ -21,7 +21,7 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v28`. Bump the version for the next deployed release when shell files change.
+- Service worker cache is currently `lilly-world-v29`. Bump the version for the next deployed release when shell files change.
 - Mini-games are finite by default: they finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level. The `writing` mini-game is the one exception and has no countdown because handwriting practice should not interrupt Lilly mid-letter.
 
 ## Character Art
@@ -74,6 +74,7 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 - The newer emoji `🩷` and `🫧` were removed from production code; pink now uses `💗` and aquarium bubbles use `💦`.
 - New always-unlocked playroom mini-game `writing` (`js/mini/writing.js`) lets Lilly freely write Thai consonants, English uppercase, and English lowercase. It has sample/no-sample modes, a reference-style box with two horizontal guide lines, a slightly wider middle writing band, thinner freehand ink, spoken audio for every letter, no countdown timer, and manual "เสร็จแล้ว" completion; it does not reuse or alter the guided trace game.
 - Spoken word/answer transitions should not advance over the top of pronunciation. The matching, memory, ordering, connect-lines, column arithmetic, writing, xylophone, and drums flows wait for the active speech cue before moving to the next word, next question, or sample pattern.
+- The 32 newer lesson levels use six practice items each. During practice, lesson audio reads only the prompt instead of every answer choice; the intro auto-reads the intro and a couple of examples while remaining teaching cards stay tappable for audio.
 
 ## Verification
 

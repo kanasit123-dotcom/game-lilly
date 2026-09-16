@@ -3,13 +3,14 @@ import { sfx, speak, speakPrompt } from '../audio.js';
 import { WORD_SETS } from './words.js';
 import { pictureHTML, escapeHTML } from '../assets.js';
 
-const PER_ROUND = 3;
+const DEFAULT_PAIRS = 3;
 
 export function play(stage, config, hooks = {}) {
   return new Promise((resolve) => {
     const deck = shuffle(WORD_SETS[config.set] || WORD_SETS.animals);
-    const rounds = Math.min(config.rounds || 1, Math.floor(deck.length / PER_ROUND));
-    const totalPairs = rounds * PER_ROUND;
+    const pairsPerRound = Math.max(1, Math.min(config.pairs || DEFAULT_PAIRS, deck.length));
+    const rounds = Math.min(config.rounds || 1, Math.floor(deck.length / pairsPerRound));
+    const totalPairs = rounds * pairsPerRound;
 
     let roundIdx = 0;
     let matchedTotal = 0;
@@ -48,7 +49,7 @@ export function play(stage, config, hooks = {}) {
       matchedInRound = 0;
       selected = null;
       locked = false;
-      const pairs = deck.slice(roundIdx * PER_ROUND, roundIdx * PER_ROUND + PER_ROUND);
+      const pairs = deck.slice(roundIdx * pairsPerRound, roundIdx * pairsPerRound + pairsPerRound);
 
       $prompt.textContent = hint;
       if (roundIdx === 0) speakPrompt(hint);
@@ -161,7 +162,7 @@ export function play(stage, config, hooks = {}) {
       await speak(card.dataset.done, lang);
       if (hooks.signal?.aborted) return;
 
-      if (matchedInRound < PER_ROUND) {
+      if (matchedInRound < pairsPerRound) {
         locked = false;
         return;
       }

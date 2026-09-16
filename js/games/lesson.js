@@ -49,7 +49,9 @@ export function play(stage, config, hooks = {}) {
     const active = () => !settled && !hooks.signal?.aborted;
     const finish = result => { if (!settled) { settled = true; resolve(result); } };
     hooks.signal?.addEventListener('abort', () => { readToken++; finish(null); }, { once: true });
-    const total = config.practice ? 3 : config.questions.length;
+    const practicePairs = config.practicePairs || 3;
+    const practiceRounds = config.practiceRounds || 1;
+    const total = config.practice ? practicePairs * practiceRounds : config.questions.length;
     hooks.onProgress?.(0, total);
     stage.classList.add('learning-stage');
 
@@ -74,9 +76,10 @@ export function play(stage, config, hooks = {}) {
         <div class="teaching-cards">${config.cards.map((c, i) => `<button class="teaching-card" data-teach="${i}">${c.asset ? animalHTML(c.asset) : ''}<b>${escapeHTML(c.label)}</b><span>${escapeHTML(c.description)}</span>${iconHTML('volume-2')}</button>`).join('')}</div>
         <div class="learning-actions"><button class="btn secondary" id="read-intro">${iconHTML('volume-2')}ฟังอีกครั้ง</button><button class="btn green big" id="practice">ลองทำกันเลย ${iconHTML('arrow-right')}</button></div></section>`;
       const cards = [...stage.querySelectorAll('[data-teach]')];
+      const autoCards = config.cards.slice(0, config.autoReadCards ?? 2);
       const readIntro = () => readAll([
         { text: config.intro, lang: 'th-TH' },
-        ...config.cards.map((c, i) => ({ text: cardSpeech(c), lang: c.lang || 'th-TH', el: cards[i] })),
+        ...autoCards.map((c, i) => ({ text: cardSpeech(c), lang: c.lang || 'th-TH', el: cards[i] })),
       ]);
       setReplay(readIntro);
       stage.querySelector('#read-intro').onclick = readIntro;
@@ -102,7 +105,7 @@ export function play(stage, config, hooks = {}) {
         if (config.practice) {
           stage.classList.remove('learning-stage');
           const engine = config.practice === 'memory' ? memory : wordmatch;
-          engine(stage, { set: 'lillyFriends', pairs: 3, rounds: 1 }, hooks).then(result => { if (active()) finish(result); });
+          engine(stage, { set: config.practiceSet || 'lillyFriends', pairs: practicePairs, rounds: practiceRounds }, hooks).then(result => { if (active()) finish(result); });
         } else question();
       };
       renderIcons();
@@ -121,7 +124,6 @@ export function play(stage, config, hooks = {}) {
       const buttons = [...stage.querySelectorAll('[data-option]')];
       const readQuestion = () => readAll([
         { text: item.speech || item.prompt, lang: item.lang || 'th-TH' },
-        ...options.map((o, i) => ({ text: o, lang: langOf(o), el: buttons[i] })),
       ]);
       setReplay(readQuestion);
       buttons.forEach((button, i) => {

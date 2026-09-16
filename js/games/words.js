@@ -6,6 +6,14 @@ export const WORD_SETS = {
     { word: 'TURTLE', emoji: '🐢', asset: 'turtle' },
     { word: 'RABBIT', emoji: '🐰', asset: 'rabbit' },
   ],
+  lillyFriends6: [
+    { word: 'SEAL', emoji: '🦭', asset: 'seal' },
+    { word: 'TURTLE', emoji: '🐢', asset: 'turtle' },
+    { word: 'RABBIT', emoji: '🐰', asset: 'rabbit' },
+    { word: 'CAT', emoji: '🐱', asset: 'cat' },
+    { word: 'PENGUIN', emoji: '🐧', asset: 'penguin' },
+    { word: 'FOX', emoji: '🦊', asset: 'fox' },
+  ],
   // พยัญชนะไทย แบ่ง 4 ชุด ชุดละ 9 ตัว การ์ดรูป = สิ่งของ การ์ดคำ = ตัวอักษร
   thaiCons1: THAI_CONSONANTS.slice(0, 9),
   thaiCons2: THAI_CONSONANTS.slice(9, 18),

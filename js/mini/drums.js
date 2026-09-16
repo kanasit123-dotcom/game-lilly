@@ -1,5 +1,5 @@
 import { wait } from '../utils.js';
-import { perc, sfx, speak } from '../audio.js';
+import { perc, sfx, speak, unlockAudio } from '../audio.js';
 
 /* กลองหรรษา: แตะแป้นกลองสีสันต่างๆ ให้เสียงเครื่องเคาะ มีจังหวะตัวอย่างให้ฟังแล้วดูแป้นไฮไลต์ตาม
    ไม่มีคะแนน ไม่มีแพ้ แตะเล่นเองหรือกดฟังจังหวะตัวอย่างก็ได้ */
@@ -38,6 +38,7 @@ export function mount(stage) {
   const pads = [...stage.querySelectorAll('.drum-pad')];
 
   function hit(i) {
+    unlockAudio();
     const pad = pads[i];
     perc[PADS[i].fn]();
     pad.classList.remove('hit');
@@ -59,6 +60,7 @@ export function mount(stage) {
       if (playing) return;
       playing = true;
       try {
+        unlockAudio();
         sfx.tap();
         const song = SONGS[Number(btn.dataset.song)];
         await speak('ฟังจังหวะก่อนนะ แล้วลองเล่นตาม');

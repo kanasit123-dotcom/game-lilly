@@ -11,12 +11,146 @@ const ICONS = {
 };
 const lesson = (id, subject, title, intro, cards, questions, extra = {}) => ({
   id, subject, title, icon: ICONS[id] || '🌼',
-  type: 'lesson', fresh: true, config: { intro, cards, questions, ...extra }
+  type: 'lesson', fresh: true, config: { intro, cards, questions: completeQuestions(id, questions), ...extra }
 });
 const grandCards = [card('ปู่', 'พ่อของพ่อ'), card('ย่า', 'แม่ของพ่อ'), card('ตา', 'พ่อของแม่'), card('ยาย', 'แม่ของแม่')];
 const quantity = (a, b, op = '+') => ({ kind: 'quantity', a, b, op });
 const sum = (a, b) => q(`${a} + ${b} เท่ากับเท่าไร`, String(a + b), [String(a + b - 1), String(a + b + 1)], { visual: quantity(a, b), explanation: `${a} บวก ${b} เท่ากับ ${a + b}` });
 const sub = (a, b) => q(`${a} − ${b} เหลือเท่าไร`, String(a - b), [String(a - b + 1), String(a - b + 2)], { visual: quantity(a, b, '-'), explanation: `${a} ลบ ${b} เหลือ ${a - b}` });
+const LESSON_EXTRAS = {
+  'f-home': [
+    q('ใครเป็นลูกของพ่อแม่', 'เรา', ['ปู่', 'ย่า']),
+    q('ใครเป็นแม่ของเรา', 'แม่', ['พี่', 'น้อง']),
+    q('พ่อกับแม่เป็นอะไรของเรา', 'พ่อแม่', ['เพื่อน', 'ลูก']),
+  ],
+  'f-siblings': [
+    q('ถ้าเขาเกิดก่อนเรา เราเรียกว่าอะไร', 'พี่', ['น้อง', 'ลูก']),
+    q('ถ้าเขาเกิดหลังเรา เราเรียกว่าอะไร', 'น้อง', ['พี่', 'แม่']),
+    q('น้องมีอายุมากกว่าหรือน้อยกว่าเรา', 'น้อยกว่า', ['มากกว่า', 'เท่ากันเสมอ']),
+  ],
+  'f-paternal': [
+    q('ปู่อยู่ฝั่งคุณพ่อหรือคุณแม่', 'พ่อ', ['แม่', 'เรา']),
+    q('ย่าอยู่ฝั่งคุณพ่อหรือคุณแม่', 'พ่อ', ['แม่', 'เรา']),
+    q('คนไหนอยู่ฝั่งพ่อ', 'ปู่', ['ตา', 'ยาย']),
+  ],
+  'f-maternal': [
+    q('ตาอยู่ฝั่งคุณพ่อหรือคุณแม่', 'แม่', ['พ่อ', 'เรา']),
+    q('ยายอยู่ฝั่งคุณพ่อหรือคุณแม่', 'แม่', ['พ่อ', 'เรา']),
+    q('คนไหนอยู่ฝั่งแม่', 'ยาย', ['ย่า', 'ปู่']),
+  ],
+  'f-older': [
+    q('ลุงกับป้าเป็นพี่ของใคร', 'พ่อหรือแม่', ['ลูก', 'เพื่อน']),
+    q('ป้าเป็นผู้หญิงหรือผู้ชาย', 'ผู้หญิง', ['ผู้ชาย', 'เด็ก']),
+  ],
+  'f-younger': [
+    q('น้ากับอาเป็นน้องของใคร', 'แม่หรือพ่อ', ['ลูก', 'เพื่อน']),
+    q('อาอยู่ฝั่งคุณพ่อหรือคุณแม่', 'พ่อ', ['แม่', 'ลูก']),
+  ],
+  'f-english-home': [
+    q('Father หมายถึงใคร', 'พ่อ', ['แม่', 'น้อง'], { speech: 'Father', lang: 'en-US' }),
+    q('Sister หมายถึงใคร', 'พี่สาวหรือน้องสาว', ['พี่ชายหรือน้องชาย', 'พ่อ'], { speech: 'Sister', lang: 'en-US' }),
+  ],
+  'f-english-relatives': [
+    q('Grandmother หมายถึงใคร', 'ย่าหรือยาย', ['ปู่หรือตา', 'ลุง'], { speech: 'Grandmother', lang: 'en-US' }),
+    q('Aunt หมายถึงญาติแบบไหน', 'ญาติผู้หญิง', ['ญาติผู้ชาย', 'พี่น้อง'], { speech: 'Aunt', lang: 'en-US' }),
+  ],
+  'l-th-aa': [
+    q('ตอ + อา อ่านว่าอะไร', 'ตา', ['ตี', 'ตู']),
+    q('คำว่า กา ใช้สระอะไร', 'อา', ['อี', 'อู']),
+    q('คำไหนอ่านว่า มา', 'มา', ['มี', 'มู']),
+  ],
+  'l-th-ii': [
+    q('สอ + อี อ่านว่าอะไร', 'สี', ['สา', 'สู']),
+    q('คำว่า ดี ใช้สระอะไร', 'อี', ['อา', 'อู']),
+    q('คำไหนอ่านว่า มี', 'มี', ['มา', 'มู']),
+  ],
+  'l-th-uu': [
+    q('ดอ + อู อ่านว่าอะไร', 'ดู', ['ดี', 'ดา']),
+    q('คำว่า งู ใช้สระอะไร', 'อู', ['อา', 'อี']),
+    q('คำไหนอ่านว่า ปู', 'ปู', ['ปา', 'ปี']),
+  ],
+  'l-th-vowels': [
+    q('คำไหนใช้สระอา', 'กา', ['มี', 'ปู']),
+    q('คำไหนใช้สระอี', 'มี', ['กา', 'ปู']),
+    q('คำไหนใช้สระอู', 'ปู', ['กา', 'มี']),
+  ],
+  'l-th-final-n': [
+    q('นอน มีตัวสะกดตัวไหน', 'น', ['อ', 'ร']),
+    q('เติม กิ_ ให้เป็น กิน', 'น', ['ม', 'ง']),
+    q('ตัวสะกดอยู่ตรงไหนของคำ', 'ท้ายคำ', ['ต้นคำ', 'กลางคำ']),
+  ],
+  'l-th-final-m': [
+    q('ชาม มีตัวสะกดตัวไหน', 'ม', ['ช', 'า']),
+    q('เติม น_ ให้เป็น นม', 'ม', ['น', 'ง']),
+    q('คำไหนมี ม เป็นตัวสะกด', 'ชาม', ['จาน', 'กิน']),
+  ],
+  'l-en-friends': [
+    q('Seal หมายถึงอะไร', 'แมวน้ำ', ['เต่า', 'กระต่าย'], { speech: 'Seal', lang: 'en-US' }),
+    q('Turtle หมายถึงอะไร', 'เต่า', ['แมวน้ำ', 'กระต่าย'], { speech: 'Turtle', lang: 'en-US' }),
+    q('Rabbit หมายถึงอะไร', 'กระต่าย', ['แมวน้ำ', 'เต่า'], { speech: 'Rabbit', lang: 'en-US' }),
+  ],
+  'l-en-case': [
+    q('ตัวใหญ่ของ a คืออะไร', 'A', ['B', 'C'], { answerLang: 'en-US' }),
+    q('ตัวใหญ่ของ b คืออะไร', 'B', ['A', 'C'], { answerLang: 'en-US' }),
+    q('ตัวใหญ่ของ c คืออะไร', 'C', ['A', 'B'], { answerLang: 'en-US' }),
+  ],
+  'l-en-start': [
+    q('คำไหนเริ่มด้วย S', 'Seal', ['Turtle', 'Rabbit'], { answerLang: 'en-US' }),
+    q('คำไหนเริ่มด้วย T', 'Turtle', ['Seal', 'Rabbit'], { answerLang: 'en-US' }),
+    q('คำไหนเริ่มด้วย R', 'Rabbit', ['Seal', 'Turtle'], { answerLang: 'en-US' }),
+  ],
+  'l-en-actions': [
+    q('นั่งลง ภาษาอังกฤษว่าอะไร', 'Sit down', ['Stand up', 'Clap'], { answerLang: 'en-US' }),
+    q('ยืนขึ้น ภาษาอังกฤษว่าอะไร', 'Stand up', ['Sit down', 'Clap'], { answerLang: 'en-US' }),
+    q('ปรบมือ ภาษาอังกฤษว่าอะไร', 'Clap', ['Sit down', 'Stand up'], { answerLang: 'en-US' }),
+  ],
+  'l-m-count': [
+    q('มีแครอตกี่หัว', '2', ['1', '3'], { visual: quantity(2) }),
+    q('มีแครอตกี่หัว', '4', ['3', '5'], { visual: quantity(4) }),
+    q('นับให้ครบ มีแครอตกี่หัว', '5', ['4', '3'], { visual: quantity(5) }),
+  ],
+  'l-m-compare': [
+    q('1 กับ 3 จำนวนไหนมากกว่า', '3', ['1', 'เท่ากัน']),
+    q('4 กับ 2 จำนวนไหนมากกว่า', '4', ['2', 'เท่ากัน']),
+    q('มี 5 หัวทั้งสองกลุ่ม จำนวนเป็นอย่างไร', 'เท่ากัน', ['ซ้ายมากกว่า', 'ขวามากกว่า'], { visual: quantity(5, 5, '|') }),
+  ],
+  'l-m-add5': [sum(1, 2), sum(3, 1), sum(2, 2)],
+  'l-m-sub5': [sub(2, 1), sub(5, 1), sub(5, 4)],
+  'l-m-add10': [sum(3, 4), sum(7, 2), sum(5, 5)],
+  'l-m-sub10': [sub(7, 2), sub(9, 5), sub(10, 1)],
+  'l-m-tens': [
+    q('หนึ่งสิบกับหนึ่งหน่วย เป็นจำนวนใด', '11', ['1', '10'], { visual: { kind: 'blocks', tens: 1, units: 1 } }),
+    q('20 มีทั้งหมดกี่สิบ', '2', ['1', '10'], { visual: { kind: 'blocks', tens: 2, units: 0 } }),
+    q('10 หน่วยรวมเป็นกี่สิบ', '1', ['10', '2']),
+  ],
+  'l-m-units': [
+    q('13 มีเลขอะไรในหลักหน่วย', '3', ['1', '0'], { visual: { kind: 'blocks', tens: 1, units: 3 } }),
+    q('17 มีเลขอะไรในหลักสิบ', '1', ['7', '0'], { visual: { kind: 'blocks', tens: 1, units: 7 } }),
+    q('หนึ่งสิบกับแปดหน่วย เป็นจำนวนใด', '18', ['8', '10'], { visual: { kind: 'blocks', tens: 1, units: 8 } }),
+  ],
+  'l-life-feelings': [
+    q('เพื่อนร้องไห้ เป็นความรู้สึกไหน', 'เสียใจ', ['ดีใจ', 'กลัว']),
+    q('ได้ของเล่นที่ชอบ เป็นความรู้สึกไหน', 'ดีใจ', ['เสียใจ', 'กลัว']),
+    q('ได้ยินเสียงดังแล้วตกใจ เป็นความรู้สึกไหน', 'กลัว', ['ดีใจ', 'เสียใจ']),
+  ],
+  'l-life-routine': [
+    q('หลังเข้าห้องน้ำ ควรทำอะไร', 'ล้างมือ', ['กินขนม', 'นอนหลับ']),
+    q('ตอนเช้าก่อนออกจากบ้าน ควรดูแลฟันด้วยอะไร', 'แปรงฟัน', ['กินลูกอม', 'โยนของเล่น']),
+    q('ของเล่นอยู่กลางทางเดิน ควรทำอะไร', 'เก็บเข้าที่', ['ทิ้งไว้', 'เตะไปไกล']),
+  ],
+  'l-life-pattern': [
+    q('รูปถัดไปคืออะไร', 'สี่เหลี่ยม', ['วงกลม', 'สามเหลี่ยม'], { visual: { kind: 'pattern', shapes: ['square', 'circle', 'square', 'circle'] } }),
+    q('2 1 2 1 … ตัวถัดไปคืออะไร', '2', ['1', '3']),
+    q('วงกลม สี่เหลี่ยม วงกลม … ต่อด้วยอะไร', 'สี่เหลี่ยม', ['วงกลม', 'สามเหลี่ยม']),
+  ],
+  'l-life-nature': [
+    q('ต้นไม้อยู่ในกลุ่มไหน', 'พืช', ['สัตว์', 'ของเล่น']),
+    q('ก้อนหินมีชีวิตไหม', 'ไม่มีชีวิต', ['เป็นสัตว์', 'เป็นพืช']),
+    q('สิ่งมีชีวิตต้องการอะไรเพื่อเติบโต', 'สิ่งที่เหมาะสม', ['ของเล่น', 'เสียงดัง']),
+  ],
+};
+const completeQuestions = (id, questions) =>
+  questions.length ? [...questions, ...(LESSON_EXTRAS[id] || [])].slice(0, 6) : questions;
 
 export const NEW_LEVELS = [
   lesson('f-home', 'family', 'พ่อแม่ของเรา', 'มารู้จักคำเรียกในครอบครัวกัน', [card('พ่อ', 'คุณพ่อของเรา'), card('แม่', 'คุณแม่ของเรา'), card('ลูก', 'เราเป็นลูกของพ่อแม่')], [
@@ -64,8 +198,8 @@ export const NEW_LEVELS = [
   lesson('l-en-friends', 'en', 'Hello, friends!', 'มารู้จักเพื่อนสามตัวเป็นภาษาอังกฤษ', [card('Seal', 'แมวน้ำ', { asset: 'seal', lang: 'en-US' }), card('Turtle', 'เต่า', { asset: 'turtle', lang: 'en-US' }), card('Rabbit', 'กระต่าย', { asset: 'rabbit', lang: 'en-US' })], [
     q('ภาพนี้เรียกว่าอะไรในภาษาอังกฤษ', 'Seal', ['Turtle', 'Rabbit'], { visual: { kind: 'animal', id: 'seal' }, answerLang: 'en-US' }), q('ภาพนี้เรียกว่าอะไรในภาษาอังกฤษ', 'Turtle', ['Rabbit', 'Seal'], { visual: { kind: 'animal', id: 'turtle' }, answerLang: 'en-US' }), q('ภาพนี้เรียกว่าอะไรในภาษาอังกฤษ', 'Rabbit', ['Seal', 'Turtle'], { visual: { kind: 'animal', id: 'rabbit' }, answerLang: 'en-US' })
   ]),
-  lesson('l-en-match', 'en', 'คำศัพท์กับเพื่อนซี้', 'จับคู่คำกับรูปเพื่อนของเรา', [card('SEAL', 'แมวน้ำ', { asset: 'seal', lang: 'en-US' }), card('TURTLE', 'เต่า', { asset: 'turtle', lang: 'en-US' }), card('RABBIT', 'กระต่าย', { asset: 'rabbit', lang: 'en-US' })], [], { practice: 'wordmatch' }),
-  lesson('l-en-memory', 'en', 'ความจำเพื่อนสามตัว', 'จำตำแหน่งภาพและคำ แล้วหาคู่ให้ครบสามคู่', [card('SEAL', 'แมวน้ำ', { asset: 'seal', lang: 'en-US' }), card('TURTLE', 'เต่า', { asset: 'turtle', lang: 'en-US' }), card('RABBIT', 'กระต่าย', { asset: 'rabbit', lang: 'en-US' })], [], { practice: 'memory' }),
+  lesson('l-en-match', 'en', 'คำศัพท์กับเพื่อนซี้', 'จับคู่คำกับรูปเพื่อนของเรา', [card('SEAL', 'แมวน้ำ', { asset: 'seal', lang: 'en-US' }), card('TURTLE', 'เต่า', { asset: 'turtle', lang: 'en-US' }), card('RABBIT', 'กระต่าย', { asset: 'rabbit', lang: 'en-US' }), card('CAT', 'แมว', { asset: 'cat', lang: 'en-US' }), card('PENGUIN', 'เพนกวิน', { asset: 'penguin', lang: 'en-US' }), card('FOX', 'จิ้งจอก', { asset: 'fox', lang: 'en-US' })], [], { practice: 'wordmatch', practiceSet: 'lillyFriends6', practicePairs: 6 }),
+  lesson('l-en-memory', 'en', 'ความจำเพื่อนซี้', 'จำตำแหน่งภาพและคำ แล้วหาคู่ให้ครบ', [card('SEAL', 'แมวน้ำ', { asset: 'seal', lang: 'en-US' }), card('TURTLE', 'เต่า', { asset: 'turtle', lang: 'en-US' }), card('RABBIT', 'กระต่าย', { asset: 'rabbit', lang: 'en-US' }), card('CAT', 'แมว', { asset: 'cat', lang: 'en-US' }), card('PENGUIN', 'เพนกวิน', { asset: 'penguin', lang: 'en-US' }), card('FOX', 'จิ้งจอก', { asset: 'fox', lang: 'en-US' })], [], { practice: 'memory', practiceSet: 'lillyFriends6', practicePairs: 6 }),
   lesson('l-en-case', 'en', 'ตัวใหญ่กับตัวเล็ก', 'อักษรเดียวกันมีรูปตัวใหญ่และตัวเล็ก', [card('A a', 'เอ', { speech: 'A', lang: 'en-US' }), card('B b', 'บี', { speech: 'B', lang: 'en-US' }), card('C c', 'ซี', { speech: 'C', lang: 'en-US' })], [
     q('ตัวเล็กของ A คืออะไร', 'a', ['b', 'c'], { answerLang: 'en-US' }), q('ตัวเล็กของ B คืออะไร', 'b', ['a', 'c'], { answerLang: 'en-US' }), q('ตัวเล็กของ C คืออะไร', 'c', ['a', 'b'], { answerLang: 'en-US' })
   ]),

@@ -80,21 +80,33 @@ const { pathToFileURL } = require('node:url');
       }
       await page.locator('#practice').click();
       if (level.config.practice === 'memory') {
-        const keys = await page.locator('.mem-card').evaluateAll(cards => [...new Set(cards.map(c => c.dataset.key))]);
-        const wrong = page.locator(`.mem-card[data-key="${keys[0]}"]`).first();
-        await wrong.click();
-        await page.locator(`.mem-card[data-key="${keys[1]}"]`).first().click();
-        await page.waitForFunction(() => !document.querySelector('.mem-card.open'));
-        for (const key of keys) {
-          const pair = page.locator(`.mem-card[data-key="${key}"]`);
-          await pair.nth(0).click(); await pair.nth(1).click();
-          await page.waitForFunction(key => [...document.querySelectorAll('.mem-card')].filter(c => c.dataset.key === key).every(c => c.classList.contains('done')), key);
+        let usedRetry = false;
+        while ((await page.locator('.result').count()) === 0) {
+          await page.locator('.mem-card').first().waitFor();
+          const keys = await page.locator('.mem-card').evaluateAll(cards => [...new Set(cards.map(c => c.dataset.key))]);
+          if (!usedRetry) {
+            const wrong = page.locator(`.mem-card[data-key="${keys[0]}"]`).first();
+            await wrong.click();
+            await page.locator(`.mem-card[data-key="${keys[1]}"]`).first().click();
+            await page.waitForFunction(() => !document.querySelector('.mem-card.open'));
+            usedRetry = true;
+          }
+          for (const key of keys) {
+            const pair = page.locator(`.mem-card[data-key="${key}"]`);
+            await pair.nth(0).click(); await pair.nth(1).click();
+            await page.waitForFunction(key => [...document.querySelectorAll('.mem-card')].filter(c => c.dataset.key === key).every(c => c.classList.contains('done')), key);
+          }
+          await page.waitForFunction(() => document.querySelector('.result') || document.querySelector('.mem-card:not(.done)'));
         }
       } else if (level.config.practice === 'wordmatch') {
-        const words = await page.locator('.word-card').evaluateAll(nodes => nodes.map(n => n.dataset.word));
-        for (const word of words) {
-          await page.locator(`.word-card[data-word="${word}"]`).click();
-          await page.locator(`.pic-card[data-word="${word}"]`).click();
+        while ((await page.locator('.result').count()) === 0) {
+          await page.locator('.word-card').first().waitFor();
+          const words = await page.locator('.word-card').evaluateAll(nodes => nodes.map(n => n.dataset.word));
+          for (const word of words) {
+            await page.locator(`.word-card[data-word="${word}"]`).click();
+            await page.locator(`.pic-card[data-word="${word}"]`).click();
+          }
+          await page.waitForFunction(() => document.querySelector('.result') || document.querySelector('.word-card:not(.used)'));
         }
       } else {
         for (let i = 0; i < level.config.questions.length; i++) {
@@ -113,7 +125,7 @@ const { pathToFileURL } = require('node:url');
       saved = await readState();
       const record = saved.plays.at(-1);
       assert.equal(record.id, level.id);
-      assert.equal(record.t, level.config.practice ? 3 : level.config.questions.length);
+      assert.equal(record.t, level.config.practice ? (level.config.practicePairs || 3) * (level.config.practiceRounds || 1) : level.config.questions.length);
       if (!level.config.practice) assert.equal(record.f, record.t - 1, 'first attempt tracked despite retries');
     }
     console.log(`PASS ${fresh.length} new lessons completed; scores and first-attempt counts verified.`);
@@ -277,7 +289,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v28'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v29'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();
