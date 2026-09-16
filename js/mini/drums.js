@@ -47,21 +47,30 @@ export function mount(stage) {
 
   // pointerdown ผูกแยกทีละแป้น เบราว์เซอร์ยิง event ให้เองต่อจุดสัมผัส จึงรองรับแตะหลายนิ้วพร้อมกันได้อยู่แล้ว
   pads.forEach((pad, i) => {
-    pad.addEventListener('pointerdown', (e) => { e.preventDefault(); hit(i); });
+    pad.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      if (playing) return;
+      hit(i);
+    });
   });
 
   stage.querySelectorAll('[data-song]').forEach((btn) => {
     btn.onclick = async () => {
       if (playing) return;
       playing = true;
-      sfx.tap();
-      const song = SONGS[Number(btn.dataset.song)];
-      for (const i of song.seq) {
-        if (!stage.isConnected) return; // ผู้ใช้กดกลับระหว่างกำลังเล่นจังหวะ
-        if (i >= 0) hit(i);
-        await wait(380);
+      try {
+        sfx.tap();
+        const song = SONGS[Number(btn.dataset.song)];
+        await speak('ฟังจังหวะก่อนนะ แล้วลองเล่นตาม');
+        await wait(200);
+        for (const i of song.seq) {
+          if (!stage.isConnected) return; // ผู้ใช้กดกลับระหว่างกำลังเล่นจังหวะ
+          if (i >= 0) hit(i);
+          await wait(380);
+        }
+      } finally {
+        playing = false;
       }
-      playing = false;
     };
   });
 

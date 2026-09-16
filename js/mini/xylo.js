@@ -43,22 +43,30 @@ export function mount(stage) {
   }
 
   bars.forEach((b, i) => {
-    b.addEventListener('pointerdown', (e) => { e.preventDefault(); hit(i); });
+    b.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      if (playing) return;
+      hit(i);
+    });
   });
 
   stage.querySelectorAll('[data-song]').forEach((btn) => {
     btn.onclick = async () => {
       if (playing) return;
       playing = true;
-      sfx.tap();
-      const song = SONGS[Number(btn.dataset.song)];
-      speak('ฟังก่อนนะ แล้วลองเล่นตาม');
-      await wait(1400);
-      for (const i of song.seq) {
-        if (i >= 0) hit(i);
-        await wait(i >= 0 ? 420 : 300);
+      try {
+        sfx.tap();
+        const song = SONGS[Number(btn.dataset.song)];
+        await speak('ฟังก่อนนะ แล้วลองเล่นตาม');
+        await wait(200);
+        for (const i of song.seq) {
+          if (!stage.isConnected) return;
+          if (i >= 0) hit(i);
+          await wait(i >= 0 ? 420 : 300);
+        }
+      } finally {
+        playing = false;
       }
-      playing = false;
     };
   });
 

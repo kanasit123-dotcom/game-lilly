@@ -254,11 +254,10 @@ export function play(stage, config, hooks = {}) {
       $aid.querySelector('.blocks').innerHTML = blocksMarkup(1, sumU - 10);
       $aid.querySelector('.rod')?.classList.add('new-rod');
       $aid.querySelector('.carry-aid-note').textContent = `ได้ 1 สิบ เหลือ ${sumU - 10} หน่วย`;
-      speak('ครบสิบแล้ว มัดเป็นหนึ่งสิบ');
-      await wait(600);
+      await Promise.all([wait(600), speak('ครบสิบแล้ว มัดเป็นหนึ่งสิบ')]);
     }
 
-    $grid.onclick = (e) => {
+    $grid.onclick = async (e) => {
       const cell = e.target.closest('.cell');
       const st = steps[si];
       if (!cell || !st || !s.pulse) return;
@@ -286,11 +285,11 @@ export function play(stage, config, hooks = {}) {
         s.pulse = null;
         s.pop = { col: 'units', slot: 'carry' };
         sfx.bundle();
-        speak('ยืมหนึ่งสิบ');
         sayBubble(stage, 'ยืม 1 สิบ มาเป็น 10 หน่วย!');
         si++;
         render();
-        setTimeout(runStep, 900);
+        await Promise.all([wait(900), speak('ยืมหนึ่งสิบ')]);
+        runStep();
       }
     };
 

@@ -1,4 +1,4 @@
-import { pick, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
+import { pick, wait, confetti, sayBubble, cheerBuddy, buddyHTML } from '../utils.js';
 import { sfx, speak } from '../audio.js';
 import { getMini, setMini } from '../state.js';
 
@@ -91,6 +91,8 @@ export function mount(stage, cfg = {}) {
   let drawing = false;
   let lastPoint = null;
   let stopped = false;
+  let reading = false;
+  let advancing = false;
 
   const activeSet = () => SETS[saved.set];
   const items = () => activeSet().items;
@@ -107,9 +109,21 @@ export function mount(stage, cfg = {}) {
     return doneList().includes(ch);
   }
 
+  const busy = () => reading || advancing;
+
+  async function readText(text, lang = 'th-TH') {
+    if (reading || stopped || !stage.isConnected) return;
+    reading = true;
+    try {
+      await speak(text, lang);
+    } finally {
+      reading = false;
+    }
+  }
+
   function speakCurrent() {
     const item = current();
-    return speak(item.say, item.lang);
+    return readText(item.say, item.lang);
   }
 
   function clearInk() {
@@ -141,6 +155,7 @@ export function mount(stage, cfg = {}) {
       </button>`).join('');
     $rail.querySelectorAll('[data-i]').forEach((b) => {
       b.onclick = () => {
+        if (busy()) return;
         sfx.tap();
         saved.index[saved.set] = Number(b.dataset.i);
         persist();
@@ -301,42 +316,46 @@ export function mount(stage, cfg = {}) {
     sayBubble(stage, 'ลองเขียนใหม่ได้เลย ✨');
   };
 
-  stage.querySelector('#writing-done').onclick = () => {
+  stage.querySelector('#writing-done').onclick = async () => {
+    if (busy()) return;
+    advancing = true;
     const item = current();
-    if (!isDone(item.ch)) saved.done[saved.set] = [...doneList(), item.ch];
-    sfx.correct();
-    $pop.hidden = false;
-    cheerBuddy(stage);
-    confetti(stage, 18);
-    sayBubble(stage, pick(CHEERS));
-    persist();
-    renderControls();
-    speakCurrent();
+    try {
+      if (!isDone(item.ch)) saved.done[saved.set] = [...doneList(), item.ch];
+      sfx.correct();
+      $pop.hidden = false;
+      cheerBuddy(stage);
+      confetti(stage, 18);
+      sayBubble(stage, pick(CHEERS));
+      persist();
+      renderControls();
 
-    const allDone = doneList().length >= items().length;
-    if (allDone) {
-      setTimeout(() => {
-        if (stopped || !stage.isConnected) return;
-        speak('เขียนครบทุกตัวแล้ว เก่งมาก');
-        cfg.onComplete?.();
-      }, 900);
-      return;
-    }
-
-    const next = items().findIndex((it, i) => i > currentIndex() && !isDone(it.ch));
-    saved.index[saved.set] = next >= 0 ? next : items().findIndex((it) => !isDone(it.ch));
-    persist();
-    setTimeout(() => {
+      const allDone = doneList().length >= items().length;
+      await Promise.all([wait(900), speakCurrent()]);
       if (stopped || !stage.isConnected) return;
+
+      if (allDone) {
+        await readText('เขียนครบทุกตัวแล้ว เก่งมาก');
+        if (stopped || !stage.isConnected) return;
+        cfg.onComplete?.();
+        return;
+      }
+
+      const next = items().findIndex((it, i) => i > currentIndex() && !isDone(it.ch));
+      saved.index[saved.set] = next >= 0 ? next : items().findIndex((it) => !isDone(it.ch));
+      persist();
       clearInk();
       renderControls();
-      speakCurrent();
-    }, 900);
+      await speakCurrent();
+    } finally {
+      advancing = false;
+    }
   };
 
-  stage.querySelector('#writing-sound').onclick = () => { sfx.tap(); speakCurrent(); };
-  stage.querySelector('#writing-current-card').onclick = () => { sfx.tap(); speakCurrent(); };
+  stage.querySelector('#writing-sound').onclick = () => { if (busy()) return; sfx.tap(); speakCurrent(); };
+  stage.querySelector('#writing-current-card').onclick = () => { if (busy()) return; sfx.tap(); speakCurrent(); };
   stage.querySelector('#writing-prev').onclick = () => {
+    if (busy()) return;
     sfx.tap();
     saved.index[saved.set] = (currentIndex() + items().length - 1) % items().length;
     persist();
@@ -345,6 +364,7 @@ export function mount(stage, cfg = {}) {
     speakCurrent();
   };
   stage.querySelector('#writing-next').onclick = () => {
+    if (busy()) return;
     sfx.tap();
     saved.index[saved.set] = (currentIndex() + 1) % items().length;
     persist();
@@ -354,6 +374,7 @@ export function mount(stage, cfg = {}) {
   };
   stage.querySelectorAll('[data-writing-set]').forEach((b) => {
     b.onclick = () => {
+      if (busy()) return;
       sfx.tap();
       saved.set = b.dataset.writingSet;
       fitIndex();
@@ -366,12 +387,13 @@ export function mount(stage, cfg = {}) {
   });
   stage.querySelectorAll('[data-writing-mode]').forEach((b) => {
     b.onclick = () => {
+      if (busy()) return;
       sfx.tap();
       saved.mode = b.dataset.writingMode;
       persist();
       renderControls();
       renderBoard();
-      speak(saved.mode === 'sample' ? 'มีตัวอย่าง' : 'ไม่มีตัวอย่าง');
+      readText(saved.mode === 'sample' ? 'มีตัวอย่าง' : 'ไม่มีตัวอย่าง');
     };
   });
 
@@ -386,7 +408,7 @@ export function mount(stage, cfg = {}) {
   requestAnimationFrame(() => {
     if (!stage.isConnected) return;
     layout();
-    speak('เลือกตัวอักษร แล้วเขียนในกรอบได้เลย').then(() => speakCurrent());
+    readText('เลือกตัวอักษร แล้วเขียนในกรอบได้เลย').then(() => speakCurrent());
   });
   document.fonts.ready.then(() => {
     if (!stage.isConnected) return;

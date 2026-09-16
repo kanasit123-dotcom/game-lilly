@@ -97,6 +97,7 @@ export function play(stage, config, hooks = {}) {
     let missedThisRound = false;
     let placed = 0;
     let round = null;
+    let locked = false;
 
     stage.innerHTML = `
       <div class="prompt" id="prompt"></div>
@@ -151,7 +152,7 @@ export function play(stage, config, hooks = {}) {
     }
 
     async function tap(tile) {
-      if (tile.classList.contains('used')) return;
+      if (locked || tile.classList.contains('used')) return;
       const itemIdx = Number(tile.dataset.idx);
 
       if (itemIdx !== placed) {
@@ -171,8 +172,15 @@ export function play(stage, config, hooks = {}) {
       renderSlots();
 
       const done = placed >= round.items.length;
-      if (item.say && !done) speak(item.say);
-      if (!done) return;
+      if (!done) {
+        if (item.say) {
+          locked = true;
+          await speak(item.say);
+          if (hooks.signal?.aborted) return;
+          locked = false;
+        }
+        return;
+      }
 
       if (!missedThisRound) firstTry++;
       $tiles.querySelectorAll('.order-tile').forEach((t) => { t.onclick = null; });

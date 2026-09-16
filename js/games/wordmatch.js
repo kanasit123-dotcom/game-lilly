@@ -155,15 +155,20 @@ export function play(stage, config, hooks = {}) {
 
       sfx.correct();
       cheerBuddy(stage);
-      speak(card.dataset.done, lang);
       sayBubble(stage, pick(['เก่งมาก!', 'ถูกต้อง!', 'ใช่เลย 🌟']));
 
-      if (matchedInRound < PER_ROUND) return;
-
       locked = true;
+      await speak(card.dataset.done, lang);
+      if (hooks.signal?.aborted) return;
+
+      if (matchedInRound < PER_ROUND) {
+        locked = false;
+        return;
+      }
+
       confetti(stage, 24);
       $prompt.textContent = 'ครบทุกคู่แล้ว เยี่ยมมาก! 🎉';
-      await wait(1600);
+      await wait(900);
       if (hooks.signal?.aborted) return;
 
       roundIdx++;

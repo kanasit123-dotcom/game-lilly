@@ -313,15 +313,20 @@ export function play(stage, config, hooks = {}) {
         : config.set === 'homes'
           ? `${pair.a.name} อยู่ที่ ${pair.b.name}`
           : `${pair.a.name} กับ ${pair.b.name}`;
-      speak(say);
       sayBubble(stage, pick(['เก่งมาก!', 'ถูกต้อง!', 'ใช่เลย 🌟']));
 
-      if (matchedInRound < PER_ROUND) return;
-
       locked = true;
+      await speak(say);
+      if (hooks.signal?.aborted) return;
+
+      if (matchedInRound < PER_ROUND) {
+        locked = false;
+        return;
+      }
+
       confetti(stage, 24);
       $prompt.textContent = 'ครบทุกคู่แล้ว เยี่ยมมาก! 🎉';
-      await wait(1600);
+      await wait(900);
       if (hooks.signal?.aborted) return;
 
       roundIdx++;

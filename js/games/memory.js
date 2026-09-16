@@ -79,14 +79,15 @@ export function play(stage, config, hooks = {}) {
         hooks.onProgress?.(matched, total);
         sfx.correct();
         cheerBuddy(stage);
-        speak(a.dataset.key, config.lang || 'en-US');
         sayBubble(stage, pick(['เจอคู่แล้ว!', 'เก่งมาก!', 'ใช่เลย 🌟']));
+        await speak(a.dataset.key, config.lang || 'en-US');
+        if (hooks.signal?.aborted) return;
 
         if (matched % pairs !== 0) { locked = false; return; }
 
         confetti(stage, 26);
         $prompt.textContent = 'ครบทุกคู่แล้ว เยี่ยมมาก! 🎉';
-        await wait(1600);
+        await wait(900);
         if (hooks.signal?.aborted) return;
         roundIdx++;
         if (roundIdx >= rounds) {
