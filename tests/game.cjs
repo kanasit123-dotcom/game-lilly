@@ -193,7 +193,23 @@ const { pathToFileURL } = require('node:url');
     await route('home');
     assert.ok(((await readState()).mini.dailyActivity?.breaks || 0) >= 1, 'break rounds are counted');
 
-    for (const id of ['harvest', 'coloring', 'coloring2', 'coloring3', 'coloring4', 'garden', 'xylo', 'balloons', 'bakery', 'aquarium', 'dressup', 'draw', 'drums', 'fishing']) {
+    await route('mini', { id: 'writing' });
+    await page.locator('.writing-wrap canvas').waitFor();
+    await page.locator('[data-writing-set="upper"]').click();
+    await page.locator('[data-writing-mode="blank"]').click();
+    await page.locator('#writing-sound').click();
+    const writeBox = await page.locator('.writing-wrap canvas').boundingBox();
+    await page.mouse.move(writeBox.x + writeBox.width * 0.25, writeBox.y + writeBox.height * 0.75);
+    await page.mouse.down();
+    await page.mouse.move(writeBox.x + writeBox.width * 0.5, writeBox.y + writeBox.height * 0.25);
+    await page.mouse.move(writeBox.x + writeBox.width * 0.75, writeBox.y + writeBox.height * 0.75);
+    await page.mouse.up();
+    await page.locator('#writing-done').click();
+    await page.locator('.writing-letter.done').first().waitFor();
+    await page.locator('#finish-break').click();
+    await page.locator('#finish-today').click();
+
+    for (const id of ['harvest', 'writing', 'coloring', 'coloring2', 'coloring3', 'coloring4', 'garden', 'xylo', 'balloons', 'bakery', 'aquarium', 'dressup', 'draw', 'drums', 'fishing']) {
       await route('mini', { id });
       await page.locator('.mini-content').waitFor();
       await page.locator('#finish-break').click();
@@ -207,7 +223,7 @@ const { pathToFileURL } = require('node:url');
     await page.clock.runFor(11000);
     await page.locator('#return-lesson').waitFor();
     await page.clock.resume();
-    console.log('PASS all 14 mini-game menu entries, manual finish, five-carrot finish, source lesson return, and 180-second session end.');
+    console.log('PASS all 15 mini-game menu entries, manual finish, free writing, five-carrot finish, source lesson return, and 180-second session end.');
 
     for (const width of [1280, 768, 390, 320]) {
       await page.setViewportSize({ width, height: width <= 390 ? 844 : 900 });
@@ -239,6 +255,10 @@ const { pathToFileURL } = require('node:url');
       await route('mini', { id: 'coloring' });
       assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `coloring fits at ${width}`);
       if (width === 390) await page.screenshot({ path: path.join(output, 'coloring-mobile.png') });
+      await route('mini', { id: 'writing' });
+      await page.locator('.writing-wrap canvas').waitFor();
+      assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `writing fits at ${width}`);
+      if (width === 390) await page.screenshot({ path: path.join(output, 'writing-mobile.png') });
     }
     await route('home');
     await page.reload();
@@ -251,7 +271,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v23'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v24'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();

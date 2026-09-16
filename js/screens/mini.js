@@ -12,6 +12,7 @@ import { mount as draw } from '../mini/draw.js';
 import { mount as drums } from '../mini/drums.js';
 import { mount as fishing } from '../mini/fishing.js';
 import { mount as harvest } from '../mini/harvest.js';
+import { mount as writing } from '../mini/writing.js';
 import { animalHTML } from '../assets.js';
 import { topBar, bindTopBar } from './menu.js';
 import { nextLevelId, nextUnplayedId, getMini, setMini } from '../state.js';
@@ -19,13 +20,14 @@ import { getLevel } from '../levels.js';
 import { REWARDS } from '../rewards.js';
 
 /* หน้าโฮสต์มินิเกม ไม่มีคะแนน ไม่มีดาว เล่นเพื่อสนุกอย่างเดียว
-   id ต้องตรงกับ id รางวัลใน rewards.js
+   id ต้องตรงกับ id รางวัลใน rewards.js ยกเว้นเกม always ที่เปิดตั้งแต่แรก
    เล่นได้รอบละ BREAK_SECONDS วินาที (หรือจนถึงเป้าของเกมนั้น) แล้วชวนกลับไปเล่นด่านต่อ */
 
 export const BREAK_SECONDS = 180;
 
 const MINIS = {
   harvest: { title: 'สวนแครอต', emoji: '🥕', mount: harvest },
+  writing: { title: 'ฝึกเขียนอักษร', emoji: '✍️', mount: writing, always: true },
   coloring: { title: 'ระบายสี ใต้ทะเล', emoji: '🎨', mount: coloring, cfg: { pack: 'sea' } },
   coloring2: { title: 'ระบายสี บ้านแสนสุข', emoji: '🏠', mount: coloring, cfg: { pack: 'home' } },
   coloring3: { title: 'ระบายสี สวนสนุก', emoji: '🦋', mount: coloring, cfg: { pack: 'fun' } },
@@ -49,7 +51,7 @@ export function showPlayroom(root) {
     ${topBar('พักเล่น')}
     <div class="summary-body">
       <div class="playroom-grid">
-        ${Object.entries(MINIS).map(([id, mini]) => ({ id, mini, unlocked: miniUnlocked(id), reward: REWARDS.find((r) => r.id === id) }))
+        ${Object.entries(MINIS).map(([id, mini]) => ({ id, mini, unlocked: mini.always || miniUnlocked(id), reward: REWARDS.find((r) => r.id === id) }))
           // เกมที่เล่นได้อยู่บนสุด ที่ล็อกอยู่เรียงตามดาวที่ต้องใช้ เด็กจะได้เห็นว่าอันไหนใกล้ได้
           .sort((a, b) => (b.unlocked - a.unlocked) || ((a.reward?.stars || 0) - (b.reward?.stars || 0)))
           .map(({ id, mini, unlocked, reward }) => `
@@ -79,7 +81,7 @@ export function showPlayroom(root) {
 
 export function showMini(root, { id, fromLevelId }) {
   const mini = MINIS[id];
-  if (!mini || !miniUnlocked(id)) { queueMicrotask(() => go('playroom')); return; }
+  if (!mini || !(mini.always || miniUnlocked(id))) { queueMicrotask(() => go('playroom')); return; }
   const limit = BREAK_SECONDS * 1000;
 
   const el = document.createElement('div');

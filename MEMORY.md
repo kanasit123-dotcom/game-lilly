@@ -21,7 +21,7 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v23`. Bump the version for the next deployed release when shell files change.
+- Service worker cache is currently `lilly-world-v24`. Bump the version for the next deployed release when shell files change.
 - All mini-games are finite. They finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level.
 
 ## Character Art
@@ -72,6 +72,7 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 - Home shows the three friends, one play button, playroom/rewards tiles and the star total; daily counts live only in localStorage (`dailyActivity`).
 - Home's parent link now requires a 2-second hold before entering `summary`, matching the child-proof reset pattern.
 - The newer emoji `🩷` and `🫧` were removed from production code; pink now uses `💗` and aquarium bubbles use `💦`.
+- New always-unlocked playroom mini-game `writing` (`js/mini/writing.js`) lets Lilly freely write Thai consonants, English uppercase, and English lowercase. It has sample/no-sample modes, guide boxes/lines, spoken audio for every letter, and manual "เสร็จแล้ว" completion; it does not reuse or alter the guided trace game.
 
 ## Verification
 
@@ -104,7 +105,7 @@ Before finishing any UI work:
 The previous visual redesign (header nav, dashboard stats, text-only level list, radio buttons) looked polished but a 5-year-old could not use it, so it was replaced. Improve the look freely — palette, illustrations, backgrounds, icons, animations, typography — but keep these rules:
 
 - Child screens (home, map, playroom, rewards, result, calendar, every game) stay picture-first: big tap targets (≥ 56 px), one obvious primary action, no statistics, tables, paragraphs, tabs, radio/checkbox controls or text-only lists. Those belong on the parent page (`summary`) only.
-- Keep the DOM hooks the app and `tests/game.cjs` rely on: `.home-friends`, `[data-buddy]`, `#play`, `.mission-level`, `#calendar`, `.map-wrap`/`.node`/`.chip`, `.playroom-item[data-mini]`, `#back`, `#replay`, `#finish-break`, `#return-lesson`, `#finish-today`, `.result` with `#next/#again/#map/#break`, `#practice`, `.learning-answer`, `.reading`, `#st-cal`, `.cal-day.got`.
+- Keep the DOM hooks the app and `tests/game.cjs` rely on: `.home-friends`, `[data-buddy]`, `#play`, `.mission-level`, `#calendar`, `.map-wrap`/`.node`/`.chip`, `.playroom-item[data-mini]`, `#back`, `#replay`, `#finish-break`, `#return-lesson`, `#finish-today`, `.result` with `#next/#again/#map/#break`, `#practice`, `.learning-answer`, `.reading`, `#st-cal`, `.cal-day.got`, `.writing-wrap canvas`, `[data-writing-set]`, `[data-writing-mode]`, `#writing-done`.
 - Keep every spoken cue: screens speak on entry, lessons read prompt + options, the 🔊 button replays. Never remove `speakPrompt`/`setReplay` calls from engines.
 - Use `animalHTML()` for seal/turtle/rabbit/cat; new character art goes in `assets/friends/` as transparent PNG with the same ids. Pipeline: prompts in `design/PROMPTS-gemini.md` → user generates in Gemini with the three originals as style reference → drop the white-background JPG/PNG in `assets/incoming/` → `python design/cutout.py <name>` (flood-fill cutout, 800 px, 256-colour PNG ≈ 100 KB) → add id to `labels`/`emojiAssets` in `js/assets.js` and the file to `sw.js`. Home friend picker shows unlocked buddies that have art automatically. All 11 buddies now have art. Mission stickers: 10 object stickers live in `assets/stickers/` and render through `stickerHTML()` (animal stickers reuse the buddy art). Map worlds have scenery strips in `assets/worlds/<art>.jpg` (7:1, drawn as one 7-row sheet by Gemini and split by rows); `WORLDS` in `levels.js` carries `art` + `sky`, and `worldsHTML()` in `map.js` lays them behind the path with a crossfade. Dress-up accessories are illustrated too (`assets/items/<art>.png`, 512 px; `ITEMS` in `js/mini/dressup.js` keeps the old emoji keys so saved outfits still load). For a sheet with items placed irregularly, `python design/blobs.py <sheet> item-a item-b ...` finds each blob in reading order. If Gemini returns several pictures on one sheet, `python design/split.py <sheet> TL=name TR=name BL=- BR=name` splits it before `cutout.py`.
 - Avoid emoji newer than iOS 15 (🩷 🫧 🪿 …) — older iPads render them as boxes.
