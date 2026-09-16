@@ -21,8 +21,8 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v24`. Bump the version for the next deployed release when shell files change.
-- All mini-games are finite. They finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level.
+- Service worker cache is currently `lilly-world-v25`. Bump the version for the next deployed release when shell files change.
+- Mini-games are finite by default: they finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level. The `writing` mini-game is the one exception and has no countdown because handwriting practice should not interrupt Lilly mid-letter.
 
 ## Character Art
 
@@ -43,7 +43,7 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 - `js/screens/home.js`: three friend portraits (tap = pick buddy, spoken), one big "เล่นเลย" button to the map, two picture tiles (พักเล่น / ตู้รางวัล), small parent link. No stats, no text lists.
 - `js/screens/map.js`: winding path with big level nodes (icon, number, stars) and subject chips with icons. `WORLDS` in `levels.js` adds signposts; the 32 newer lessons sit under "บ้านของเรา" (index 92). Speaks "เลือกด่านที่อยากเล่นได้เลย" on entry.
 - `js/screens/menu.js`: only `topBar(title)` + `bindTopBar(el)` (🏠 back button, title, star count). No header nav.
-- `js/screens/mini.js`: playroom = big emoji tiles, unlocked first; locked tiles show 🔒 + stars needed and speak the requirement. `BREAK_SECONDS = 180` is the per-round limit (was 90). End screen offers next level / another game / home.
+- `js/screens/mini.js`: playroom = big emoji tiles, unlocked first; locked tiles show 🔒 + stars needed and speak the requirement. `BREAK_SECONDS = 180` is the per-round limit (was 90), except `writing` which is no-limit. End screen offers next level / another game / home.
 - `js/screens/result.js`: star animation, spoken praise, reward popups, big "ด่านต่อไป", then เล่นอีกรอบ / แผนที่ / พักเล่น.
 - `js/screens/game.js`: every game has a big 🔊 button that replays the current question via `replay()` from `audio.js`.
 
@@ -72,11 +72,11 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 - Home shows the three friends, one play button, playroom/rewards tiles and the star total; daily counts live only in localStorage (`dailyActivity`).
 - Home's parent link now requires a 2-second hold before entering `summary`, matching the child-proof reset pattern.
 - The newer emoji `🩷` and `🫧` were removed from production code; pink now uses `💗` and aquarium bubbles use `💦`.
-- New always-unlocked playroom mini-game `writing` (`js/mini/writing.js`) lets Lilly freely write Thai consonants, English uppercase, and English lowercase. It has sample/no-sample modes, guide boxes/lines, spoken audio for every letter, and manual "เสร็จแล้ว" completion; it does not reuse or alter the guided trace game.
+- New always-unlocked playroom mini-game `writing` (`js/mini/writing.js`) lets Lilly freely write Thai consonants, English uppercase, and English lowercase. It has sample/no-sample modes, guide boxes/lines, spoken audio for every letter, no countdown timer, and manual "เสร็จแล้ว" completion; it does not reuse or alter the guided trace game.
 
 ## Verification
 
-The main regression script is `tests/game.cjs`. It covers all 124 levels, all 14 mini-games, saved-state compatibility, responsive layouts, keyboard controls, reduced motion, transparent assets, and offline loading.
+The main regression script is `tests/game.cjs`. It covers all 124 levels, all 15 mini-games, saved-state compatibility, responsive layouts, keyboard controls, reduced motion, transparent assets, and offline loading.
 
 Use the Codex bundled Playwright runtime on this machine:
 

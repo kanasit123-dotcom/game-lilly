@@ -1,4 +1,4 @@
-const CACHE = 'lilly-world-v24';
+const CACHE = 'lilly-world-v25';
 
 const SHELL = [
   './',

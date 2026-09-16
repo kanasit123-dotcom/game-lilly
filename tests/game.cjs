@@ -215,15 +215,21 @@ const { pathToFileURL } = require('node:url');
       await page.locator('#finish-break').click();
       await page.locator('#finish-today').click();
     }
-    // Advance the browser's clock to verify the host imposes a finite round.
+    // Advance the browser's clock to verify writing is the only no-time-limit mini-game.
     await page.clock.install();
+    await route('mini', { id: 'writing' });
+    await page.locator('.writing-wrap canvas').waitFor();
+    assert.equal(await page.locator('#break-progress').count(), 0, 'writing has no countdown bar');
+    await page.clock.runFor(190000);
+    assert.equal(await page.locator('#return-lesson').count(), 0, 'writing does not auto-finish after the break limit');
+    assert.equal(await page.locator('.writing-wrap canvas').count(), 1, 'writing stays open without a timer');
     await route('mini', { id: 'xylo' });
     await page.clock.runFor(170000);
     assert.equal(await page.locator('#return-lesson').count(), 0, 'still playing before the break limit');
     await page.clock.runFor(11000);
     await page.locator('#return-lesson').waitFor();
     await page.clock.resume();
-    console.log('PASS all 15 mini-game menu entries, manual finish, free writing, five-carrot finish, source lesson return, and 180-second session end.');
+    console.log('PASS all 15 mini-game menu entries, manual finish, no-limit writing, five-carrot finish, source lesson return, and 180-second session end.');
 
     for (const width of [1280, 768, 390, 320]) {
       await page.setViewportSize({ width, height: width <= 390 ? 844 : 900 });
@@ -271,7 +277,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v24'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v25'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();

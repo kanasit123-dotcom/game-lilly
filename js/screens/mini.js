@@ -21,13 +21,14 @@ import { REWARDS } from '../rewards.js';
 
 /* หน้าโฮสต์มินิเกม ไม่มีคะแนน ไม่มีดาว เล่นเพื่อสนุกอย่างเดียว
    id ต้องตรงกับ id รางวัลใน rewards.js ยกเว้นเกม always ที่เปิดตั้งแต่แรก
-   เล่นได้รอบละ BREAK_SECONDS วินาที (หรือจนถึงเป้าของเกมนั้น) แล้วชวนกลับไปเล่นด่านต่อ */
+   เล่นได้รอบละ BREAK_SECONDS วินาที (หรือจนถึงเป้าของเกมนั้น) แล้วชวนกลับไปเล่นด่านต่อ
+   ยกเว้นเกมเขียนอักษรที่ตั้งใจให้ฝึกช้าๆ ได้โดยไม่หมดเวลา */
 
 export const BREAK_SECONDS = 180;
 
 const MINIS = {
   harvest: { title: 'สวนแครอต', emoji: '🥕', mount: harvest },
-  writing: { title: 'ฝึกเขียนอักษร', emoji: '✍️', mount: writing, always: true },
+  writing: { title: 'ฝึกเขียนอักษร', emoji: '✍️', mount: writing, always: true, noLimit: true },
   coloring: { title: 'ระบายสี ใต้ทะเล', emoji: '🎨', mount: coloring, cfg: { pack: 'sea' } },
   coloring2: { title: 'ระบายสี บ้านแสนสุข', emoji: '🏠', mount: coloring, cfg: { pack: 'home' } },
   coloring3: { title: 'ระบายสี สวนสนุก', emoji: '🦋', mount: coloring, cfg: { pack: 'fun' } },
@@ -82,6 +83,7 @@ export function showPlayroom(root) {
 export function showMini(root, { id, fromLevelId }) {
   const mini = MINIS[id];
   if (!mini || !(mini.always || miniUnlocked(id))) { queueMicrotask(() => go('playroom')); return; }
+  const noLimit = Boolean(mini.noLimit);
   const limit = BREAK_SECONDS * 1000;
 
   const el = document.createElement('div');
@@ -89,7 +91,7 @@ export function showMini(root, { id, fromLevelId }) {
   el.innerHTML = `
     <div class="game-bar">
       <button class="icon-btn" id="back" aria-label="กลับไปเลือกเกม">←</button>
-      <div class="break-clock" title="เวลาพักเล่น"><span>⏳</span><progress id="break-progress" max="${limit}" value="0" aria-label="เวลาพักเล่นที่ผ่านไป"></progress></div>
+      ${noLimit ? '' : `<div class="break-clock" title="เวลาพักเล่น"><span>⏳</span><progress id="break-progress" max="${limit}" value="0" aria-label="เวลาพักเล่นที่ผ่านไป"></progress></div>`}
       <div class="spacer"></div>
       <div class="star-counter">${mini.emoji} ${mini.title}</div>
       <button class="icon-btn" id="finish-break" aria-label="เล่นเสร็จแล้ว">✅</button>
@@ -119,7 +121,7 @@ export function showMini(root, { id, fromLevelId }) {
     setMini('dailyActivity', { date, breaks: (activity.date === date ? activity.breaks || 0 : 0) + 1 });
     dispose();
     el.querySelector('#finish-break').remove();
-    el.querySelector('.break-clock').remove();
+    el.querySelector('.break-clock')?.remove();
     el.querySelector('#stage').innerHTML = `
       <div class="break-complete">
         ${animalHTML(getMini('preferences')?.buddy || 'turtle', 'happy')}
@@ -141,14 +143,16 @@ export function showMini(root, { id, fromLevelId }) {
   el.querySelector('#back').onclick = () => { sfx.tap(); go('playroom'); };
   el.querySelector('#finish-break').onclick = () => { sfx.tap(); finish(); };
   disposeMini = mini.mount(child, { ...mini.cfg, onComplete: finish });
-  document.addEventListener('visibilitychange', resetClock);
-  timer = setInterval(() => {
-    const now = performance.now();
-    if (!document.hidden) elapsed += now - last;
-    last = now;
-    const bar = el.querySelector('#break-progress');
-    if (bar) bar.value = Math.min(elapsed, limit);
-    if (elapsed >= limit) finish();
-  }, 250);
+  if (!noLimit) {
+    document.addEventListener('visibilitychange', resetClock);
+    timer = setInterval(() => {
+      const now = performance.now();
+      if (!document.hidden) elapsed += now - last;
+      last = now;
+      const bar = el.querySelector('#break-progress');
+      if (bar) bar.value = Math.min(elapsed, limit);
+      if (elapsed >= limit) finish();
+    }, 250);
+  }
   return dispose;
 }
