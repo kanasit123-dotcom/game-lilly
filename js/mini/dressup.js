@@ -7,7 +7,23 @@ import { animalHTML } from '../assets.js';
 /* แต่งตัวเพื่อนซี้: เลือกเพื่อน แล้วแตะเครื่องประดับ → แตะตำแหน่งบนตัวเพื่อนเพื่อวาง
    ชุดของแต่ละตัวบันทึกแยกกัน */
 
-const ITEMS = ['🎩', '👒', '🧢', '👑', '🎀', '👓', '🕶️', '🧣', '🌸', '⭐', '🎈', '🍭'];
+/* เครื่องประดับ: key เป็น emoji เดิม (ของที่เด็กเคยใส่ไว้บันทึกด้วย key นี้ ต้องคงไว้)
+   art = รูปวาดใน assets/items/<art>.png (สร้างจาก Gemini ตัดพื้นด้วย design/cutout.py) */
+const ITEMS = [
+  { key: '🎩', art: 'tophat', name: 'หมวกทรงสูง' }, { key: '👒', art: 'sunhat', name: 'หมวกปีกกว้าง' },
+  { key: '🧢', art: 'cap', name: 'หมวกแก๊ป' }, { key: '👑', art: 'crown', name: 'มงกุฎ' },
+  { key: '🎀', art: 'bow', name: 'โบว์ชมพู' }, { key: 'bow-blue', art: 'bow-blue', name: 'โบว์ฟ้า', emoji: '🎀' },
+  { key: 'bow-purple', art: 'bow-purple', name: 'โบว์ม่วง', emoji: '🎀' },
+  { key: '👓', art: 'glasses', name: 'แว่นตา' }, { key: '🕶️', art: 'sunglasses', name: 'แว่นกันแดด' },
+  { key: '🧣', art: 'scarf', name: 'ผ้าพันคอ' }, { key: '🌸', art: 'blossom', name: 'ดอกไม้' },
+  { key: '⭐', art: 'star', name: 'กิ๊บดาว' }, { key: '🎈', art: 'balloon', name: 'ลูกโป่ง' }, { key: '🍭', art: 'lollipop', name: 'อมยิ้ม' },
+];
+const itemOf = (key) => ITEMS.find((i) => i.key === key);
+const itemName = (key) => itemOf(key)?.name || key;
+const itemHTML = (key) => {
+  const it = itemOf(key);
+  return it?.art ? `<img class="item-img" src="./assets/items/${it.art}.png" alt="" draggable="false">` : (it?.emoji || key);
+};
 const SLOTS = [
   { id: 'head', label: 'บนหัว', x: 50, y: 22 },
   { id: 'face', label: 'บนหน้า', x: 50, y: 43 },
@@ -20,7 +36,7 @@ export function mount(stage, cfg = {}) {
   const data = getMini('dressup') || { fits: {} };
   const buddies = getBuddies();
   let buddy = buddies.includes(data.current) ? data.current : buddies[0];
-  let item = ITEMS[0];
+  let item = ITEMS[0].key;
   let slot = SLOTS[0];
 
   stage.innerHTML = `
@@ -30,7 +46,7 @@ export function mount(stage, cfg = {}) {
     <p class="mini-hint" id="dress-hint">เลือกเครื่องประดับ แล้วเลือกตำแหน่งวาง</p>
     <div class="dress-stage" id="dress" role="group" aria-label="พื้นที่แต่งตัว${buddy}"><span class="dress-buddy" id="dbuddy"></span></div>
     <div class="palette dress-items" aria-label="เลือกเครื่องประดับ">
-      ${ITEMS.map((e) => `<button class="swatch topping" data-e="${e}" title="เครื่องประดับ ${e}" aria-label="เลือกเครื่องประดับ ${e}">${e}</button>`).join('')}
+      ${ITEMS.map((it) => `<button class="swatch topping" data-e="${it.key}" title="${it.name}" aria-label="เลือกเครื่องประดับ ${it.name}">${itemHTML(it.key)}</button>`).join('')}
     </div>
     <div class="mini-top dress-slots" aria-label="เลือกตำแหน่งวางเครื่องประดับ">
       ${SLOTS.map((s) => `<button class="pic-btn slot-btn" data-slot="${s.id}" aria-label="วางเครื่องประดับ${s.label}" aria-pressed="false">${s.label}</button>`).join('')}
@@ -56,13 +72,13 @@ export function mount(stage, cfg = {}) {
     $dress.querySelectorAll('.worn').forEach((w) => w.remove());
     (data.fits[buddy] || []).forEach((w, i) => {
       const el = document.createElement('span');
-      el.className = 'worn';
-      el.textContent = w.e;
+      el.className = itemOf(w.e)?.art ? 'worn img' : 'worn';
+      el.innerHTML = itemHTML(w.e);
       el.style.left = w.x + '%';
       el.style.top = w.y + '%';
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
-      el.setAttribute('aria-label', `ถอดเครื่องประดับ ${w.e}`);
+      el.setAttribute('aria-label', `ถอดเครื่องประดับ ${itemName(w.e)}`);
       el.onclick = (ev) => {
         ev.stopPropagation();
         sfx.retry();

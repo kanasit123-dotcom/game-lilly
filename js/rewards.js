@@ -46,8 +46,9 @@ const BASE_BUDDIES = ['🐢', '🦭', '🐰'];
 
 export const isUnlocked = (r) => Boolean(r) && totalStars() >= r.stars;
 
+// รางวัล "กระต่ายน้อย" (id bear เดิม) เป็น 🐰 ซ้ำกับตัวพื้นฐาน เลยตัดตัวซ้ำออก
 export const getBuddies = () =>
-  BASE_BUDDIES.concat(REWARDS.filter((r) => r.type === 'buddy' && isUnlocked(r)).map((r) => r.emoji));
+  [...new Set(BASE_BUDDIES.concat(REWARDS.filter((r) => r.type === 'buddy' && isUnlocked(r)).map((r) => r.emoji)))];
 
 export const nextReward = () => REWARDS.find((r) => !isUnlocked(r)) || null;
 

@@ -146,3 +146,11 @@ Gemini วาดมาเป็นแผ่นเดียว 7 แถบแน�
 แล้วใส่ `art` กับ `sky` (สีขอบบนของรูป) ใน `WORLDS` ของ `js/levels.js` — ถ้าวาดใหม่ให้ทำแบบเดิม
 
 บล็อกที่ใช้: "Create ONE wide 16:9 landscape background scene ... very light, airy and low-contrast pastel ... pale sky fills the upper two thirds, gentle scenery sits along the bottom third. No characters, no animals, no people, no text ... The left and right edges fade softly into plain pale sky." + คำอธิบายฉาก
+
+---
+
+# ชุดที่ 4: ของแต่งตัว 12 ชิ้น (ทำแล้ว 2026-09-16 — ได้ 14 ชิ้น Gemini แถมโบว์ฟ้า/ม่วง)
+
+ขอเป็นแผ่นเดียว 12 ช่อง ได้แผ่นที่วางไม่เป็นตารางเป๊ะ → ใช้ `design/blobs.py` หาก้อนแล้วตั้งชื่อตามลำดับ
+ชื่อขึ้นต้น `item-` → `cutout.py` เซฟลง `assets/items/` ขนาด 512px
+ใส่ใน `ITEMS` ของ `js/mini/dressup.js` (key ยังเป็น emoji เดิมเพื่อให้ชุดที่เด็กเคยใส่ไว้ยังโหลดได้)

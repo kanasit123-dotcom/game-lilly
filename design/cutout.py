@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 INCOMING = ROOT / 'assets' / 'incoming'
 FRIENDS = ROOT / 'assets' / 'friends'
 STICKERS = ROOT / 'assets' / 'stickers'
+ITEMS = ROOT / 'assets' / 'items'
 SIZE = 800          # ในเกมโชว์ใหญ่สุด ~190px (จอ 2x = 380px) 800px เหลือเฟือ
 WHITE = 238         # ทุก channel >= ค่านี้ถือว่าเป็นพื้นขาว (JPEG มี noise นิดหน่อย)
 MARGIN = 0.04       # ขอบว่างรอบตัวละคร (สัดส่วนของด้าน)
@@ -55,7 +56,7 @@ def background_mask(im):
     return Image.frombytes('L', (w, h), bytes(255 if s else 0 for s in seen))
 
 
-def cutout(src: Path, dst: Path):
+def cutout(src: Path, dst: Path, size=SIZE):
     im = Image.open(src).convert('RGB')
     bg = background_mask(im)
     alpha = Image.eval(bg, lambda v: 255 - v)
@@ -63,10 +64,10 @@ def cutout(src: Path, dst: Path):
     alpha = alpha.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))
     out = im.convert('RGBA')
     out.putalpha(alpha)
-    finish(out, dst)
+    finish(out, dst, size)
 
 
-def finish(out: Image.Image, dst: Path):
+def finish(out: Image.Image, dst: Path, size=SIZE):
     """ครอปให้พอดีตัว เติมขอบ ทำเป็นสี่เหลี่ยมจัตุรัส ย่อ แล้วเซฟ PNG"""
     box = out.getbbox()
     if box:
@@ -75,12 +76,12 @@ def finish(out: Image.Image, dst: Path):
     side = int(max(w, h) * (1 + MARGIN * 2))
     canvas = Image.new('RGBA', (side, side), (0, 0, 0, 0))
     canvas.paste(out, ((side - w) // 2, (side - h) // 2))
-    canvas = canvas.resize((SIZE, SIZE), Image.LANCZOS)
+    canvas = canvas.resize((size, size), Image.LANCZOS)
     # ลดเหลือ 256 สี (ยังมีความโปร่งใส) ไฟล์เล็กลง ~5 เท่า ตาเปล่าแยกไม่ออกกับงานสีไม้แบบนี้
     canvas = canvas.quantize(colors=256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.FLOYDSTEINBERG)
     dst.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(dst, 'PNG', optimize=True)
-    print(f'{dst.relative_to(ROOT)}  {SIZE}x{SIZE}  {dst.stat().st_size // 1024} KB')
+    print(f'{dst.relative_to(ROOT)}  {size}x{size}  {dst.stat().st_size // 1024} KB')
 
 
 def main(args):
@@ -94,9 +95,12 @@ def main(args):
         print('ไม่พบไฟล์ใน assets/incoming/')
         return
     for src in files:
-        # sticker-star.jpg -> assets/stickers/star.png, อย่างอื่น -> assets/friends/<ชื่อ>.png
+        # sticker-star.jpg -> assets/stickers/star.png, item-tophat.png -> assets/items/tophat.png (เล็กกว่า)
+        # อย่างอื่น -> assets/friends/<ชื่อ>.png
         if src.stem.startswith('sticker-'):
             cutout(src, STICKERS / f'{src.stem[8:]}.png')
+        elif src.stem.startswith('item-'):
+            cutout(src, ITEMS / f'{src.stem[5:]}.png', size=512)
         else:
             cutout(src, FRIENDS / f'{src.stem}.png')
 

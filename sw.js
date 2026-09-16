@@ -1,4 +1,4 @@
-const CACHE = 'lilly-world-v21';
+const CACHE = 'lilly-world-v22';
 
 const SHELL = [
   './',
@@ -34,6 +34,20 @@ const SHELL = [
   'assets/worlds/space.jpg',
   'assets/worlds/rainbow.jpg',
   'assets/worlds/home.jpg',
+  'assets/items/tophat.png',
+  'assets/items/sunhat.png',
+  'assets/items/cap.png',
+  'assets/items/crown.png',
+  'assets/items/bow.png',
+  'assets/items/bow-blue.png',
+  'assets/items/bow-purple.png',
+  'assets/items/glasses.png',
+  'assets/items/sunglasses.png',
+  'assets/items/scarf.png',
+  'assets/items/blossom.png',
+  'assets/items/star.png',
+  'assets/items/balloon.png',
+  'assets/items/lollipop.png',
   'vendor/lucide.min.js',
   'js/assets.js',
   'js/lessons.js',
