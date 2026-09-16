@@ -136,3 +136,13 @@ Sticker: a round swirled lollipop in pink, mint and white on a short white stick
 ```text
 Sticker: a big soft coral-pink ribbon bow with rounded loops and two short trailing tails, with a tiny happy face on the center knot.
 ```
+
+---
+
+# ชุดที่ 3: ฉาก 7 โลกบนแผนที่ (ทำแล้ว 2026-09-16)
+
+Gemini วาดมาเป็นแผ่นเดียว 7 แถบแนวนอน (ดีมาก เพราะแถบกว้าง ~7:1 เหมาะกับแผนที่เลื่อนข้าง)
+แยกแถบด้วยสคริปต์เล็กๆ (หาแถวสีขาวคั่น) เซฟเป็น `assets/worlds/{island,forest,sea,snow,space,rainbow,home}.jpg`
+แล้วใส่ `art` กับ `sky` (สีขอบบนของรูป) ใน `WORLDS` ของ `js/levels.js` — ถ้าวาดใหม่ให้ทำแบบเดิม
+
+บล็อกที่ใช้: "Create ONE wide 16:9 landscape background scene ... very light, airy and low-contrast pastel ... pale sky fills the upper two thirds, gentle scenery sits along the bottom third. No characters, no animals, no people, no text ... The left and right edges fade softly into plain pale sky." + คำอธิบายฉาก

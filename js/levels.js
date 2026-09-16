@@ -295,16 +295,17 @@ export const LEVELS = [
   ...NEW_LEVELS,
 ];
 
-/* โลกบนแผนที่: แค่ป้ายบอกช่วง ให้เด็กรู้สึกว่าเดินทางไปเรื่อยๆ (ทุกด่านยังเล่นได้หมด)
-   from = index ของด่านแรกในโลกนั้น (นับตามลำดับ LEVELS ตอนดูแบบ "ทั้งหมด") */
+/* โลกบนแผนที่: ป้ายบอกช่วง + ฉากพื้นหลัง ให้เด็กรู้สึกว่าเดินทางไปเรื่อยๆ (ทุกด่านยังเล่นได้หมด)
+   from = index ของด่านแรกในโลกนั้น (นับตามลำดับ LEVELS ตอนดูแบบ "ทั้งหมด")
+   art = ไฟล์ assets/worlds/<art>.jpg (แถบกว้าง ~7:1 วาดโดย Gemini) sky = สีท้องฟ้าขอบบนของรูป ใช้เติมพื้นที่เหนือฉาก */
 export const WORLDS = [
-  { from: 0, icon: '🏝️', name: 'เกาะเริ่มต้น' },
-  { from: 15, icon: '🌲', name: 'ป่าใหญ่' },
-  { from: 30, icon: '🌊', name: 'ใต้ทะเล' },
-  { from: 45, icon: '🏔️', name: 'ภูเขาหิมะ' },
-  { from: 60, icon: '🚀', name: 'อวกาศ' },
-  { from: 76, icon: '🌈', name: 'เมืองสายรุ้ง' },
-  { from: 92, icon: '🏡', name: 'บ้านของเรา' },
+  { from: 0, icon: '🏝️', name: 'เกาะเริ่มต้น', art: 'island', sky: '#e2f4f8' },
+  { from: 15, icon: '🌲', name: 'ป่าใหญ่', art: 'forest', sky: '#d6e9dd' },
+  { from: 30, icon: '🌊', name: 'ใต้ทะเล', art: 'sea', sky: '#dcf6f6' },
+  { from: 45, icon: '🏔️', name: 'ภูเขาหิมะ', art: 'snow', sky: '#e0edf8' },
+  { from: 60, icon: '🚀', name: 'อวกาศ', art: 'space', sky: '#c9caef' },
+  { from: 76, icon: '🌈', name: 'เมืองสายรุ้ง', art: 'rainbow', sky: '#e8f6f9' },
+  { from: 92, icon: '🏡', name: 'บ้านของเรา', art: 'home', sky: '#e6f5f9' },
 ];
 
 export const getLevel = (id) => LEVELS.find((l) => l.id === id);

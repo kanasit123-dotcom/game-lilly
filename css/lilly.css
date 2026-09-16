@@ -108,6 +108,13 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
 .cal-day.today { box-shadow: inset 0 0 0 3px var(--green); }
 .cal-day.future { opacity: .45; }
 
+/* ----- แผนที่: ฉากพื้นหลังแต่ละโลก (ภาพแถบกว้างวางชิดล่าง ท้องฟ้าเติมด้วยสีพื้น) ----- */
+.map-stage { overflow: hidden; border-radius: var(--r-lg); }
+.world-bg { position: absolute; top: 0; bottom: 0; background-size: auto 62%; background-position: center bottom; background-repeat: repeat-x; }
+/* ขอบบนของภาพฉากละลายเข้ากับสีท้องฟ้า ไม่ให้เห็นเป็นเส้นตรง */
+.world-bg::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, var(--sky) 36%, transparent 52%); }
+.map-path { stroke: rgba(255, 255, 255, .9); }
+
 /* ----- แผนที่: ชิปหมวดใหญ่ขึ้นให้นิ้วเด็ก ----- */
 .chip { font-size: 1.1rem; padding: 10px 20px; min-height: 48px; }
 .chip.on { background: var(--green); box-shadow: 0 3px 0 var(--green-dark); }
@@ -272,6 +279,9 @@ svg.lucide { width: 22px; height: 22px; stroke-width: 1.8; flex-shrink: 0; point
   .subject-bar { flex-wrap: wrap; justify-content: center; }
   .chip { font-size: 1rem; padding: 8px 14px; min-height: 44px; }
   .node { width: clamp(96px, 26vw, 128px); }
+  /* จอแนวตั้งสูงมาก ฉากย่อลงหน่อยจะได้เห็นทั้งฉากขณะเลื่อน */
+  .world-bg { background-size: auto 48%; }
+  .world-bg::before { background: linear-gradient(to bottom, var(--sky) 50%, transparent 62%); }
   .node .node-icon { font-size: 2.6rem; }
   .map-head h2 { font-size: 1.35rem; }
   .star-counter { font-size: 1rem; padding: 6px 12px; }

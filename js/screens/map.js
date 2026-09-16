@@ -11,6 +11,33 @@ import { getMission } from '../mission.js';
 const H = 620;
 const EDGE = 110;
 const GAP = 165;
+const OVERLAP = 130; // ช่วงที่ฉากสองโลกซ้อนกันแล้วค่อยๆ จางเข้าหากัน (หน่วยเดียวกับ GAP)
+
+/* โลกของด่านนี้ ดูจากลำดับใน LEVELS ทั้งหมด (ตอนกรองหมวดก็ยังอยู่โลกเดิม) */
+function worldOf(lv) {
+  const i = LEVELS.indexOf(lv);
+  let world = WORLDS[0];
+  for (const w of WORLDS) if (w.from <= i) world = w;
+  return world;
+}
+
+/* ฉากพื้นหลัง: ด่านที่อยู่โลกเดียวกันติดกันเป็นช่วงเดียว แต่ละช่วงกินพื้นที่จากกึ่งกลางระหว่างด่าน
+   ช่วงถัดไปยื่นซ้อนเข้ามา OVERLAP หน่วยแล้ว mask ให้จางเข้า จะได้ไม่เห็นรอยต่อแข็งๆ */
+function worldsHTML(levels, pts, W) {
+  const runs = [];
+  levels.forEach((lv, i) => {
+    const world = worldOf(lv);
+    const last = runs[runs.length - 1];
+    if (last && last.world === world) last.to = i; else runs.push({ world, from: i, to: i });
+  });
+  return runs.map((r, k) => {
+    const a = k === 0 ? 0 : pts[r.from].x - GAP / 2 - OVERLAP;
+    const b = k === runs.length - 1 ? W : pts[r.to].x + GAP / 2;
+    const fade = k === 0 ? '' : `linear-gradient(to right, transparent, #000 ${(OVERLAP / (b - a)) * 100}%)`;
+    return `<div class="world-bg" style="left:${(a / W) * 100}%; width:${((b - a) / W) * 100}%; --sky:${r.world.sky}; background-color:${r.world.sky};
+      background-image:url(./assets/worlds/${r.world.art}.jpg)${fade ? `; -webkit-mask-image:${fade}; mask-image:${fade}` : ''}"></div>`;
+  }).join('');
+}
 
 // จำหมวดที่เลือกไว้ตลอด session จะได้กลับมาแผนที่แล้วยังอยู่หมวดเดิม
 let activeSubject = 'all';
@@ -58,6 +85,7 @@ function stageHTML(levels, currentId, withSigns) {
   const signs = withSigns ? WORLDS.filter((w) => w.from < levels.length).map((w) => signHTML(w, pts[w.from], W)) : [];
   return `
     <div class="map-stage" style="aspect-ratio:${W} / ${H}">
+      ${worldsHTML(levels, pts, W)}
       <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
         <path class="map-path" d="${smoothPath(pts)}"/>
       </svg>
