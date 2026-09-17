@@ -159,6 +159,24 @@ const { pathToFileURL } = require('node:url');
     }
     console.log(`PASS ${legacyIds.length} original levels mount; leaving games does not record progress.`);
 
+    for (const levelId of ['t-vowelfill1', 't-vowelfill2']) {
+      await play(levelId);
+      const vowelChoices = page.locator('.choice.vowel');
+      await vowelChoices.first().waitFor();
+      const forms = await vowelChoices.allTextContents();
+      assert.ok(forms.every(form => form.includes('-')), `${levelId} uses a hyphen for the consonant position`);
+      assert.ok(forms.every(form => !form.includes('◌')), `${levelId} does not show dotted-circle placeholders`);
+      assert.doesNotMatch(await page.locator('#stage').innerText(), /◌/, `${levelId} keeps existing tone marks attached to their consonants`);
+      for (let i = 0; i < await vowelChoices.count(); i++) {
+        await vowelChoices.nth(i).click();
+        if (await page.locator('.vowel-complete-word').count()) break;
+      }
+      const completedWord = await page.locator('.vowel-complete-word').innerText();
+      assert.doesNotMatch(completedWord, /[-◌]/, `${levelId} removes the placeholder from the completed word`);
+      await route('home');
+    }
+    console.log('PASS Thai vowel cards use textbook hyphens and completed words remove placeholders.');
+
     await route('mini', { id: 'coloring' });
     const region = page.locator('.art .r').first();
     const originalFill = await region.getAttribute('fill');
@@ -305,7 +323,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v30'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v31'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();

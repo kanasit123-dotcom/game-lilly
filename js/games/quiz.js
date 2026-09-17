@@ -1,6 +1,6 @@
 import { randInt, pick, shuffle, wait, confetti, sayBubble, cheerBuddy, buddyHTML, blocksMarkup } from '../utils.js';
 import { sfx, speak, speakPrompt } from '../audio.js';
-import { THAI_VOWEL_WORDS, THAI_VOWEL_WORDS2, THAI_FINAL_WORDS, THAI_FINAL_WORDS2, THAI_FINAL_POOL, THAI_FINAL_POOL2, THAI_READ, THAI_VOWELS, THAI_VOWEL_FILL, vowelIndexes, toCells, tileText } from './thai.js';
+import { THAI_VOWEL_WORDS, THAI_VOWEL_WORDS2, THAI_FINAL_WORDS, THAI_FINAL_WORDS2, THAI_FINAL_POOL, THAI_FINAL_POOL2, THAI_READ, THAI_VOWELS, THAI_VOWEL_FILL, vowelIndexes, toCells } from './thai.js';
 
 /* เครื่องเกมแบบ "ดูโจทย์ แล้วแตะคำตอบ" ใช้ร่วมกันหลายด่าน
    cfg: { kind, count, ...ค่าเฉพาะ kind }
@@ -597,29 +597,35 @@ const KINDS = {
     const blanks = new Set(vowelIndexes(word, vowel));
     const others = shuffle([...new Set(pool.map((w) => w.vowel))].filter((v) => v !== vowel)).slice(0, 2);
 
-    const wordHTML = (showAll) => toCells(letters).map((c) => {
-      const slot = (i, small) => {
-        const blank = blanks.has(i) && !showAll;
-        const fresh = blanks.has(i) && showAll;
-        return `<span class="${small ? 'mark-slot' : 'spell-slot'} ${blank ? 'now' : fresh ? 'filled' : 'given'}">${blank ? '' : tileText(letters[i])}</span>`;
-      };
+    const wordHTML = () => toCells(letters).map((c) => {
+      const missingAbove = c.above.filter((i) => blanks.has(i));
+      const missingBelow = c.below.filter((i) => blanks.has(i));
+      const visibleMarks = [...c.above, ...c.below]
+        .filter((i) => !blanks.has(i))
+        .sort((a, b) => a - b)
+        .map((i) => letters[i])
+        .join('');
+      const baseBlank = blanks.has(c.base);
+      const markSlots = (indexes) => indexes.map(() => '<span class="mark-slot now"></span>').join('');
       return `<div class="spell-cell">
-        <div class="mark-row">${c.above.map((i) => slot(i, true)).join('')}</div>
-        ${slot(c.base, false)}
-        <div class="mark-row">${c.below.map((i) => slot(i, true)).join('')}</div>
+        <div class="mark-row">${markSlots(missingAbove)}</div>
+        <span class="spell-slot ${baseBlank ? 'now' : 'given'}">${baseBlank ? '' : letters[c.base] + visibleMarks}</span>
+        <div class="mark-row">${markSlots(missingBelow)}</div>
       </div>`;
     }).join('');
 
     return {
       prompt: 'สระอะไรหายไป? แตะสระที่ถูก',
-      visual: `<div class="letter-hint">${emoji}</div><div class="spell-slots vowel-fill">${wordHTML(false)}</div>`,
+      visual: `<div class="letter-hint">${emoji}</div><div class="spell-slots vowel-fill">${wordHTML()}</div>`,
       choices: shuffle([vowel, ...others]).map((v) => ({ v, html: THAI_VOWELS[v].form })),
       answer: vowel,
       say: `${word} ${THAI_VOWELS[vowel].name}`,
       sayLang: 'th-TH',
       sayAfter: true,
       choiceClass: 'thai vowel',
-      onCorrect($visual) { $visual.querySelector('.vowel-fill').innerHTML = wordHTML(true); },
+      onCorrect($visual) {
+        $visual.querySelector('.vowel-fill').innerHTML = `<span class="vowel-complete-word">${word}</span>`;
+      },
     };
   },
 
