@@ -199,6 +199,18 @@ const { pathToFileURL } = require('node:url');
     await route('mini', { id: 'balloons' });
     await page.locator('.balloon').first().waitFor();
     assert.equal(await page.locator('.balloon').first().evaluate(el => getComputedStyle(el).animationName), 'none');
+    await route('mini', { id: 'deepfish' });
+    await page.locator('.deep-sea').waitFor();
+    for (let catchNo = 1; catchNo <= 4; catchNo++) {
+      await page.locator('.deep-sea').dispatchEvent('pointerdown', { pointerId: 10 + catchNo });
+      if (catchNo < 4) {
+        await page.waitForFunction(n => document.querySelector('#deep-count b')?.textContent === String(n), catchNo);
+        await page.locator('.deep-sea').dispatchEvent('pointerup', { pointerId: 10 + catchNo });
+      } else {
+        await page.locator('#return-lesson').waitFor();
+      }
+    }
+    await page.locator('#finish-today').click();
     await route('summary');
     await page.locator('#motion-setting').check();
     assert.equal(await page.locator('html').evaluate(el => el.classList.contains('reduce-motion')), false);
@@ -221,7 +233,7 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#finish-break').click();
     await page.locator('#finish-today').click();
 
-    for (const id of ['harvest', 'writing', 'coloring', 'coloring2', 'coloring3', 'coloring4', 'garden', 'xylo', 'balloons', 'bakery', 'aquarium', 'dressup', 'draw', 'drums', 'fishing']) {
+    for (const id of ['harvest', 'writing', 'coloring', 'coloring2', 'coloring3', 'coloring4', 'garden', 'xylo', 'balloons', 'bakery', 'aquarium', 'dressup', 'draw', 'drums', 'fishing', 'deepfish']) {
       await route('mini', { id });
       await page.locator('.mini-content').waitFor();
       await page.locator('#finish-break').click();
@@ -241,7 +253,7 @@ const { pathToFileURL } = require('node:url');
     await page.clock.runFor(11000);
     await page.locator('#return-lesson').waitFor();
     await page.clock.resume();
-    console.log('PASS all 15 mini-game menu entries, manual finish, no-limit writing, five-carrot finish, source lesson return, and 180-second session end.');
+    console.log('PASS all 16 mini-game menu entries, manual finish, no-limit writing, five-carrot finish, source lesson return, and 180-second session end.');
 
     for (const width of [1280, 768, 390, 320]) {
       await page.setViewportSize({ width, height: width <= 390 ? 844 : 900 });
@@ -270,6 +282,10 @@ const { pathToFileURL } = require('node:url');
       await page.locator('.fish').first().waitFor();
       assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `fishing fits at ${width}`);
       if (width === 390) await page.screenshot({ path: path.join(output, 'fishing-mobile.png') });
+      await route('mini', { id: 'deepfish' });
+      await page.locator('.deep-sea').waitFor();
+      assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `deepfish fits at ${width}`);
+      if (width === 390) await page.screenshot({ path: path.join(output, 'deepfish-mobile.png') });
       await route('mini', { id: 'coloring' });
       assert.equal(await page.evaluate(() => document.querySelector('.mini-content').scrollWidth <= document.querySelector('.mini-content').clientWidth), true, `coloring fits at ${width}`);
       if (width === 390) await page.screenshot({ path: path.join(output, 'coloring-mobile.png') });
@@ -289,7 +305,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v29'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v30'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();

@@ -2389,3 +2389,171 @@ body {
   flex: 0 0 auto;
 }
 .fish-count b { font-family: var(--font-num); color: var(--blue-dark); font-size: 1.2em; }
+
+/* ===== หย่อนเบ็ดลึก ===== */
+.deep-count b {
+  font-family: var(--font-num);
+  color: var(--purple-dark);
+  font-size: 1.2em;
+}
+.deep-sea {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: min(100%, 760px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--r-md);
+  background: #fff7d6;
+  box-shadow: inset 0 0 0 5px rgba(255, 255, 255, .72), 0 6px 0 var(--card-edge), 0 12px 24px rgba(0, 0, 0, .12);
+  cursor: pointer;
+  touch-action: none;
+  outline: none;
+}
+.deep-sea:focus-visible {
+  box-shadow: inset 0 0 0 5px rgba(255, 255, 255, .72), 0 0 0 5px var(--yellow), 0 6px 0 var(--card-edge);
+}
+.deep-skyline {
+  height: clamp(36px, 8vh, 58px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 9vw, 72px);
+  flex: 0 0 auto;
+  background: linear-gradient(180deg, #fff8dc, #ffedb3);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  box-shadow: 0 4px 0 rgba(255, 255, 255, .55);
+}
+.deep-water {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, .34) 0 7px, transparent 8px),
+    radial-gradient(circle at 82% 40%, rgba(255, 255, 255, .24) 0 5px, transparent 6px),
+    linear-gradient(180deg, #a7e4ff 0%, #65c7f4 34%, #2f96de 66%, #1768b7 100%);
+}
+.deep-water::after {
+  content: '🌿 🐚 🌿 ⭐ 🌿';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  text-align: center;
+  letter-spacing: clamp(8px, 4vw, 34px);
+  font-size: clamp(1.2rem, 3.2vw, 1.9rem);
+  opacity: .78;
+  pointer-events: none;
+}
+.deep-ripple {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 14px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .5) 0 34px, rgba(255, 255, 255, .18) 34px 68px);
+  opacity: .78;
+}
+.deep-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--lane-y);
+  height: 2px;
+  background: rgba(255, 255, 255, .28);
+  pointer-events: none;
+}
+.deep-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 4px;
+  height: 7%;
+  border-radius: 999px;
+  background: #5b4a63;
+  transform: translateX(-50%);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .55);
+  pointer-events: none;
+  z-index: 4;
+}
+.deep-hook {
+  position: absolute;
+  left: 50%;
+  top: 7%;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  font-size: 1.9rem;
+  transform: translate(-50%, -8px);
+  box-shadow: 0 4px 0 var(--card-edge), 0 8px 16px rgba(0, 0, 0, .15);
+  z-index: 5;
+  pointer-events: none;
+}
+.deep-sea.dropping .deep-hook {
+  animation: hook-wiggle .42s ease-in-out infinite alternate;
+}
+.deep-hook.has-catch {
+  background: #fff7d6;
+  box-shadow: 0 4px 0 var(--yellow-dark), 0 8px 16px rgba(0, 0, 0, .16);
+}
+.deep-hook.friend-bump {
+  animation: wiggle .45s;
+}
+@keyframes hook-wiggle {
+  from { transform: translate(-50%, -8px) rotate(-4deg); }
+  to { transform: translate(-50%, -8px) rotate(4deg); }
+}
+.deep-object {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 2rem;
+  line-height: 1;
+  transform: translate(-50%, -50%) scaleX(var(--flip, 1));
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .18));
+  z-index: 2;
+  pointer-events: none;
+}
+.deep-object .lilly-animal {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.deep-object.friend {
+  z-index: 3;
+}
+.deep-object.wave {
+  animation: sea-wave .55s ease-in-out 2;
+}
+@keyframes sea-wave {
+  50% { transform: translate(-50%, -50%) scale(1.18) scaleX(var(--flip, 1)); }
+}
+.reduce-motion .deep-sea.dropping .deep-hook,
+.reduce-motion .deep-object.wave {
+  animation: none;
+}
+
+@media (max-width: 560px) {
+  .deep-skyline {
+    height: 38px;
+    gap: 26px;
+    font-size: 1.45rem;
+  }
+  .deep-hook {
+    width: 46px;
+    height: 46px;
+    font-size: 1.65rem;
+  }
+  .deep-object {
+    max-width: 48px;
+    max-height: 48px;
+  }
+}

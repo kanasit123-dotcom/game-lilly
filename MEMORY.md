@@ -21,7 +21,7 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v29`. Bump the version for the next deployed release when shell files change.
+- Service worker cache is currently `lilly-world-v30`. Bump the version for the next deployed release when shell files change.
 - Mini-games are finite by default: they finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level. The `writing` mini-game is the one exception and has no countdown because handwriting practice should not interrupt Lilly mid-letter.
 
 ## Character Art
@@ -67,6 +67,7 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 - Dress-up has head/face/neck/left/right placement controls and horizontal item trays.
 - Garden has a 3-plant goal, clearer feedback, old-save compatibility, and cleanup.
 - Fishing has a 5-catch goal, clear feedback, and friends that cannot be caught.
+- New mini-game `deepfish` ("หย่อนเบ็ดลึก") is separate from the original fishing game. It uses a hold-to-drop/release-to-pull hook through layered water; deeper layers are harder, turtle/seal are friendly bumps, and reduced-motion mode places catchable targets at center so the game remains playable.
 - Balloons and fishing remain playable with motion disabled by showing static targets.
 - Parent settings include sound and motion toggles.
 - Home shows the three friends, one play button, playroom/rewards tiles and the star total; daily counts live only in localStorage (`dailyActivity`).
@@ -78,7 +79,7 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 
 ## Verification
 
-The main regression script is `tests/game.cjs`. It covers all 124 levels, all 15 mini-games, saved-state compatibility, responsive layouts, keyboard controls, reduced motion, transparent assets, and offline loading.
+The main regression script is `tests/game.cjs`. It covers all 124 levels, all 16 mini-games, saved-state compatibility, responsive layouts, keyboard controls, reduced motion, transparent assets, and offline loading.
 
 Use the Codex bundled Playwright runtime on this machine:
 

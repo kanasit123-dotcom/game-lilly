@@ -11,6 +11,7 @@ import { mount as dressup } from '../mini/dressup.js';
 import { mount as draw } from '../mini/draw.js';
 import { mount as drums } from '../mini/drums.js';
 import { mount as fishing } from '../mini/fishing.js';
+import { mount as deepfish } from '../mini/deepfish.js';
 import { mount as harvest } from '../mini/harvest.js';
 import { mount as writing } from '../mini/writing.js';
 import { animalHTML } from '../assets.js';
@@ -42,6 +43,7 @@ const MINIS = {
   draw: { title: 'กระดานวาดรูป', emoji: '🖍️', mount: draw },
   drums: { title: 'กลองหรรษา', emoji: '🥁', mount: drums },
   fishing: { title: 'ตกปลา', emoji: '🎣', mount: fishing },
+  deepfish: { title: 'หย่อนเบ็ดลึก', emoji: '🎣', mount: deepfish },
 };
 
 /* สวนพักเล่น: ปุ่มรูปใหญ่ๆ อันละเกม แตะแล้วเล่นเลย อันที่ยังไม่ปลดล็อกเป็นสีเทามีแม่กุญแจ */

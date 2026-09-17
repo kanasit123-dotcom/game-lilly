@@ -25,6 +25,7 @@ export const REWARDS = [
   { id: 'fox', stars: 90, type: 'buddy', emoji: '🦊', title: 'เพื่อนใหม่: จิ้งจอก', desc: 'มาเป็นเพื่อนซี้ในเกม' },
   { id: 'fishing', stars: 95, type: 'mini', emoji: '🎣', title: 'ตกปลา', desc: 'จับปลาใส่ถัง แต่เต่ากับแมวน้ำห้ามจับนะ' },
   { id: 'coloring3', stars: 100, type: 'mini', emoji: '🦋', title: 'ระบายสี: สวนสนุก', desc: 'ผีเสื้อ ไอศกรีม ลูกโป่ง' },
+  { id: 'deepfish', stars: 105, type: 'mini', emoji: '🎣', title: 'หย่อนเบ็ดลึก', desc: 'หย่อนสายเบ็ดผ่านชั้นทะเล' },
   { id: 'unicorn', stars: 110, type: 'buddy', emoji: '🦄', title: 'เพื่อนใหม่: ยูนิคอร์น', desc: 'เพื่อนในฝันมาแล้ว!' },
   { id: 'diamond', stars: 118, type: 'trophy', emoji: '💎', title: 'เพชรแห่งความพยายาม', desc: 'ไม่ยอมแพ้เลย' },
   { id: 'rainbow-cup', stars: 125, type: 'trophy', emoji: '🌈', title: 'ถ้วยรุ้งสุดยอด', desc: 'เก่งที่สุดในโลกของลิลลี่!', cup: true },
