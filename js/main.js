@@ -28,6 +28,24 @@ go('home');
 // iOS ปลดล็อกเสียงได้เฉพาะตอนผู้ใช้แตะจริงเท่านั้น (และต้องปลุกใหม่หลังสลับแอป)
 document.addEventListener('pointerdown', unlockAudio);
 
+/* กันซูม — เด็กแตะรัวๆ แล้ว Safari ซูมหน้าเข้า (double-tap zoom) หรือสองนิ้วบีบ
+   - gesture* = pinch ของ Safari
+   - แตะครั้งที่สองภายใน 350 ms ใกล้จุดเดิม: ยกเลิก default (ซูม) แล้วยิง click ให้เอง ปุ่มจะได้ยังกดติดเหมือนเดิม */
+['gesturestart', 'gesturechange', 'gestureend'].forEach((name) => document.addEventListener(name, (e) => e.preventDefault(), { passive: false }));
+document.addEventListener('touchstart', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+let lastTap = { at: 0, x: 0, y: 0 };
+document.addEventListener('touchend', (e) => {
+  if (e.touches.length) return;
+  const touch = e.changedTouches[0];
+  const now = Date.now();
+  const quick = now - lastTap.at < 350 && Math.hypot(touch.clientX - lastTap.x, touch.clientY - lastTap.y) < 40;
+  lastTap = { at: now, x: touch.clientX, y: touch.clientY };
+  if (!quick || e.cancelable === false) return;
+  e.preventDefault();
+  const target = document.elementFromPoint(touch.clientX, touch.clientY);
+  target?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: touch.clientX, clientY: touch.clientY }));
+}, { passive: false });
+
 if ('serviceWorker' in navigator) {
   // ติดตั้งครั้งแรก: เกมต้องโหลดรูปกับเสียงทั้งหมด (~30 MB) ไว้ก่อน ให้เห็นแถบความคืบหน้าแทนความเงียบ
   // ตอนอัปเดตรุ่นใหม่ไม่โชว์ เพราะรุ่นเก่ายังเล่นได้ระหว่างโหลด
