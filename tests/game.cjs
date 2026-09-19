@@ -323,7 +323,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v31'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v32'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();
@@ -332,6 +332,21 @@ const { pathToFileURL } = require('node:url');
     await page.locator('#practice').waitFor();
     assert.equal(await page.evaluate(async () => Promise.all(['seal', 'turtle', 'rabbit'].map(async id => { const img = new Image(); img.src = `/assets/friends/${id}.png`; await img.decode(); return img.naturalWidth > 0; })).then(results => results.every(Boolean))), true);
     assert.equal(await page.evaluate(async () => Promise.all(['seal', 'turtle', 'rabbit'].map(async id => { const img = new Image(); img.src = `/assets/friends/${id}.png`; await img.decode(); const canvas = document.createElement('canvas'); canvas.width = img.naturalWidth; canvas.height = img.naturalHeight; canvas.getContext('2d').drawImage(img, 0, 0); return canvas.getContext('2d').getImageData(0, 0, 1, 1).data[3] === 0; })).then(results => results.every(Boolean))), true);
+    // เสียงพูดที่อัดไว้: ประโยคที่ประกอบสดต้องต่อจากคลิปย่อยได้ (offline อยู่ = คลิปมาจาก cache ของ service worker)
+    const clips = await page.evaluate(async () => {
+      const audio = await import('/js/audio.js');
+      await new Promise((resolve) => { const tick = () => (audio.clipsFor('1', 'th-TH') && audio.clipsFor('cat', 'en-US') ? resolve() : setTimeout(tick, 100)); tick(); });
+      return {
+        math: audio.clipsFor('46 บวก 37 เท่ากับ 83', 'th-TH')?.length,
+        balloons: audio.clipsFor('แตกไป 10 ลูกแล้ว เก่งมาก', 'th-TH')?.length,
+        whole: audio.clipsFor('แตะลูกโป่งให้แตก', 'th-TH')?.length,
+        english: audio.clipsFor('Stand up', 'en-US')?.length,
+        unknown: audio.clipsFor('ฅฆฑฒ zzqx', 'th-TH')
+      };
+    });
+    assert.deepEqual(clips, { math: 5, balloons: 3, whole: 1, english: 1, unknown: null });
+    const clipUrl = await page.evaluate(async () => (await import('/js/audio.js')).clipsFor('เก่งมาก', 'th-TH')[0]);
+    assert.equal((await page.evaluate(async (file) => (await fetch(`/assets/voice/${file}`)).status, clipUrl)), 200, 'voice clips are cached for offline play');
     await context.setOffline(false);
     assert.deepEqual(errors, [], 'no uncaught browser errors');
     console.log('PASS responsive views, original saved data after reload, and offline app/new lessons/artwork.');

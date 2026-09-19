@@ -1,5 +1,5 @@
 import { go } from '../router.js';
-import { sfx, speak } from '../audio.js';
+import { sfx, speak, stopSpeech } from '../audio.js';
 import { miniUnlocked } from '../rewards.js';
 import { mount as coloring } from '../mini/coloring.js';
 import { mount as garden } from '../mini/garden.js';
@@ -113,7 +113,7 @@ export function showMini(root, { id, fromLevelId }) {
     document.removeEventListener('visibilitychange', resetClock);
     disposeMini?.();
     child.remove();
-    window.speechSynthesis?.cancel();
+    stopSpeech();
   }
   function finish() {
     if (ended) return;

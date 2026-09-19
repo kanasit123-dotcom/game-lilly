@@ -1,4 +1,4 @@
-import { setReplay } from './audio.js';
+import { setReplay, stopSpeech } from './audio.js';
 
 const routes = new Map();
 let root = null;
@@ -14,7 +14,7 @@ export function go(name, params = {}) {
   const previous = cleanup;
   cleanup = null;
   previous?.();
-  window.speechSynthesis?.cancel();
+  stopSpeech();
   setReplay(null);
   root.innerHTML = '';
   cleanup = render(root, params) || null;

@@ -99,11 +99,107 @@ let seq = 0;
    - iOS/Chrome: เรียก speak() ติดกับ cancel() ทันที ประโยคใหม่หายเงียบ → หน่วงนิดหนึ่งก่อนพูด
    - Chrome ค้างสถานะ paused หลังพูดไปสักพัก → resume() ก่อนทุกครั้ง
    - รายชื่อเสียงยังโหลดไม่เสร็จตอนแตะครั้งแรก → ไม่หา voice เจอก็ยังพูดโดยตั้ง lang ให้เครื่องเลือกเอง */
+/* ---- เสียงพูดที่อัดไว้ล่วงหน้า (design/voice.py → assets/voice/<th|en>/) ----
+   เสียงในเครื่อง (iOS Kanya) ไม่ชัด เลยอัดทุกข้อความด้วยเสียง Microsoft Neural แล้วเล่นผ่าน Web Audio
+   ตัวเดียวกับเอฟเฟกต์ (ถ้าใช้ <audio> แยก iOS จะสลับโหมดเสียงแล้วเอฟเฟกต์เงียบ)
+   ประโยคที่ประกอบสด เช่น "5 บวก 3 เท่ากับ 8" หรือ "ทำแพนเค้ก" ต่อจากคลิปย่อย:
+   ไล่จากซ้ายไปขวา จับคู่คำที่ยาวที่สุดในคลัง (คำตัวเดียวจับได้เฉพาะเมื่อมีช่องว่าง/จบคำ)
+   ถ้าต่อไม่ครบทั้งประโยคจะถอยไปใช้เสียงในเครื่องเหมือนเดิม */
+const VOICE = { th: null, en: null };        // manifest: ข้อความ → ชื่อไฟล์
+const VOICE_INDEX = { th: null, en: null };  // ตัวอักษรแรก → คำที่ขึ้นต้นด้วยตัวนั้น (ยาวก่อน)
+const buffers = new Map();
+let playing = null;
+for (const lang of ['th', 'en']) {
+  fetch(`assets/voice/${lang}/manifest.json`).then((r) => r.json()).then((manifest) => {
+    VOICE[lang] = manifest;
+    const index = new Map();
+    for (const key of Object.keys(manifest)) {
+      const first = key[0];
+      if (!index.has(first)) index.set(first, []);
+      index.get(first).push(key);
+    }
+    index.forEach((list) => list.sort((a, b) => b.length - a.length));
+    VOICE_INDEX[lang] = index;
+  }).catch(() => {});
+}
+const SKIP = /[\s,.!?:;·()"“”‘’…\-]/;
+const isBoundary = (text, at) => at >= text.length || SKIP.test(text[at]) || (/[฀-๿]/.test(text[at - 1] || '') !== /[฀-๿]/.test(text[at]));
+
+export function clipsFor(text, lang = 'th-TH') {
+  const code = lang.startsWith('en') ? 'en' : 'th';
+  const manifest = VOICE[code];
+  const index = VOICE_INDEX[code];
+  if (!manifest || !index) return null;
+  const normalized = code === 'en' ? String(text).toLowerCase() : String(text);
+  if (manifest[normalized.trim()]) return [`${code}/${manifest[normalized.trim()]}`];
+  const files = [];
+  let i = 0;
+  while (i < normalized.length) {
+    if (SKIP.test(normalized[i])) { i++; continue; }
+    const candidates = index.get(normalized[i]) || [];
+    const key = candidates.find((k) => normalized.startsWith(k, i) && (k.length > 1 || isBoundary(normalized, i + k.length)) && (code === 'th' || isBoundary(normalized, i + k.length)));
+    if (!key) return null;
+    files.push(`${code}/${manifest[key]}`);
+    i += key.length;
+  }
+  return files.length ? files : null;
+}
+
+function clipBuffer(file) {
+  if (buffers.has(file)) return buffers.get(file);
+  const promise = fetch(`assets/voice/${file}`).then((r) => r.arrayBuffer()).then((bytes) => new Promise((resolve, reject) => {
+    const result = ctx.decodeAudioData(bytes, resolve, reject);   // iOS เก่าใช้แบบ callback
+    if (result?.then) result.then(resolve, reject);
+  })).catch((error) => { buffers.delete(file); throw error; });
+  buffers.set(file, promise);
+  return promise;
+}
+
+function stopClips() {
+  if (playing) { try { playing.stop(); } catch {} playing = null; }
+}
+
+/* หยุดเสียงพูดทุกแบบ (คลิปที่อัดไว้ + เสียงในเครื่อง) — ใช้ตอนเปลี่ยนหน้า/ปิดเสียง */
+export function stopSpeech() {
+  seq++;
+  stopClips();
+  window.speechSynthesis?.cancel();
+}
+
+// คืน true เมื่อเล่นจบ (หรือถูกแทรก) / false เมื่อเล่นไม่ได้ ให้ไปใช้เสียงในเครื่อง
+async function playClips(files, my) {
+  if (!ctx) return false;
+  for (const file of files) {
+    if (my !== seq) return true;
+    let buffer;
+    try { buffer = await clipBuffer(file); } catch { return false; }
+    if (my !== seq) return true;
+    if (ctx.state !== 'running') { try { await ctx.resume(); } catch {} }
+    await new Promise((resolve) => {
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      const guard = setTimeout(resolve, buffer.duration * 1000 + 500);
+      source.onended = () => { clearTimeout(guard); resolve(); };
+      playing = source;
+      source.start();
+    });
+  }
+  return true;
+}
+
 export function speak(text, lang = 'th-TH') {
   if (!text || !soundEnabled() || !('speechSynthesis' in window)) return Promise.resolve();
   if (!voices.length) refreshVoices();
   const my = ++seq;
   speechSynthesis.cancel();
+  stopClips();
+  const files = clipsFor(text, lang);
+  if (files && ctx) return playClips(files, my).then((ok) => (ok ? undefined : synthesize(text, lang, my)));
+  return synthesize(text, lang, my);
+}
+
+function synthesize(text, lang, my) {
   return new Promise((resolve) => {
     const u = new SpeechSynthesisUtterance(String(text));
     const voice = findVoice(lang);

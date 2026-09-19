@@ -1,7 +1,7 @@
 import { go } from '../router.js';
 import { LEVELS, SUBJECTS } from '../levels.js';
 import { getStars, getPlays, totalStars, resetAll, getMini, setMini } from '../state.js';
-import { sfx } from '../audio.js';
+import { sfx, stopSpeech } from '../audio.js';
 
 /* หน้าสำหรับผู้ปกครอง: ดูว่าลูกเล่นอะไรไปแล้ว เก่งตรงไหน ควรฝึกตรงไหน
    ปุ่มล้างข้อมูลต้องกดค้าง 2 วินาที กันเด็กเผลอกด */
@@ -149,7 +149,7 @@ export function showSummary(root) {
   el.querySelector('#home').onclick = () => { sfx.tap(); go('home'); };
   el.querySelector('#sound-setting').onchange = e => {
     setMini('preferences', { ...getMini('preferences'), sound: e.target.checked });
-    if (!e.target.checked) window.speechSynthesis?.cancel();
+    if (!e.target.checked) stopSpeech();
   };
   el.querySelector('#motion-setting').onchange = e => {
     setMini('preferences', { ...getMini('preferences'), motion: e.target.checked });
