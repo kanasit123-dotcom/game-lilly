@@ -134,6 +134,7 @@ const MATH_WORDS = {
 export function spokenForm(text, lang = 'th-TH') {
   const words = MATH_WORDS[lang.startsWith('en') ? 'en' : 'th'];
   return String(text)
+    .replace(/[๐-๙]/g, (digit) => String(digit.charCodeAt(0) - 0x0e50))   // เลขไทย → อารบิก (คลิปตัวเลขมีชุดเดียว)
     .replace(/(\d)\s*-\s*(?=\d)/g, '$1 − ')
     .replace(/[+−=×÷]/g, (symbol) => ` ${words[symbol]} `)
     .replace(/\s+/g, ' ').trim();
@@ -202,7 +203,7 @@ async function playClips(files, my) {
   try { clips = await Promise.all(files.map(clipBuffer)); } catch { return false; }   // โหลดทุกคำก่อน จะได้ต่อกันไม่สะดุด
   if (my !== seq) return true;
   if (ctx.state !== 'running') { try { await ctx.resume(); } catch {} }
-  const gap = files.length > 1 ? 0.09 : 0;   // เว้นระหว่างคำนิดเดียว
+  const gap = files.length > 1 ? 0.06 : 0;   // เว้นระหว่างคำนิดเดียว
   let at = ctx.currentTime + 0.02;
   const sources = clips.map((clip) => {
     const source = ctx.createBufferSource();

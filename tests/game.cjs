@@ -323,7 +323,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v34'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v35'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();
@@ -344,10 +344,12 @@ const { pathToFileURL } = require('node:url');
         symbols: audio.clipsFor('หลักหน่วย 46 + 37 = ?', 'th-TH')?.length,   // อ่านว่า "หลักหน่วย สี่สิบหก บวก สามสิบเจ็ด เท่ากับ"
         subtract: audio.spokenForm('9 - 3 = ?', 'th-TH'),
         symbolsEn: audio.clipsFor('2 + 3 = 5', 'en-US')?.length,
+        story: audio.clipsFor('ลิลลี่มีแอปเปิ้ล 5 ลูก แม่ให้อีก 2 ลูก รวมกันมีกี่ลูก?', 'th-TH')?.length,   // วลียาว 5 ชิ้น ไม่ใช่ทีละคำ
+        thaiDigits: audio.clipsFor('๕ + ๒ = ?', 'th-TH')?.length,
         unknown: audio.clipsFor('ฅฆฑฒ zzqx', 'th-TH')
       };
     });
-    assert.deepEqual(clips, { math: 5, balloons: 3, whole: 1, english: 1, symbols: 5, subtract: '9 ลบ 3 เท่ากับ ?', symbolsEn: 5, unknown: null });
+    assert.deepEqual(clips, { math: 5, balloons: 3, whole: 1, english: 1, symbols: 5, subtract: '9 ลบ 3 เท่ากับ ?', symbolsEn: 5, story: 5, thaiDigits: 4, unknown: null });
     const clipUrl = await page.evaluate(async () => (await import('/js/audio.js')).clipsFor('เก่งมาก', 'th-TH')[0]);
     assert.equal((await page.evaluate(async (file) => (await fetch(`/assets/voice/${file}`)).status, clipUrl)), 200, 'voice clips are cached for offline play');
     await context.setOffline(false);

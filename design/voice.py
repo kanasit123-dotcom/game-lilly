@@ -53,6 +53,16 @@ def collect():
                     en.add(text.strip('.,!? '))
     th.update(str(n) for n in range(0, 101))
     en.update(str(n) for n in range(0, 21))
+    # โจทย์ปัญหา (js/games/quiz.js wordProblem): อัดเป็นวลียาวๆ ให้ประโยคที่ต่อกันฟังลื่น
+    # "ลิลลี่มีแอปเปิ้ล" + "5 ลูก" + "แม่ให้อีก" + "2 ลูก" + "รวมกันมีกี่ลูก"
+    quiz = (ROOT / 'js' / 'games' / 'quiz.js').read_text(encoding='utf-8')
+    story = re.findall(r"n: '([^']+)', cl: '([^']+)'", quiz)
+    for name, classifier in story:
+        th.add(f'ลิลลี่มี{name}')
+        th.add(f'รวมกันมีกี่{classifier}')
+        th.add(f'เหลือกี่{classifier}')
+        th.update(f'{n} {classifier}' for n in range(1, 10))
+    th.update(['แม่ให้อีก', 'ให้เพื่อนไป'])
     # คำอ่านเครื่องหมายเลขคณิต (audio.js spokenForm)
     th.update(['บวก', 'ลบ', 'เท่ากับ', 'คูณ', 'หาร'])
     en.update(['plus', 'minus', 'equals', 'times', 'divided by'])
@@ -92,6 +102,12 @@ async def render(lang, texts):
                 await asyncio.sleep(2)
         if i % 50 == 0:
             print(f'  {i}/{len(todo)}')
+    # บางข้อความ TTS ไม่ยอมอ่าน (ตัวอักษรเดี่ยวหายาก) ได้ไฟล์ว่าง → ตัดออกจาก manifest ให้เกมใช้เสียงเครื่องแทน
+    for key, name in list(manifest.items()):
+        if (out / name).exists() and (out / name).stat().st_size < 2000:
+            (out / name).unlink()
+            del manifest[key]
+            print('  no audio, skipped:', key)
     (out / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=0), encoding='utf-8')
     keep = set(manifest.values()) | {'manifest.json'}
     for f in out.iterdir():
