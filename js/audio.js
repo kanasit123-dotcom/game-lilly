@@ -159,12 +159,27 @@ export function clipsFor(text, lang = 'th-TH') {
   return files.length ? files : null;
 }
 
+/* ตัดความเงียบหัวท้ายคลิป — ไฟล์จาก TTS มีช่วงเงียบราว 0.3–0.5 วิ ทั้งสองข้าง
+   พอต่อคำเป็นประโยค ("สอง บวก สี่ เท่ากับ") จะได้ไม่เว้นวรรคยาวจนเด็กรอ */
+function trimmed(buffer) {
+  const data = buffer.getChannelData(0);
+  const threshold = 0.012;
+  let start = 0;
+  let end = data.length - 1;
+  while (start < end && Math.abs(data[start]) < threshold) start++;
+  while (end > start && Math.abs(data[end]) < threshold) end--;
+  const pad = Math.round(buffer.sampleRate * 0.04);   // เหลือลมหายใจนิดหน่อยให้ฟังเป็นธรรมชาติ
+  const from = Math.max(0, start - pad) / buffer.sampleRate;
+  const to = Math.min(data.length, end + pad) / buffer.sampleRate;
+  return { buffer, offset: from, duration: Math.max(0.05, to - from) };
+}
+
 function clipBuffer(file) {
   if (buffers.has(file)) return buffers.get(file);
   const promise = fetch(`assets/voice/${file}`).then((r) => r.arrayBuffer()).then((bytes) => new Promise((resolve, reject) => {
     const result = ctx.decodeAudioData(bytes, resolve, reject);   // iOS เก่าใช้แบบ callback
     if (result?.then) result.then(resolve, reject);
-  })).catch((error) => { buffers.delete(file); throw error; });
+  })).then(trimmed).catch((error) => { buffers.delete(file); throw error; });
   buffers.set(file, promise);
   return promise;
 }
@@ -183,22 +198,26 @@ export function stopSpeech() {
 // คืน true เมื่อเล่นจบ (หรือถูกแทรก) / false เมื่อเล่นไม่ได้ ให้ไปใช้เสียงในเครื่อง
 async function playClips(files, my) {
   if (!ctx) return false;
-  for (const file of files) {
-    if (my !== seq) return true;
-    let buffer;
-    try { buffer = await clipBuffer(file); } catch { return false; }
-    if (my !== seq) return true;
-    if (ctx.state !== 'running') { try { await ctx.resume(); } catch {} }
-    await new Promise((resolve) => {
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(ctx.destination);
-      const guard = setTimeout(resolve, buffer.duration * 1000 + 500);
-      source.onended = () => { clearTimeout(guard); resolve(); };
-      playing = source;
-      source.start();
-    });
-  }
+  let clips;
+  try { clips = await Promise.all(files.map(clipBuffer)); } catch { return false; }   // โหลดทุกคำก่อน จะได้ต่อกันไม่สะดุด
+  if (my !== seq) return true;
+  if (ctx.state !== 'running') { try { await ctx.resume(); } catch {} }
+  const gap = files.length > 1 ? 0.09 : 0;   // เว้นระหว่างคำนิดเดียว
+  let at = ctx.currentTime + 0.02;
+  const sources = clips.map((clip) => {
+    const source = ctx.createBufferSource();
+    source.buffer = clip.buffer;
+    source.connect(ctx.destination);
+    source.start(at, clip.offset, clip.duration);
+    at += clip.duration + gap;
+    return source;
+  });
+  playing = { stop() { sources.forEach((source) => { try { source.stop(); } catch {} }); } };
+  const last = sources[sources.length - 1];
+  await new Promise((resolve) => {
+    const guard = setTimeout(resolve, (at - ctx.currentTime) * 1000 + 300);
+    last.onended = () => { clearTimeout(guard); resolve(); };
+  });
   return true;
 }
 
