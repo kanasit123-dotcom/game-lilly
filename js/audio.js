@@ -125,12 +125,26 @@ for (const lang of ['th', 'en']) {
 const SKIP = /[\s,.!?:;·()"“”‘’…\-]/;
 const isBoundary = (text, at) => at >= text.length || SKIP.test(text[at]) || (/[฀-๿]/.test(text[at - 1] || '') !== /[฀-๿]/.test(text[at]));
 
+/* เครื่องหมายเลขคณิตอ่านเป็นคำ: "4 + 5 = ?" → "4 บวก 5 เท่ากับ" (เด็กจะได้ยินว่าบวกหรือลบ)
+   ขีดกลางเป็น "ลบ" เฉพาะเมื่ออยู่ระหว่างตัวเลข (ในบทเรียนไทยใช้ขีดแทนตำแหน่งสระ เช่น "เ-") */
+const MATH_WORDS = {
+  th: { '+': 'บวก', '−': 'ลบ', '=': 'เท่ากับ', '×': 'คูณ', '÷': 'หาร' },
+  en: { '+': 'plus', '−': 'minus', '=': 'equals', '×': 'times', '÷': 'divided by' }
+};
+export function spokenForm(text, lang = 'th-TH') {
+  const words = MATH_WORDS[lang.startsWith('en') ? 'en' : 'th'];
+  return String(text)
+    .replace(/(\d)\s*-\s*(?=\d)/g, '$1 − ')
+    .replace(/[+−=×÷]/g, (symbol) => ` ${words[symbol]} `)
+    .replace(/\s+/g, ' ').trim();
+}
+
 export function clipsFor(text, lang = 'th-TH') {
   const code = lang.startsWith('en') ? 'en' : 'th';
   const manifest = VOICE[code];
   const index = VOICE_INDEX[code];
   if (!manifest || !index) return null;
-  const normalized = code === 'en' ? String(text).toLowerCase() : String(text);
+  const normalized = code === 'en' ? spokenForm(text, lang).toLowerCase() : spokenForm(text, lang);
   if (manifest[normalized.trim()]) return [`${code}/${manifest[normalized.trim()]}`];
   const files = [];
   let i = 0;
@@ -201,7 +215,7 @@ export function speak(text, lang = 'th-TH') {
 
 function synthesize(text, lang, my) {
   return new Promise((resolve) => {
-    const u = new SpeechSynthesisUtterance(String(text));
+    const u = new SpeechSynthesisUtterance(spokenForm(text, lang));
     const voice = findVoice(lang);
     if (voice) u.voice = voice;
     u.lang = voice?.lang || lang;

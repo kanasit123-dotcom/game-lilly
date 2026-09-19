@@ -1,4 +1,4 @@
-const CACHE = 'lilly-world-v32';
+const CACHE = 'lilly-world-v33';
 
 const SHELL = [
   './',
@@ -141,6 +141,7 @@ const SHELL = [
   'assets/voice/th/147679a338.mp3',
   'assets/voice/th/149a3ac841.mp3',
   'assets/voice/th/14bfa6bb14.mp3',
+  'assets/voice/th/14e2e01fd6.mp3',
   'assets/voice/th/1509a02205.mp3',
   'assets/voice/th/1512443afe.mp3',
   'assets/voice/th/1520fd7033.mp3',
@@ -613,6 +614,7 @@ const SHELL = [
   'assets/voice/th/63b6da8b24.mp3',
   'assets/voice/th/63bed40025.mp3',
   'assets/voice/th/63f11c3936.mp3',
+  'assets/voice/th/63fa54bce6.mp3',
   'assets/voice/th/642966699d.mp3',
   'assets/voice/th/642e92efb7.mp3',
   'assets/voice/th/645a9d7f5e.mp3',
@@ -1278,6 +1280,7 @@ const SHELL = [
   'assets/voice/th/d8a7f2f73a.mp3',
   'assets/voice/th/d8d56b67af.mp3',
   'assets/voice/th/d8e8391b26.mp3',
+  'assets/voice/th/d936034b8a.mp3',
   'assets/voice/th/d94b95d480.mp3',
   'assets/voice/th/d96107911e.mp3',
   'assets/voice/th/d98a4b14e8.mp3',
@@ -1499,6 +1502,7 @@ const SHELL = [
   'assets/voice/en/04a75036e9.mp3',
   'assets/voice/en/05531b19bb.mp3',
   'assets/voice/en/07cc694b9b.mp3',
+  'assets/voice/en/0854df9ba6.mp3',
   'assets/voice/en/0ac72dd43f.mp3',
   'assets/voice/en/0bc693aeef.mp3',
   'assets/voice/en/0cc175b9c0.mp3',
@@ -1620,6 +1624,7 @@ const SHELL = [
   'assets/voice/en/50a02d628e.mp3',
   'assets/voice/en/50f8b6c98b.mp3',
   'assets/voice/en/519add13fd.mp3',
+  'assets/voice/en/51c3f59625.mp3',
   'assets/voice/en/5275cb415e.mp3',
   'assets/voice/en/536515b971.mp3',
   'assets/voice/en/539125fdf8.mp3',
@@ -1830,12 +1835,14 @@ const SHELL = [
   'assets/voice/en/d508fe45ce.mp3',
   'assets/voice/en/d5ca322453.mp3',
   'assets/voice/en/d6e505bf28.mp3',
+  'assets/voice/en/d7d18cfb3a.mp3',
   'assets/voice/en/d8735f7489.mp3',
   'assets/voice/en/d89e2ddb53.mp3',
   'assets/voice/en/d8ff99616f.mp3',
   'assets/voice/en/d9e16f0b6c.mp3',
   'assets/voice/en/da6776e7ec.mp3',
   'assets/voice/en/da89e38d20.mp3',
+  'assets/voice/en/dabe6e597b.mp3',
   'assets/voice/en/daffd55e1b.mp3',
   'assets/voice/en/dba7b12a19.mp3',
   'assets/voice/en/dc1d71bbb5.mp3',
@@ -1883,6 +1890,7 @@ const SHELL = [
   'assets/voice/en/f175e09ccd.mp3',
   'assets/voice/en/f19bd0844e.mp3',
   'assets/voice/en/f1bdf5ed1d.mp3',
+  'assets/voice/en/f2b798f672.mp3',
   'assets/voice/en/f308b61632.mp3',
   'assets/voice/en/f36f41709f.mp3',
   'assets/voice/en/f379cfd7a5.mp3',
@@ -1997,12 +2005,21 @@ const SHELL = [
   'icons/icon-180.png',
 ];
 
+// โหลดทีละชุด แล้วบอกหน้าเว็บว่าไปถึงไหน (หน้าเว็บโชว์แถบ "กำลังเตรียม" ตอนติดตั้งครั้งแรก — ไฟล์เสียง ~28 MB)
+async function tell(done) {
+  const clients = await self.clients.matchAll({ includeUncontrolled: true });
+  clients.forEach((client) => client.postMessage({ type: 'install-progress', done, total: SHELL.length }));
+}
 self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE)
-      .then((c) => c.addAll(SHELL))
-      .then(() => self.skipWaiting())
-  );
+  e.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    const size = 25;
+    for (let i = 0; i < SHELL.length; i += size) {
+      await cache.addAll(SHELL.slice(i, i + size));
+      await tell(Math.min(i + size, SHELL.length));
+    }
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (e) => {

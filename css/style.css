@@ -2573,3 +2573,11 @@ body {
     max-height: 48px;
   }
 }
+
+/* แถบเตรียมไฟล์ตอนเปิดเกมครั้งแรก (js/main.js) */
+.first-load { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: rgba(255, 250, 235, .92); padding: 24px; }
+.first-load-card { width: min(420px, 100%); background: #fff; border-radius: 24px; padding: 24px; box-shadow: 0 12px 30px rgba(0,0,0,.12); text-align: center; font-family: var(--font-th); }
+.first-load-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 14px; }
+.first-load-bar { height: 22px; border-radius: 11px; background: #eef2f5; overflow: hidden; }
+.first-load-bar i { display: block; height: 100%; width: 0; border-radius: 11px; background: linear-gradient(90deg, var(--green), var(--blue)); transition: width .3s ease; }
+.first-load-note { margin-top: 12px; font-size: .95rem; color: #666; }

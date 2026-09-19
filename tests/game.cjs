@@ -323,7 +323,7 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v32'));
+    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v33'));
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();
@@ -341,10 +341,13 @@ const { pathToFileURL } = require('node:url');
         balloons: audio.clipsFor('แตกไป 10 ลูกแล้ว เก่งมาก', 'th-TH')?.length,
         whole: audio.clipsFor('แตะลูกโป่งให้แตก', 'th-TH')?.length,
         english: audio.clipsFor('Stand up', 'en-US')?.length,
+        symbols: audio.clipsFor('หลักหน่วย 46 + 37 = ?', 'th-TH')?.length,   // อ่านว่า "หลักหน่วย สี่สิบหก บวก สามสิบเจ็ด เท่ากับ"
+        subtract: audio.spokenForm('9 - 3 = ?', 'th-TH'),
+        symbolsEn: audio.clipsFor('2 + 3 = 5', 'en-US')?.length,
         unknown: audio.clipsFor('ฅฆฑฒ zzqx', 'th-TH')
       };
     });
-    assert.deepEqual(clips, { math: 5, balloons: 3, whole: 1, english: 1, unknown: null });
+    assert.deepEqual(clips, { math: 5, balloons: 3, whole: 1, english: 1, symbols: 5, subtract: '9 ลบ 3 เท่ากับ ?', symbolsEn: 5, unknown: null });
     const clipUrl = await page.evaluate(async () => (await import('/js/audio.js')).clipsFor('เก่งมาก', 'th-TH')[0]);
     assert.equal((await page.evaluate(async (file) => (await fetch(`/assets/voice/${file}`)).status, clipUrl)), 200, 'voice clips are cached for offline play');
     await context.setOffline(false);

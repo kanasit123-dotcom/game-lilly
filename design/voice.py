@@ -53,6 +53,9 @@ def collect():
                     en.add(text.strip('.,!? '))
     th.update(str(n) for n in range(0, 101))
     en.update(str(n) for n in range(0, 21))
+    # คำอ่านเครื่องหมายเลขคณิต (audio.js spokenForm)
+    th.update(['บวก', 'ลบ', 'เท่ากับ', 'คูณ', 'หาร'])
+    en.update(['plus', 'minus', 'equals', 'times', 'divided by'])
     return {'th': sorted(t for t in th if t), 'en': sorted(t for t in en if t)}
 
 
