@@ -46,6 +46,14 @@ const MINIS = {
   deepfish: { title: 'หย่อนเบ็ดลึก', emoji: '🎣', mount: deepfish },
 };
 
+/* ร้านอาหารอยู่ในเกมครัว (repo happy-little-kitchen ดู RESTAURANT-MATH-PLAN.md ที่นั่น) เปิดในแท็บเดิม
+   แล้วปุ่มกลับในร้านพามาที่หน้านี้ — ไม่แชร์หรือเขียนทับเซฟของโลกของลิลลี่ */
+export function kitchenShopUrl() {
+  const local = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+  const base = local ? `${location.protocol}//${location.hostname}:5174/` : `${location.origin}/happy-little-kitchen/`;
+  return `${base}?mode=restaurant&return=${encodeURIComponent(`${location.origin}${location.pathname}`)}`;
+}
+
 /* สวนพักเล่น: ปุ่มรูปใหญ่ๆ อันละเกม แตะแล้วเล่นเลย อันที่ยังไม่ปลดล็อกเป็นสีเทามีแม่กุญแจ */
 export function showPlayroom(root) {
   const el = document.createElement('div');
@@ -54,6 +62,10 @@ export function showPlayroom(root) {
     ${topBar('พักเล่น')}
     <div class="summary-body">
       <div class="playroom-grid">
+        <button class="playroom-item shop-link" id="restaurant" data-href="${kitchenShopUrl()}" aria-label="ร้านอาหาร">
+          <span class="tile-icon">🏪</span>
+          <b>ร้านอาหาร</b>
+        </button>
         ${Object.entries(MINIS).map(([id, mini]) => ({ id, mini, unlocked: mini.always || miniUnlocked(id), reward: REWARDS.find((r) => r.id === id) }))
           // เกมที่เล่นได้อยู่บนสุด ที่ล็อกอยู่เรียงตามดาวที่ต้องใช้ เด็กจะได้เห็นว่าอันไหนใกล้ได้
           .sort((a, b) => (b.unlocked - a.unlocked) || ((a.reward?.stars || 0) - (b.reward?.stars || 0)))
@@ -67,6 +79,11 @@ export function showPlayroom(root) {
     </div>`;
   root.appendChild(el);
   bindTopBar(el);
+  el.querySelector('#restaurant').onclick = (event) => {
+    sfx.tap();
+    stopSpeech();
+    location.assign(event.currentTarget.dataset.href);
+  };
   el.querySelectorAll('[data-mini]').forEach((button) => {
     button.onclick = () => {
       if (button.classList.contains('locked')) {

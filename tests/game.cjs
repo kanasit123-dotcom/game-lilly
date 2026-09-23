@@ -131,6 +131,10 @@ const { pathToFileURL } = require('node:url');
     console.log(`PASS ${fresh.length} new lessons completed; scores and first-attempt counts verified.`);
 
     await page.locator('#break').click();
+    // ร้านอาหาร (เกมครัว) เปิดได้เสมอ และส่งที่อยู่กลับมาหน้านี้
+    const shopHref = await page.locator('.playroom-item.shop-link').getAttribute('data-href');
+    assert.ok(shopHref.startsWith('http://127.0.0.1:5174/?mode=restaurant&return='), shopHref);
+    assert.equal(decodeURIComponent(shopHref.split('return=')[1]), `${new URL(page.url()).origin}/`);
     await page.locator('.playroom-item[data-mini="harvest"]').click();
     for (let i = 0; i < 5; i++) await page.locator('.harvest-plant').nth(i).click();
     await page.locator('#return-lesson').waitFor();
@@ -323,7 +327,8 @@ const { pathToFileURL } = require('node:url');
     assert.equal(saved.mini.preferences.sound, false);
     await page.evaluate(() => navigator.serviceWorker.ready);
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    assert.ok((await page.evaluate(() => caches.keys())).includes('lilly-world-v36'));
+    const cacheName = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8').match(/const CACHE = '([^']+)'/)[1];   // ตามเวอร์ชันใน sw.js
+    assert.ok((await page.evaluate(() => caches.keys())).includes(cacheName), cacheName);
     await context.setOffline(true);
     await page.reload();
     await page.locator('.home-friends').waitFor();

@@ -53,6 +53,10 @@ Rule: Lilly cannot read yet. Every screen must work by pictures + sound alone.
 - Completing all 3 awards one sticker (`mini.stickers[YYYY-MM-DD]`), shown as a popup on the result screen and on the `calendar` route (month grid, ◀ ▶ navigation). Home shows the mission card with ✓ marks; the map pins undone mission levels with 📌; the result screen's big button becomes "ภารกิจต่อไป" while a mission level was just played.
 - No penalty for skipping days; nothing is locked.
 
+## Restaurant launcher (2026-09-23, cache v37)
+
+The playroom has an always-open "🏪 ร้านอาหาร" tile that opens the kitchen game's shop in the same tab (`kitchenShopUrl()` in `js/screens/mini.js`: `/happy-little-kitchen/?mode=restaurant&return=<this page>`, or `http://127.0.0.1:5174/` when running locally). The restaurant, its saves and its tests live in the `happy-little-kitchen` repo (`RESTAURANT-MATH-PLAN.md` there); nothing here reads or writes the shop data. The kitchen only returns to URLs under `/game-lilly/` (whitelist). Still to check on the real iPad: if Lilly is installed to the home screen, the kitchen opened from here may run with separate storage from the kitchen opened directly.
+
 ## Hand-off 2026-09-19 (live v35)
 
 Speech moved from device TTS to recorded neural clips in one session (v32–v35): recorded Thai (Premwadee) + English (Ana), math symbols read as words, first-install progress overlay, silence trimming, word-problem phrase chunks, unspeakable clips dropped. `tests/game.cjs` passes locally (it cannot run against the live URL — absolute `/js/…` imports). Game is now ~34 MB; a first install takes 1–2 min on WiFi. Open: the user has not yet said whether they like the Ana English voice (alternative: Jenny), and other runtime-composed sentences (colours, picture names, numbers) still stitch word by word — add phrase chunks in `design/voice.py` when one is reported as choppy.
