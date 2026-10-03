@@ -16,13 +16,38 @@ if ('speechSynthesis' in window) {
   speechSynthesis.addEventListener('voiceschanged', refreshVoices);
 }
 
+/* iPad/iPhone ที่เปิดเกมจากไอคอนบนหน้าจอโฮม (iOS 18-26): พับแอปแล้วกลับมา AudioContext ยังบอกว่า running
+   แต่เงียบและนาฬิกาเสียงไม่เดิน resume() ก็ไม่ช่วย (WebKit bug 291892, 263627; ผู้ปกครองเจอ 2026-10-03 ว่าเกมนี้เงียบบน iPad
+   แต่เกมทำครัวมีเสียง) — ทางแก้: ทิ้งตัวเก่าแล้วสร้างใหม่ตอนแตะครั้งถัดไป */
+let stale = false;   // แอปเคยถูกพับไปพื้นหลัง หรือคลิปเล่นแล้วนาฬิกาไม่เดิน
+let clock = null;    // { time, at } เวลาเสียงตอนแตะครั้งล่าสุด ไว้ดูว่านาฬิกาเสียงเดินจริงไหม
+const wallClock = () => (window.performance?.now ? performance.now() : Date.now());
+
+function clockStuck() {
+  if (!ctx || ctx.state !== 'running' || !clock) return false;
+  return wallClock() - clock.at > 400 && ctx.currentTime - clock.time < 0.05;
+}
+
+function freshContext() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  const old = ctx;
+  ctx = new AC();
+  stale = false;
+  clock = null;
+  noiseBuf = null;
+  if (old) { try { old.close(); } catch {} }
+}
+
+/** แอปถูกพับไปพื้นหลัง: แตะครั้งถัดไปจะสร้างระบบเสียงใหม่ */
+export function markAudioStale() { stale = true; }
+
 /** ต้องเรียกจาก event ที่ผู้ใช้แตะ (ข้อจำกัดของ iOS) เรียกซ้ำได้ทุกครั้งที่แตะ
-    เพราะ iOS จะพัก AudioContext เมื่อสลับแอปหรือล็อกจอ กลับมาแล้วเสียงเอฟเฟกต์เงียบจนกว่าจะ resume */
+    iOS นับเฉพาะ touchend/click/pointerup เป็นการแตะที่ปลดล็อกเสียงได้ (pointerdown อย่างเดียวไม่พอ) — main.js ฟังทุกแบบ
+    และ iOS จะพัก AudioContext เมื่อสลับแอปหรือล็อกจอ กลับมาแล้วต้อง resume หรือสร้างใหม่ */
 export function unlockAudio() {
   if (!unlocked) {
     unlocked = true;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (AC) ctx = new AC();
     if ('speechSynthesis' in window) {
       const u = new SpeechSynthesisUtterance(' ');
       u.volume = 0;
@@ -30,7 +55,17 @@ export function unlockAudio() {
       refreshVoices();
     }
   }
-  if (ctx?.state === 'suspended') ctx.resume();
+  try {
+    if (!ctx || stale || ctx.state === 'closed' || ctx.state === 'interrupted' || clockStuck()) freshContext();
+    if (!ctx) return;
+    if (ctx.state !== 'running') ctx.resume()?.catch?.(() => {});
+    // เล่นเสียงเงียบสั้นๆ ระหว่างแตะ ให้ iOS ปลดล็อกเสียงแน่นอน
+    const silent = ctx.createBufferSource();
+    silent.buffer = ctx.createBuffer(1, 1, 22050);
+    silent.connect(ctx.destination);
+    silent.start(0);
+    clock = { time: ctx.currentTime, at: wallClock() };
+  } catch {}
 }
 
 function tone(freq, at, dur, { type = 'sine', gain = 0.16 } = {}) {
@@ -202,23 +237,42 @@ async function playClips(files, my) {
   let clips;
   try { clips = await Promise.all(files.map(clipBuffer)); } catch { return false; }   // โหลดทุกคำก่อน จะได้ต่อกันไม่สะดุด
   if (my !== seq) return true;
-  if (ctx.state !== 'running') { try { await ctx.resume(); } catch {} }
+  // resume() บน iOS อาจค้างไม่จบถ้าไม่ได้เรียกจากการแตะ — รอได้ไม่เกิน 1.5 วิ แล้วไปใช้เสียงในเครื่องแทน
+  if (ctx.state !== 'running') {
+    await Promise.race([Promise.resolve(ctx.resume()).catch(() => {}), new Promise((r) => setTimeout(r, 1500))]);
+  }
+  if (my !== seq) return true;
+  if (ctx.state !== 'running') return false;
+  const playCtx = ctx;
+  const startedAt = playCtx.currentTime;
   const gap = files.length > 1 ? 0.06 : 0;   // เว้นระหว่างคำนิดเดียว
-  let at = ctx.currentTime + 0.02;
+  let at = playCtx.currentTime + 0.02;
   const sources = clips.map((clip) => {
-    const source = ctx.createBufferSource();
+    const source = playCtx.createBufferSource();
     source.buffer = clip.buffer;
-    source.connect(ctx.destination);
+    source.connect(playCtx.destination);
     source.start(at, clip.offset, clip.duration);
     at += clip.duration + gap;
     return source;
   });
-  playing = { stop() { sources.forEach((source) => { try { source.stop(); } catch {} }); } };
+  const stopAll = () => sources.forEach((source) => { try { source.stop(); } catch {} });
+  playing = { stop: stopAll };
   const last = sources[sources.length - 1];
-  await new Promise((resolve) => {
-    const guard = setTimeout(resolve, (at - ctx.currentTime) * 1000 + 300);
-    last.onended = () => { clearTimeout(guard); resolve(); };
+  const outcome = await new Promise((resolve) => {
+    const guard = setTimeout(() => resolve('done'), (at - playCtx.currentTime) * 1000 + 300);
+    // นาฬิกาเสียงไม่เดิน = iOS เงียบทั้งที่บอกว่า running: หยุดคลิปแล้วให้ speak() อ่านด้วยเสียงในเครื่องแทน
+    const check = setTimeout(() => {
+      if (my === seq && playCtx.currentTime - startedAt < 0.05) { clearTimeout(guard); resolve('stuck'); }
+    }, 700);
+    last.onended = () => { clearTimeout(guard); clearTimeout(check); resolve('done'); };
   });
+  if (outcome === 'stuck') {
+    stale = true;
+    last.onended = null;
+    stopAll();
+    if (playing?.stop === stopAll) playing = null;
+    return false;
+  }
   return true;
 }
 

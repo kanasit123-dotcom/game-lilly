@@ -21,7 +21,7 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v31`. Bump the version for the next deployed release when shell files change.
+- Service worker cache is currently `lilly-world-v38`. Bump the version for the next deployed release when shell files change.
 - Mini-games are finite by default: they finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level. The `writing` mini-game is the one exception and has no countdown because handwriting practice should not interrupt Lilly mid-letter.
 
 ## Character Art
@@ -140,3 +140,9 @@ The previous visual redesign (header nav, dashboard stats, text-only level list,
 - Do not commit `tests/screenshots/` or `design/review/`; both are intentionally ignored.
 - Work with existing code and styles rather than introducing a framework or build system.
 - Keep every child-facing screen picture-first with spoken guidance; no stats, tables or text lists for the child (those belong on the parent page only).
+
+## iPad sound fix (2026-10-03, cache v38)
+
+The parent found this game and the exam game silent on the iPad while the kitchen game had sound. Two causes, both fixed in `js/audio.js` + `js/main.js` (same approach as little-exam-adventure `src/core/audio.js`):
+- Audio was unlocked only on `pointerdown`, which iOS does not count as a gesture that may start sound. `main.js` now unlocks on pointerdown, pointerup, touchend, click and keydown (capture, passive), and `unlockAudio()` plays a one-sample silent buffer.
+- Home-screen web apps on iOS 18-26 can keep the AudioContext "running" with a stopped clock after returning from the background (WebKit bugs 291892, 263627). The page marks the context stale when hidden; the next tap closes it and builds a new one (also when a tap finds the clock stopped). `playClips()` waits at most 1.5 s for `resume()` and checks 700 ms after starting whether the clock moved; if not it stops the clips and `speak()` falls back to the device voice.

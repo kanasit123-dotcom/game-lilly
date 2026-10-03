@@ -7,7 +7,7 @@ import { showSummary } from './screens/summary.js';
 import { showRewards } from './screens/rewards.js';
 import { showMini, showPlayroom } from './screens/mini.js';
 import { showCalendar } from './screens/calendar.js';
-import { unlockAudio } from './audio.js';
+import { unlockAudio, markAudioStale, stopSpeech } from './audio.js';
 import { getMini } from './state.js';
 
 setRoot(document.getElementById('app'));
@@ -25,8 +25,11 @@ register('calendar', showCalendar);
 
 go('home');
 
-// iOS ปลดล็อกเสียงได้เฉพาะตอนผู้ใช้แตะจริงเท่านั้น (และต้องปลุกใหม่หลังสลับแอป)
-document.addEventListener('pointerdown', unlockAudio);
+// iOS ปลดล็อกเสียงได้เฉพาะตอนผู้ใช้แตะจริงเท่านั้น และนับเฉพาะ touchend/click/pointerup (pointerdown อย่างเดียวบน iPad ไม่พอ)
+// พับแอปแล้วกลับมา: แตะครั้งถัดไปสร้างระบบเสียงใหม่ (iPad ที่เปิดจากไอคอนบนหน้าจอโฮมทำให้ตัวเก่าเงียบ ดู audio.js)
+['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'].forEach((type) => window.addEventListener(type, unlockAudio, { capture: true, passive: true }));
+document.addEventListener('visibilitychange', () => { if (document.hidden) { stopSpeech(); markAudioStale(); } });
+window.addEventListener('pagehide', markAudioStale);
 
 /* กันซูม — เด็กแตะรัวๆ แล้ว Safari ซูมหน้าเข้า (double-tap zoom) หรือสองนิ้วบีบ
    - gesture* = pinch ของ Safari
