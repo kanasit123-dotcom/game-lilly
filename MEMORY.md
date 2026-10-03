@@ -21,7 +21,7 @@ Latest completed commit before this memory: see `git log`
 - Newer content includes family terms, Thai vowels/final consonants, English, arithmetic, place value, patterns, feelings, routines, and nature.
 - Existing saved progress is stored under localStorage key `lilly-world-v1`; preserve its shape and old level IDs.
 - The app is a static JavaScript PWA with no build step.
-- Service worker cache is currently `lilly-world-v38`. Bump the version for the next deployed release when shell files change.
+- Service worker cache is currently `lilly-world-v39`. Bump the version for the next deployed release when shell files change.
 - Mini-games are finite by default: they finish by goal or after `BREAK_SECONDS` (180 s) and offer the next level. The `writing` mini-game is the one exception and has no countdown because handwriting practice should not interrupt Lilly mid-letter.
 
 ## Character Art
@@ -146,3 +146,4 @@ The previous visual redesign (header nav, dashboard stats, text-only level list,
 The parent found this game and the exam game silent on the iPad while the kitchen game had sound. Two causes, both fixed in `js/audio.js` + `js/main.js` (same approach as little-exam-adventure `src/core/audio.js`):
 - Audio was unlocked only on `pointerdown`, which iOS does not count as a gesture that may start sound. `main.js` now unlocks on pointerdown, pointerup, touchend, click and keydown (capture, passive), and `unlockAudio()` plays a one-sample silent buffer.
 - Home-screen web apps on iOS 18-26 can keep the AudioContext "running" with a stopped clock after returning from the background (WebKit bugs 291892, 263627). The page marks the context stale when hidden; the next tap closes it and builds a new one (also when a tap finds the clock stopped). `playClips()` waits at most 1.5 s for `resume()` and checks 700 ms after starting whether the clock moved; if not it stops the clips and `speak()` falls back to the device voice.
+- v39 (same day): the parent narrowed it down — after a fresh load there is sound, but with Safari left open, locking the screen and coming back is silent; a reload brings sound back. `main.js` therefore checks on the first tap after the page was hidden (`checkAudioClock(800)` in `audio.js`) whether the rebuilt context really runs; if not it reloads the page once (at most once a minute, `sessionStorage` key `lilly-audio-reload-at`), but never while a level or mini-game is open (`currentRoute()` in `router.js`): there the device voice covers speech until the child is back on another screen.

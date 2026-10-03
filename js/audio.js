@@ -42,6 +42,17 @@ function freshContext() {
 /** แอปถูกพับไปพื้นหลัง: แตะครั้งถัดไปจะสร้างระบบเสียงใหม่ */
 export function markAudioStale() { stale = true; }
 
+/** รอ ms แล้วดูว่านาฬิกาเสียงเดินจริงไหม (ใช้หลังกลับจากล็อกจอ) — true = เสียงใช้ได้ */
+export function checkAudioClock(ms = 800) {
+  const c = ctx;
+  const start = c ? c.currentTime : 0;
+  return new Promise((resolve) => setTimeout(() => {
+    if (!ctx) { resolve(false); return; }
+    const from = ctx === c ? start : 0;
+    resolve(ctx.state === 'running' && ctx.currentTime - from > ms / 4000);
+  }, ms));
+}
+
 /** ต้องเรียกจาก event ที่ผู้ใช้แตะ (ข้อจำกัดของ iOS) เรียกซ้ำได้ทุกครั้งที่แตะ
     iOS นับเฉพาะ touchend/click/pointerup เป็นการแตะที่ปลดล็อกเสียงได้ (pointerdown อย่างเดียวไม่พอ) — main.js ฟังทุกแบบ
     และ iOS จะพัก AudioContext เมื่อสลับแอปหรือล็อกจอ กลับมาแล้วต้อง resume หรือสร้างใหม่ */

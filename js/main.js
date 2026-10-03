@@ -1,4 +1,4 @@
-import { setRoot, register, go } from './router.js';
+import { setRoot, register, go, currentRoute } from './router.js';
 import { showHome } from './screens/home.js';
 import { showMap } from './screens/map.js';
 import { showGame } from './screens/game.js';
@@ -7,7 +7,7 @@ import { showSummary } from './screens/summary.js';
 import { showRewards } from './screens/rewards.js';
 import { showMini, showPlayroom } from './screens/mini.js';
 import { showCalendar } from './screens/calendar.js';
-import { unlockAudio, markAudioStale, stopSpeech } from './audio.js';
+import { unlockAudio, markAudioStale, stopSpeech, checkAudioClock } from './audio.js';
 import { getMini } from './state.js';
 
 setRoot(document.getElementById('app'));
@@ -27,8 +27,29 @@ go('home');
 
 // iOS ปลดล็อกเสียงได้เฉพาะตอนผู้ใช้แตะจริงเท่านั้น และนับเฉพาะ touchend/click/pointerup (pointerdown อย่างเดียวบน iPad ไม่พอ)
 // พับแอปแล้วกลับมา: แตะครั้งถัดไปสร้างระบบเสียงใหม่ (iPad ที่เปิดจากไอคอนบนหน้าจอโฮมทำให้ตัวเก่าเงียบ ดู audio.js)
-['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'].forEach((type) => window.addEventListener(type, unlockAudio, { capture: true, passive: true }));
-document.addEventListener('visibilitychange', () => { if (document.hidden) { stopSpeech(); markAudioStale(); } });
+// ถ้าสร้างใหม่แล้วยังเงียบ (ผู้ปกครองเจอ 2026-10-03: ล็อกจอแล้วกลับมาเงียบ รีเฟรชแล้วมีเสียง) รีเฟรชหน้าให้เอง
+// แต่ไม่รีเฟรชระหว่างเล่นด่าน/มินิเกม (ความคืบหน้าในด่านยังไม่ได้บันทึก) — รอจนกลับไปหน้าอื่นแล้วแตะ ระหว่างนั้นใช้เสียงเครื่องอ่านแทน
+// รีเฟรชได้ไม่เกินครั้งละ 1 นาที กันวนซ้ำ
+let returned = false;
+let checking = false;
+function afterReturnTap() {
+  if (!returned || checking || getMini('preferences')?.sound === false) return;
+  if (['game', 'mini'].includes(currentRoute())) return;
+  checking = true;
+  checkAudioClock(800).then((ok) => {
+    checking = false;
+    if (['game', 'mini'].includes(currentRoute())) return;   // เพิ่งเข้าด่านระหว่างรอ: ไว้เช็คใหม่ทีหลัง
+    returned = false;
+    if (ok) return;
+    let last = 0;
+    try { last = Number(sessionStorage.getItem('lilly-audio-reload-at') || 0); } catch {}
+    if (Date.now() - last < 60000) return;
+    try { sessionStorage.setItem('lilly-audio-reload-at', String(Date.now())); } catch { return; }
+    window.location.reload();
+  });
+}
+['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'].forEach((type) => window.addEventListener(type, () => { unlockAudio(); afterReturnTap(); }, { capture: true, passive: true }));
+document.addEventListener('visibilitychange', () => { if (document.hidden) { stopSpeech(); markAudioStale(); returned = true; } });
 window.addEventListener('pagehide', markAudioStale);
 
 /* กันซูม — เด็กแตะรัวๆ แล้ว Safari ซูมหน้าเข้า (double-tap zoom) หรือสองนิ้วบีบ
